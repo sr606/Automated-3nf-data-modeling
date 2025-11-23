@@ -1,0 +1,41 @@
+course_id,course_name,provider_id,provider_name,provider_contact,duration_hours,cost,category
+COURSE001,Training Course 1,PROV02,Training Provider 2,contact2@training.com,4,1244.09,Soft Skills
+COURSE002,Training Course 2,PROV03,Training Provider 3,contact3@training.com,16,1856.97,Leadership
+COURSE003,Training Course 3,PROV04,Training Provider 4,contact4@training.com,24,1532.04,Soft Skills
+COURSE004,Training Course 4,PROV05,Training Provider 5,contact5@training.com,4,752.56,Soft Skills
+COURSE005,Training Course 5,PROV06,Training Provider 6,contact6@training.com,40,749.13,Soft Skills
+COURSE006,Training Course 6,PROV07,Training Provider 7,contact7@training.com,40,365.09,Soft Skills
+COURSE007,Training Course 7,PROV08,Training Provider 8,contact8@training.com,24,255.31,Leadership
+COURSE008,Training Course 8,PROV09,Training Provider 9,contact9@training.com,4,1981.96,Technical
+COURSE009,Training Course 9,PROV10,Training Provider 10,contact10@training.com,40,297.25,Technical
+COURSE010,Training Course 10,PROV01,Training Provider 1,contact1@training.com,16,1875.56,Soft Skills
+COURSE011,Training Course 11,PROV02,Training Provider 2,contact2@training.com,8,1399.62,Compliance
+COURSE012,Training Course 12,PROV03,Training Provider 3,contact3@training.com,24,322.15,Compliance
+COURSE013,Training Course 13,PROV04,Training Provider 4,contact4@training.com,40,1880.16,Leadership
+COURSE014,Training Course 14,PROV05,Training Provider 5,contact5@training.com,8,1196.34,Leadership
+COURSE015,Training Course 15,PROV06,Training Provider 6,contact6@training.com,4,529.05,Leadership
+COURSE016,Training Course 16,PROV07,Training Provider 7,contact7@training.com,8,1685.26,Soft Skills
+COURSE017,Training Course 17,PROV08,Training Provider 8,contact8@training.com,4,1797.05,Technical
+COURSE018,Training Course 18,PROV09,Training Provider 9,contact9@training.com,24,374.28,Technical
+COURSE019,Training Course 19,PROV10,Training Provider 10,contact10@training.com,16,559.48,Leadership
+COURSE020,Training Course 20,PROV01,Training Provider 1,contact1@training.com,16,1667.94,Technical
+COURSE021,Training Course 21,PROV02,Training Provider 2,contact2@training.com,8,144.66,Technical
+COURSE022,Training Course 22,PROV03,Training Provider 3,contact3@training.com,16,330.04,Soft Skills
+COURSE023,Training Course 23,PROV04,Training Provider 4,contact4@training.com,4,227.34,Leadership
+COURSE024,Training Course 24,PROV05,Training Provider 5,contact5@training.com,4,901.64,Compliance
+COURSE025,Training Course 25,PROV06,Training Provider 6,contact6@training.com,24,120.08,Compliance
+COURSE026,Training Course 26,PROV07,Training Provider 7,contact7@training.com,16,836.72,Soft Skills
+COURSE027,Training Course 27,PROV08,Training Provider 8,contact8@training.com,16,914.2,Leadership
+COURSE028,Training Course 28,PROV09,Training Provider 9,contact9@training.com,40,1227.34,Leadership
+COURSE029,Training Course 29,PROV10,Training Provider 10,contact10@training.com,4,1049.99,Compliance
+COURSE030,Training Course 30,PROV01,Training Provider 1,contact1@training.com,4,585.99,Leadership
+COURSE031,Training Course 31,PROV02,Training Provider 2,contact2@training.com,24,1530.54,Technical
+COURSE032,Training Course 32,PROV03,Training Provider 3,contact3@training.com,24,1408.32,Compliance
+COURSE033,Training Course 33,PROV04,Training Provider 4,contact4@training.com,24,1989.81,Leadership
+COURSE034,Training Course 34,PROV05,Training Provider 5,contact5@training.com,4,1929.26,Technical
+COURSE035,Training Course 35,PROV06,Training Provider 6,contact6@training.com,24,579.1,Technical
+COURSE036,Training Course 36,PROV07,Training Provider 7,contact7@training.com,4,566.24,Technical
+COURSE037,Training Course 37,PROV08,Training Provider 8,contact8@training.com,24,821.72,Compliance
+COURSE038,Training Course 38,PROV09,Training Provider 9,contact9@training.com,8,1246.86,Leadership
+COURSE039,Training Course 39,PROV10,Training Provider 10,contact10@training.com,4,713.46,Leadership
+COURSE040,Training Course 40,PROV01,Training Provider 1,contact1@training.com,8,1266.06,Technical

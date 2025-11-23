@@ -1,0 +1,301 @@
+student_id,first_name,last_name,email,date_of_birth,enrollment_date,major_id,major_name,department,gpa,address,city,state
+STU000001,Student1,Last1,student1@university.edu,1997-12-19,2022-11-25,MAJOR002,Music,Humanities,3.26,9433 Campus Dr,Ann Arbor,CA
+STU000002,Student2,Last2,student2@university.edu,2002-03-09,2023-11-16,MAJOR003,Psychology,Humanities,3.1,6844 Campus Dr,Chapel Hill,CA
+STU000003,Student3,Last3,student3@university.edu,2002-01-28,2023-08-24,MAJOR004,History,Engineering,3.13,7223 Campus Dr,Chapel Hill,WI
+STU000004,Student4,Last4,student4@university.edu,1996-05-11,2023-06-23,MAJOR005,History,Engineering,2.14,9294 Campus Dr,Ann Arbor,NC
+STU000005,Student5,Last5,student5@university.edu,2005-08-24,2025-05-06,MAJOR006,Mathematics,Engineering,2.71,844 Campus Dr,Ann Arbor,WI
+STU000006,Student6,Last6,student6@university.edu,1999-09-19,2023-07-25,MAJOR007,Biology,Engineering,2.5,1564 Campus Dr,Madison,CA
+STU000007,Student7,Last7,student7@university.edu,1998-01-25,2024-08-22,MAJOR008,Music,Arts,2.03,630 Campus Dr,Cambridge,MI
+STU000008,Student8,Last8,student8@university.edu,1996-01-16,2023-11-17,MAJOR009,Mathematics,Engineering,3.52,3604 Campus Dr,Cambridge,NC
+STU000009,Student9,Last9,student9@university.edu,1997-03-20,2023-02-11,MAJOR010,Biology,Science,3.35,1728 Campus Dr,Chapel Hill,NC
+STU000010,Student10,Last10,student10@university.edu,1997-02-14,2025-03-18,MAJOR011,Music,Arts,3.68,1865 Campus Dr,Ann Arbor,MI
+STU000011,Student11,Last11,student11@university.edu,1997-02-18,2022-01-16,MAJOR012,Engineering,Science,3.7,2452 Campus Dr,Ann Arbor,CA
+STU000012,Student12,Last12,student12@university.edu,2004-10-21,2023-09-19,MAJOR013,Psychology,Engineering,2.64,1047 Campus Dr,Ann Arbor,MI
+STU000013,Student13,Last13,student13@university.edu,2007-03-18,2022-12-22,MAJOR014,Computer Science,Humanities,3.17,9120 Campus Dr,Cambridge,WI
+STU000014,Student14,Last14,student14@university.edu,1996-10-14,2023-07-26,MAJOR015,History,Arts,3.04,7936 Campus Dr,Cambridge,MI
+STU000015,Student15,Last15,student15@university.edu,1999-06-12,2025-04-09,MAJOR016,Mathematics,Arts,2.03,4721 Campus Dr,Cambridge,WI
+STU000016,Student16,Last16,student16@university.edu,2002-12-25,2022-01-20,MAJOR017,Computer Science,Science,2.06,1402 Campus Dr,Ann Arbor,MA
+STU000017,Student17,Last17,student17@university.edu,2000-11-22,2024-12-07,MAJOR018,Music,Engineering,3.24,3803 Campus Dr,Berkeley,NC
+STU000018,Student18,Last18,student18@university.edu,2001-09-04,2025-03-22,MAJOR019,History,Humanities,3.13,6862 Campus Dr,Ann Arbor,MI
+STU000019,Student19,Last19,student19@university.edu,1998-08-23,2023-08-24,MAJOR020,Engineering,Humanities,3.24,3289 Campus Dr,Ann Arbor,CA
+STU000020,Student20,Last20,student20@university.edu,1996-03-16,2022-06-03,MAJOR001,Mathematics,Arts,2.29,2642 Campus Dr,Chapel Hill,MI
+STU000021,Student21,Last21,student21@university.edu,1998-11-05,2025-07-03,MAJOR002,Computer Science,Arts,2.25,712 Campus Dr,Cambridge,MA
+STU000022,Student22,Last22,student22@university.edu,2001-06-23,2025-08-07,MAJOR003,English,Business,3.49,7499 Campus Dr,Berkeley,MA
+STU000023,Student23,Last23,student23@university.edu,1999-11-07,2025-05-17,MAJOR004,English,Humanities,3.13,812 Campus Dr,Ann Arbor,CA
+STU000024,Student24,Last24,student24@university.edu,1996-04-29,2022-04-16,MAJOR005,Engineering,Humanities,3.77,296 Campus Dr,Ann Arbor,CA
+STU000025,Student25,Last25,student25@university.edu,1998-08-27,2023-07-24,MAJOR006,Mathematics,Science,3.42,1980 Campus Dr,Cambridge,MA
+STU000026,Student26,Last26,student26@university.edu,2005-01-22,2023-01-30,MAJOR007,Art,Humanities,2.59,4612 Campus Dr,Chapel Hill,WI
+STU000027,Student27,Last27,student27@university.edu,2007-02-27,2022-07-18,MAJOR008,Art,Business,3.6,6920 Campus Dr,Berkeley,MI
+STU000028,Student28,Last28,student28@university.edu,2004-10-04,2023-02-28,MAJOR009,Mathematics,Humanities,2.65,9138 Campus Dr,Ann Arbor,MI
+STU000029,Student29,Last29,student29@university.edu,2001-02-12,2024-12-11,MAJOR010,Computer Science,Arts,2.32,4352 Campus Dr,Madison,MA
+STU000030,Student30,Last30,student30@university.edu,2002-04-13,2022-10-22,MAJOR011,Art,Business,2.38,1255 Campus Dr,Cambridge,NC
+STU000031,Student31,Last31,student31@university.edu,2002-08-25,2023-03-24,MAJOR012,Business,Engineering,2.73,3808 Campus Dr,Berkeley,CA
+STU000032,Student32,Last32,student32@university.edu,1995-12-16,2025-08-22,MAJOR013,Engineering,Business,3.36,9720 Campus Dr,Berkeley,MI
+STU000033,Student33,Last33,student33@university.edu,2005-03-09,2022-06-06,MAJOR014,Biology,Humanities,2.82,6378 Campus Dr,Berkeley,CA
+STU000034,Student34,Last34,student34@university.edu,2001-12-30,2023-04-09,MAJOR015,Business,Humanities,3.14,2133 Campus Dr,Berkeley,WI
+STU000035,Student35,Last35,student35@university.edu,2005-02-07,2024-01-19,MAJOR016,Mathematics,Humanities,2.29,5077 Campus Dr,Chapel Hill,NC
+STU000036,Student36,Last36,student36@university.edu,2003-03-04,2024-03-12,MAJOR017,Business,Science,2.44,1386 Campus Dr,Ann Arbor,CA
+STU000037,Student37,Last37,student37@university.edu,2003-06-21,2025-06-05,MAJOR018,Art,Science,2.22,9313 Campus Dr,Berkeley,MI
+STU000038,Student38,Last38,student38@university.edu,2007-09-11,2023-11-25,MAJOR019,Business,Arts,2.31,1997 Campus Dr,Chapel Hill,WI
+STU000039,Student39,Last39,student39@university.edu,2007-11-11,2024-01-30,MAJOR020,Psychology,Business,2.08,6017 Campus Dr,Chapel Hill,CA
+STU000040,Student40,Last40,student40@university.edu,2001-09-30,2025-07-20,MAJOR001,Mathematics,Business,2.2,8346 Campus Dr,Chapel Hill,WI
+STU000041,Student41,Last41,student41@university.edu,2003-02-21,2025-06-06,MAJOR002,Computer Science,Arts,2.21,5894 Campus Dr,Chapel Hill,MI
+STU000042,Student42,Last42,student42@university.edu,2000-11-07,2023-02-28,MAJOR003,Engineering,Arts,2.92,7839 Campus Dr,Madison,MI
+STU000043,Student43,Last43,student43@university.edu,2006-09-08,2023-04-08,MAJOR004,Psychology,Science,2.44,7468 Campus Dr,Ann Arbor,MI
+STU000044,Student44,Last44,student44@university.edu,1996-02-18,2023-04-18,MAJOR005,Computer Science,Humanities,3.89,4145 Campus Dr,Madison,CA
+STU000045,Student45,Last45,student45@university.edu,2002-10-13,2023-08-12,MAJOR006,Music,Engineering,2.18,6727 Campus Dr,Ann Arbor,CA
+STU000046,Student46,Last46,student46@university.edu,2007-10-25,2023-08-28,MAJOR007,Computer Science,Arts,2.34,7487 Campus Dr,Ann Arbor,MA
+STU000047,Student47,Last47,student47@university.edu,2006-06-12,2022-03-13,MAJOR008,Art,Science,2.7,6597 Campus Dr,Cambridge,CA
+STU000048,Student48,Last48,student48@university.edu,2007-02-06,2025-05-12,MAJOR009,Computer Science,Humanities,3.21,5544 Campus Dr,Ann Arbor,NC
+STU000049,Student49,Last49,student49@university.edu,2005-10-15,2024-11-20,MAJOR010,English,Arts,2.79,6465 Campus Dr,Ann Arbor,CA
+STU000050,Student50,Last50,student50@university.edu,2006-07-14,2024-03-29,MAJOR011,History,Engineering,3.9,6653 Campus Dr,Chapel Hill,WI
+STU000051,Student51,Last51,student51@university.edu,2001-03-05,2022-09-02,MAJOR012,Mathematics,Humanities,3.63,9781 Campus Dr,Ann Arbor,WI
+STU000052,Student52,Last52,student52@university.edu,2002-04-02,2022-12-02,MAJOR013,Business,Business,2.02,4137 Campus Dr,Chapel Hill,CA
+STU000053,Student53,Last53,student53@university.edu,2007-05-06,2025-07-08,MAJOR014,History,Business,2.01,1276 Campus Dr,Chapel Hill,NC
+STU000054,Student54,Last54,student54@university.edu,2002-12-08,2022-02-24,MAJOR015,History,Engineering,3.15,5178 Campus Dr,Madison,MA
+STU000055,Student55,Last55,student55@university.edu,2003-05-20,2025-08-11,MAJOR016,History,Humanities,2.21,1310 Campus Dr,Chapel Hill,CA
+STU000056,Student56,Last56,student56@university.edu,1998-06-03,2025-07-11,MAJOR017,Computer Science,Engineering,3.23,2888 Campus Dr,Berkeley,MI
+STU000057,Student57,Last57,student57@university.edu,2001-06-26,2024-03-03,MAJOR018,Business,Engineering,2.67,9797 Campus Dr,Chapel Hill,NC
+STU000058,Student58,Last58,student58@university.edu,2001-08-24,2024-07-17,MAJOR019,Biology,Arts,3.33,8603 Campus Dr,Ann Arbor,WI
+STU000059,Student59,Last59,student59@university.edu,1998-10-12,2023-11-24,MAJOR020,English,Arts,2.46,1884 Campus Dr,Chapel Hill,CA
+STU000060,Student60,Last60,student60@university.edu,2003-03-06,2024-07-03,MAJOR001,English,Arts,3.81,1007 Campus Dr,Ann Arbor,WI
+STU000061,Student61,Last61,student61@university.edu,2003-11-15,2023-08-30,MAJOR002,Mathematics,Engineering,2.43,6422 Campus Dr,Berkeley,WI
+STU000062,Student62,Last62,student62@university.edu,1997-03-14,2022-03-09,MAJOR003,History,Arts,2.21,7545 Campus Dr,Cambridge,WI
+STU000063,Student63,Last63,student63@university.edu,2001-02-08,2023-06-03,MAJOR004,Engineering,Engineering,3.01,2594 Campus Dr,Cambridge,WI
+STU000064,Student64,Last64,student64@university.edu,2000-02-01,2022-11-13,MAJOR005,Mathematics,Engineering,3.94,4091 Campus Dr,Madison,MA
+STU000065,Student65,Last65,student65@university.edu,1997-03-01,2022-02-14,MAJOR006,Mathematics,Humanities,2.91,1615 Campus Dr,Ann Arbor,CA
+STU000066,Student66,Last66,student66@university.edu,2002-07-01,2024-04-13,MAJOR007,Music,Arts,3.58,7990 Campus Dr,Madison,NC
+STU000067,Student67,Last67,student67@university.edu,1998-01-13,2025-08-18,MAJOR008,Mathematics,Science,2.73,9262 Campus Dr,Berkeley,NC
+STU000068,Student68,Last68,student68@university.edu,2002-10-11,2024-01-10,MAJOR009,History,Humanities,2.25,2089 Campus Dr,Chapel Hill,MA
+STU000069,Student69,Last69,student69@university.edu,2000-04-22,2025-09-05,MAJOR010,Mathematics,Humanities,3.11,3179 Campus Dr,Ann Arbor,MI
+STU000070,Student70,Last70,student70@university.edu,1999-02-04,2024-02-14,MAJOR011,Mathematics,Arts,3.64,8867 Campus Dr,Madison,NC
+STU000071,Student71,Last71,student71@university.edu,2007-07-25,2025-03-31,MAJOR012,Psychology,Engineering,2.72,180 Campus Dr,Cambridge,WI
+STU000072,Student72,Last72,student72@university.edu,2002-08-03,2024-05-30,MAJOR013,Engineering,Business,3.39,1722 Campus Dr,Madison,NC
+STU000073,Student73,Last73,student73@university.edu,1998-12-30,2022-07-19,MAJOR014,Engineering,Engineering,2.64,997 Campus Dr,Ann Arbor,CA
+STU000074,Student74,Last74,student74@university.edu,2004-01-07,2023-08-20,MAJOR015,Computer Science,Science,2.1,1414 Campus Dr,Berkeley,CA
+STU000075,Student75,Last75,student75@university.edu,2006-01-17,2023-12-26,MAJOR016,Mathematics,Science,2.83,9691 Campus Dr,Chapel Hill,MA
+STU000076,Student76,Last76,student76@university.edu,2002-02-16,2024-05-27,MAJOR017,Music,Humanities,2.16,1537 Campus Dr,Cambridge,CA
+STU000077,Student77,Last77,student77@university.edu,2006-11-10,2022-01-17,MAJOR018,Art,Humanities,2.28,3265 Campus Dr,Madison,MI
+STU000078,Student78,Last78,student78@university.edu,1999-06-29,2022-08-09,MAJOR019,Music,Science,3.53,9286 Campus Dr,Chapel Hill,NC
+STU000079,Student79,Last79,student79@university.edu,2005-01-16,2024-09-18,MAJOR020,Biology,Science,2.12,4399 Campus Dr,Madison,CA
+STU000080,Student80,Last80,student80@university.edu,1996-11-01,2022-01-10,MAJOR001,History,Arts,3.26,6861 Campus Dr,Ann Arbor,MI
+STU000081,Student81,Last81,student81@university.edu,1998-07-07,2025-06-04,MAJOR002,Music,Arts,2.25,1276 Campus Dr,Madison,WI
+STU000082,Student82,Last82,student82@university.edu,2004-11-09,2025-01-12,MAJOR003,Computer Science,Business,2.43,1437 Campus Dr,Madison,NC
+STU000083,Student83,Last83,student83@university.edu,2001-06-19,2025-02-19,MAJOR004,History,Business,2.13,3759 Campus Dr,Berkeley,MA
+STU000084,Student84,Last84,student84@university.edu,2003-08-29,2023-07-02,MAJOR005,Psychology,Science,3.38,7249 Campus Dr,Madison,MA
+STU000085,Student85,Last85,student85@university.edu,1998-05-31,2022-12-23,MAJOR006,Biology,Engineering,3.83,9783 Campus Dr,Berkeley,NC
+STU000086,Student86,Last86,student86@university.edu,1997-07-16,2023-05-20,MAJOR007,Psychology,Science,3.67,2514 Campus Dr,Cambridge,WI
+STU000087,Student87,Last87,student87@university.edu,2006-05-24,2022-08-12,MAJOR008,Biology,Arts,3.96,2392 Campus Dr,Madison,MA
+STU000088,Student88,Last88,student88@university.edu,1998-11-21,2023-04-09,MAJOR009,Business,Arts,2.76,9971 Campus Dr,Cambridge,NC
+STU000089,Student89,Last89,student89@university.edu,2002-01-29,2022-06-04,MAJOR010,Music,Humanities,2.64,2810 Campus Dr,Cambridge,MI
+STU000090,Student90,Last90,student90@university.edu,2003-10-06,2022-05-15,MAJOR011,Mathematics,Engineering,2.52,8623 Campus Dr,Ann Arbor,MA
+STU000091,Student91,Last91,student91@university.edu,1998-04-14,2022-10-11,MAJOR012,Mathematics,Humanities,2.23,2002 Campus Dr,Berkeley,MI
+STU000092,Student92,Last92,student92@university.edu,2002-12-02,2024-07-30,MAJOR013,Computer Science,Business,2.52,8615 Campus Dr,Berkeley,MI
+STU000093,Student93,Last93,student93@university.edu,1996-09-14,2023-02-18,MAJOR014,Business,Engineering,2.63,5797 Campus Dr,Madison,CA
+STU000094,Student94,Last94,student94@university.edu,1999-03-13,2021-11-25,MAJOR015,Engineering,Business,3.06,954 Campus Dr,Cambridge,MI
+STU000095,Student95,Last95,student95@university.edu,2005-09-18,2021-12-16,MAJOR016,Engineering,Science,3.43,4465 Campus Dr,Chapel Hill,MA
+STU000096,Student96,Last96,student96@university.edu,1997-06-01,2024-11-15,MAJOR017,Business,Business,2.36,6601 Campus Dr,Chapel Hill,CA
+STU000097,Student97,Last97,student97@university.edu,2003-01-22,2024-12-31,MAJOR018,Biology,Engineering,3.02,1287 Campus Dr,Madison,CA
+STU000098,Student98,Last98,student98@university.edu,2003-12-25,2022-04-30,MAJOR019,English,Engineering,3.32,9757 Campus Dr,Madison,NC
+STU000099,Student99,Last99,student99@university.edu,1997-05-28,2024-07-17,MAJOR020,History,Humanities,2.39,5981 Campus Dr,Chapel Hill,WI
+STU000100,Student100,Last100,student100@university.edu,2000-10-29,2023-11-16,MAJOR001,Business,Humanities,3.92,2492 Campus Dr,Ann Arbor,NC
+STU000101,Student101,Last101,student101@university.edu,2001-11-13,2021-12-28,MAJOR002,Business,Science,2.13,3648 Campus Dr,Chapel Hill,NC
+STU000102,Student102,Last102,student102@university.edu,2007-08-24,2024-08-04,MAJOR003,Art,Business,2.3,5918 Campus Dr,Chapel Hill,NC
+STU000103,Student103,Last103,student103@university.edu,1998-03-30,2025-03-26,MAJOR004,Business,Arts,2.73,9203 Campus Dr,Ann Arbor,MA
+STU000104,Student104,Last104,student104@university.edu,2003-04-23,2024-08-26,MAJOR005,Computer Science,Science,3.09,6022 Campus Dr,Chapel Hill,MA
+STU000105,Student105,Last105,student105@university.edu,2007-03-12,2022-12-20,MAJOR006,Engineering,Humanities,3.93,4240 Campus Dr,Madison,MA
+STU000106,Student106,Last106,student106@university.edu,1996-06-11,2023-03-15,MAJOR007,Biology,Arts,3.6,744 Campus Dr,Chapel Hill,WI
+STU000107,Student107,Last107,student107@university.edu,1996-02-22,2024-09-05,MAJOR008,Business,Arts,3.27,3860 Campus Dr,Chapel Hill,MI
+STU000108,Student108,Last108,student108@university.edu,2001-05-24,2022-10-06,MAJOR009,English,Arts,2.37,7832 Campus Dr,Cambridge,CA
+STU000109,Student109,Last109,student109@university.edu,2006-06-23,2022-05-11,MAJOR010,History,Science,3.1,2356 Campus Dr,Madison,NC
+STU000110,Student110,Last110,student110@university.edu,2002-03-25,2022-01-15,MAJOR011,Business,Business,3.36,2724 Campus Dr,Chapel Hill,WI
+STU000111,Student111,Last111,student111@university.edu,1998-04-09,2024-08-23,MAJOR012,Mathematics,Engineering,2.13,5461 Campus Dr,Ann Arbor,MI
+STU000112,Student112,Last112,student112@university.edu,2005-11-11,2021-12-24,MAJOR013,Computer Science,Science,3.91,1423 Campus Dr,Berkeley,WI
+STU000113,Student113,Last113,student113@university.edu,2005-05-03,2022-05-08,MAJOR014,Psychology,Humanities,3.54,2211 Campus Dr,Cambridge,NC
+STU000114,Student114,Last114,student114@university.edu,2004-01-13,2024-08-26,MAJOR015,Computer Science,Science,2.42,275 Campus Dr,Chapel Hill,MA
+STU000115,Student115,Last115,student115@university.edu,2005-01-07,2024-06-20,MAJOR016,English,Science,2.31,8766 Campus Dr,Cambridge,CA
+STU000116,Student116,Last116,student116@university.edu,2003-08-23,2022-01-23,MAJOR017,Psychology,Arts,3.75,4599 Campus Dr,Cambridge,NC
+STU000117,Student117,Last117,student117@university.edu,2000-06-28,2024-09-01,MAJOR018,Music,Science,3.96,9490 Campus Dr,Cambridge,WI
+STU000118,Student118,Last118,student118@university.edu,2007-03-28,2022-06-02,MAJOR019,Business,Business,3.42,3722 Campus Dr,Berkeley,NC
+STU000119,Student119,Last119,student119@university.edu,1998-05-08,2022-05-21,MAJOR020,Mathematics,Humanities,2.94,5106 Campus Dr,Berkeley,MA
+STU000120,Student120,Last120,student120@university.edu,2003-04-14,2025-10-23,MAJOR001,Psychology,Engineering,2.56,4240 Campus Dr,Berkeley,CA
+STU000121,Student121,Last121,student121@university.edu,1999-03-05,2025-04-05,MAJOR002,Mathematics,Business,2.53,7707 Campus Dr,Berkeley,CA
+STU000122,Student122,Last122,student122@university.edu,2001-06-19,2024-03-10,MAJOR003,English,Humanities,2.05,5493 Campus Dr,Berkeley,NC
+STU000123,Student123,Last123,student123@university.edu,1998-10-12,2024-02-20,MAJOR004,Engineering,Humanities,3.89,2884 Campus Dr,Madison,CA
+STU000124,Student124,Last124,student124@university.edu,2005-01-02,2024-02-28,MAJOR005,Business,Science,2.72,5307 Campus Dr,Berkeley,WI
+STU000125,Student125,Last125,student125@university.edu,1998-10-06,2022-05-14,MAJOR006,Music,Business,2.2,3297 Campus Dr,Berkeley,MI
+STU000126,Student126,Last126,student126@university.edu,2004-04-08,2023-12-17,MAJOR007,English,Arts,3.4,2764 Campus Dr,Cambridge,WI
+STU000127,Student127,Last127,student127@university.edu,2006-11-01,2023-12-31,MAJOR008,Art,Humanities,2.39,7571 Campus Dr,Chapel Hill,MI
+STU000128,Student128,Last128,student128@university.edu,2002-08-22,2023-11-09,MAJOR009,Psychology,Science,3.91,5114 Campus Dr,Chapel Hill,NC
+STU000129,Student129,Last129,student129@university.edu,2004-01-01,2023-11-29,MAJOR010,Biology,Humanities,2.73,1845 Campus Dr,Berkeley,CA
+STU000130,Student130,Last130,student130@university.edu,2000-07-08,2024-12-04,MAJOR011,English,Engineering,3.01,7233 Campus Dr,Cambridge,NC
+STU000131,Student131,Last131,student131@university.edu,1997-12-03,2022-10-09,MAJOR012,Art,Humanities,2.35,761 Campus Dr,Cambridge,CA
+STU000132,Student132,Last132,student132@university.edu,1997-12-05,2024-04-08,MAJOR013,Art,Humanities,2.04,3998 Campus Dr,Berkeley,MI
+STU000133,Student133,Last133,student133@university.edu,1999-11-13,2022-10-29,MAJOR014,Art,Science,3.41,9815 Campus Dr,Chapel Hill,CA
+STU000134,Student134,Last134,student134@university.edu,1998-03-24,2025-06-09,MAJOR015,Psychology,Arts,2.36,3707 Campus Dr,Ann Arbor,MI
+STU000135,Student135,Last135,student135@university.edu,2001-04-18,2022-02-10,MAJOR016,English,Humanities,3.76,840 Campus Dr,Ann Arbor,MI
+STU000136,Student136,Last136,student136@university.edu,1998-10-15,2023-05-02,MAJOR017,English,Business,2.99,1546 Campus Dr,Berkeley,MA
+STU000137,Student137,Last137,student137@university.edu,1997-11-02,2022-06-30,MAJOR018,Art,Arts,2.04,5104 Campus Dr,Ann Arbor,NC
+STU000138,Student138,Last138,student138@university.edu,1998-09-05,2025-01-06,MAJOR019,History,Engineering,2.65,1805 Campus Dr,Berkeley,NC
+STU000139,Student139,Last139,student139@university.edu,2007-11-25,2022-09-26,MAJOR020,Music,Engineering,3.94,9446 Campus Dr,Chapel Hill,CA
+STU000140,Student140,Last140,student140@university.edu,2005-06-19,2023-11-12,MAJOR001,Engineering,Arts,2.23,3460 Campus Dr,Cambridge,NC
+STU000141,Student141,Last141,student141@university.edu,1996-03-18,2022-06-25,MAJOR002,Mathematics,Science,2.02,8521 Campus Dr,Cambridge,MI
+STU000142,Student142,Last142,student142@university.edu,1997-08-17,2023-05-23,MAJOR003,Business,Arts,3.34,9566 Campus Dr,Madison,WI
+STU000143,Student143,Last143,student143@university.edu,2002-10-25,2025-10-11,MAJOR004,History,Engineering,2.78,1833 Campus Dr,Berkeley,MA
+STU000144,Student144,Last144,student144@university.edu,1997-03-01,2022-07-31,MAJOR005,Music,Arts,2.93,5479 Campus Dr,Chapel Hill,CA
+STU000145,Student145,Last145,student145@university.edu,2002-12-21,2024-08-19,MAJOR006,Art,Business,3.5,8604 Campus Dr,Ann Arbor,MA
+STU000146,Student146,Last146,student146@university.edu,1996-05-25,2023-10-08,MAJOR007,Art,Humanities,3.02,8497 Campus Dr,Berkeley,WI
+STU000147,Student147,Last147,student147@university.edu,2002-02-13,2024-07-02,MAJOR008,Music,Business,2.79,4076 Campus Dr,Berkeley,WI
+STU000148,Student148,Last148,student148@university.edu,2007-09-20,2022-03-14,MAJOR009,Computer Science,Business,2.47,9723 Campus Dr,Ann Arbor,WI
+STU000149,Student149,Last149,student149@university.edu,2001-03-31,2024-04-07,MAJOR010,English,Business,3.37,4239 Campus Dr,Ann Arbor,MI
+STU000150,Student150,Last150,student150@university.edu,2005-06-09,2025-07-29,MAJOR011,History,Business,3.16,2891 Campus Dr,Chapel Hill,MA
+STU000151,Student151,Last151,student151@university.edu,1999-04-07,2022-03-24,MAJOR012,English,Engineering,3.31,4977 Campus Dr,Chapel Hill,MI
+STU000152,Student152,Last152,student152@university.edu,2005-06-19,2021-12-14,MAJOR013,Mathematics,Science,3.87,4345 Campus Dr,Cambridge,MI
+STU000153,Student153,Last153,student153@university.edu,1996-05-08,2024-08-23,MAJOR014,Music,Humanities,2.66,9401 Campus Dr,Berkeley,NC
+STU000154,Student154,Last154,student154@university.edu,1998-04-15,2023-10-11,MAJOR015,Art,Engineering,2.9,3753 Campus Dr,Chapel Hill,MI
+STU000155,Student155,Last155,student155@university.edu,1998-07-26,2022-01-31,MAJOR016,Art,Science,2.76,8722 Campus Dr,Ann Arbor,MA
+STU000156,Student156,Last156,student156@university.edu,2001-01-13,2022-01-08,MAJOR017,Computer Science,Business,3.68,3549 Campus Dr,Berkeley,NC
+STU000157,Student157,Last157,student157@university.edu,2005-09-19,2021-12-19,MAJOR018,History,Business,3.91,1638 Campus Dr,Cambridge,MI
+STU000158,Student158,Last158,student158@university.edu,2007-05-04,2022-03-21,MAJOR019,Computer Science,Business,3.02,3670 Campus Dr,Chapel Hill,WI
+STU000159,Student159,Last159,student159@university.edu,2004-05-25,2024-12-25,MAJOR020,Biology,Arts,3.43,8309 Campus Dr,Ann Arbor,MI
+STU000160,Student160,Last160,student160@university.edu,2007-08-10,2024-06-29,MAJOR001,Biology,Business,3.16,9996 Campus Dr,Ann Arbor,MA
+STU000161,Student161,Last161,student161@university.edu,2000-06-10,2021-12-29,MAJOR002,Computer Science,Arts,2.45,2364 Campus Dr,Chapel Hill,MI
+STU000162,Student162,Last162,student162@university.edu,2003-07-11,2024-12-05,MAJOR003,History,Arts,2.63,5523 Campus Dr,Berkeley,MI
+STU000163,Student163,Last163,student163@university.edu,1997-10-22,2024-12-10,MAJOR004,Psychology,Humanities,3.38,3186 Campus Dr,Cambridge,MA
+STU000164,Student164,Last164,student164@university.edu,2002-05-27,2024-04-25,MAJOR005,History,Business,2.15,7044 Campus Dr,Madison,MI
+STU000165,Student165,Last165,student165@university.edu,2007-03-01,2022-07-15,MAJOR006,Biology,Engineering,2.63,5747 Campus Dr,Chapel Hill,CA
+STU000166,Student166,Last166,student166@university.edu,2004-07-29,2025-08-11,MAJOR007,Computer Science,Business,2.23,4220 Campus Dr,Berkeley,MA
+STU000167,Student167,Last167,student167@university.edu,1998-07-14,2024-01-31,MAJOR008,Psychology,Engineering,3.13,7802 Campus Dr,Chapel Hill,CA
+STU000168,Student168,Last168,student168@university.edu,2004-04-27,2025-03-19,MAJOR009,Art,Humanities,2.5,9882 Campus Dr,Berkeley,MA
+STU000169,Student169,Last169,student169@university.edu,1997-03-14,2022-01-08,MAJOR010,Computer Science,Business,2.65,7269 Campus Dr,Chapel Hill,CA
+STU000170,Student170,Last170,student170@university.edu,2004-06-17,2024-11-14,MAJOR011,Engineering,Humanities,3.3,532 Campus Dr,Ann Arbor,NC
+STU000171,Student171,Last171,student171@university.edu,2001-04-09,2024-03-24,MAJOR012,Mathematics,Humanities,3.39,4168 Campus Dr,Berkeley,MI
+STU000172,Student172,Last172,student172@university.edu,1999-08-04,2023-09-29,MAJOR013,English,Engineering,3.16,936 Campus Dr,Cambridge,NC
+STU000173,Student173,Last173,student173@university.edu,2003-02-25,2023-12-14,MAJOR014,Mathematics,Science,3.0,8083 Campus Dr,Madison,WI
+STU000174,Student174,Last174,student174@university.edu,2000-12-03,2024-08-08,MAJOR015,Biology,Arts,2.98,3240 Campus Dr,Madison,WI
+STU000175,Student175,Last175,student175@university.edu,2006-07-12,2024-05-05,MAJOR016,Mathematics,Science,2.06,3015 Campus Dr,Cambridge,NC
+STU000176,Student176,Last176,student176@university.edu,1999-06-16,2022-02-10,MAJOR017,Engineering,Business,3.78,9321 Campus Dr,Berkeley,MA
+STU000177,Student177,Last177,student177@university.edu,2003-10-16,2024-12-23,MAJOR018,Computer Science,Humanities,2.89,5624 Campus Dr,Berkeley,NC
+STU000178,Student178,Last178,student178@university.edu,2005-07-29,2023-04-02,MAJOR019,Music,Science,2.86,7673 Campus Dr,Berkeley,CA
+STU000179,Student179,Last179,student179@university.edu,2000-04-08,2022-01-06,MAJOR020,Business,Arts,2.08,3494 Campus Dr,Madison,MA
+STU000180,Student180,Last180,student180@university.edu,2002-03-29,2024-01-31,MAJOR001,Music,Science,2.91,9916 Campus Dr,Chapel Hill,MA
+STU000181,Student181,Last181,student181@university.edu,2005-05-05,2023-09-03,MAJOR002,Engineering,Science,3.1,3272 Campus Dr,Cambridge,MA
+STU000182,Student182,Last182,student182@university.edu,2006-04-14,2022-06-22,MAJOR003,Engineering,Humanities,3.84,2503 Campus Dr,Berkeley,CA
+STU000183,Student183,Last183,student183@university.edu,2000-05-07,2024-07-23,MAJOR004,Computer Science,Business,2.17,2939 Campus Dr,Chapel Hill,CA
+STU000184,Student184,Last184,student184@university.edu,2006-08-31,2022-09-06,MAJOR005,Engineering,Arts,3.02,7690 Campus Dr,Chapel Hill,MI
+STU000185,Student185,Last185,student185@university.edu,2003-11-01,2023-04-10,MAJOR006,Computer Science,Engineering,2.57,9269 Campus Dr,Ann Arbor,NC
+STU000186,Student186,Last186,student186@university.edu,1997-12-07,2024-11-18,MAJOR007,Art,Arts,2.12,3270 Campus Dr,Cambridge,MA
+STU000187,Student187,Last187,student187@university.edu,1996-04-13,2021-12-05,MAJOR008,Computer Science,Science,3.96,2842 Campus Dr,Chapel Hill,WI
+STU000188,Student188,Last188,student188@university.edu,2006-09-21,2024-03-08,MAJOR009,Psychology,Business,3.41,6091 Campus Dr,Madison,WI
+STU000189,Student189,Last189,student189@university.edu,2000-08-23,2025-01-17,MAJOR010,Psychology,Business,2.82,9403 Campus Dr,Chapel Hill,CA
+STU000190,Student190,Last190,student190@university.edu,1998-05-06,2024-04-30,MAJOR011,History,Arts,3.39,4311 Campus Dr,Ann Arbor,MA
+STU000191,Student191,Last191,student191@university.edu,1999-10-19,2023-03-26,MAJOR012,Biology,Business,3.1,4205 Campus Dr,Chapel Hill,NC
+STU000192,Student192,Last192,student192@university.edu,2002-01-22,2025-09-27,MAJOR013,History,Science,3.62,4566 Campus Dr,Chapel Hill,MI
+STU000193,Student193,Last193,student193@university.edu,1997-03-06,2023-03-12,MAJOR014,History,Science,3.99,1515 Campus Dr,Cambridge,WI
+STU000194,Student194,Last194,student194@university.edu,1996-05-20,2023-01-05,MAJOR015,Music,Business,3.91,2609 Campus Dr,Madison,MI
+STU000195,Student195,Last195,student195@university.edu,2004-06-07,2023-08-01,MAJOR016,Art,Science,3.59,2333 Campus Dr,Madison,MA
+STU000196,Student196,Last196,student196@university.edu,1998-12-01,2021-12-18,MAJOR017,Business,Business,2.51,7268 Campus Dr,Berkeley,CA
+STU000197,Student197,Last197,student197@university.edu,2000-04-01,2024-09-19,MAJOR018,History,Science,3.29,7050 Campus Dr,Berkeley,MI
+STU000198,Student198,Last198,student198@university.edu,1999-03-25,2023-08-03,MAJOR019,Art,Humanities,2.02,3397 Campus Dr,Berkeley,NC
+STU000199,Student199,Last199,student199@university.edu,1999-06-08,2024-02-08,MAJOR020,History,Humanities,3.68,1150 Campus Dr,Cambridge,NC
+STU000200,Student200,Last200,student200@university.edu,1996-03-01,2024-09-30,MAJOR001,Business,Arts,3.52,4400 Campus Dr,Cambridge,WI
+STU000201,Student201,Last201,student201@university.edu,1999-10-25,2024-06-25,MAJOR002,English,Engineering,2.17,6635 Campus Dr,Berkeley,CA
+STU000202,Student202,Last202,student202@university.edu,2005-12-28,2022-05-11,MAJOR003,Art,Engineering,3.11,8657 Campus Dr,Chapel Hill,CA
+STU000203,Student203,Last203,student203@university.edu,2005-04-03,2023-03-05,MAJOR004,Computer Science,Humanities,3.56,6659 Campus Dr,Chapel Hill,CA
+STU000204,Student204,Last204,student204@university.edu,1999-09-06,2024-11-10,MAJOR005,Computer Science,Business,2.93,1795 Campus Dr,Berkeley,NC
+STU000205,Student205,Last205,student205@university.edu,2001-07-07,2025-06-28,MAJOR006,Psychology,Arts,2.45,9077 Campus Dr,Madison,MI
+STU000206,Student206,Last206,student206@university.edu,1997-12-25,2022-06-21,MAJOR007,Mathematics,Business,3.4,4911 Campus Dr,Chapel Hill,CA
+STU000207,Student207,Last207,student207@university.edu,2006-09-16,2023-12-25,MAJOR008,Business,Science,2.07,9449 Campus Dr,Berkeley,CA
+STU000208,Student208,Last208,student208@university.edu,1997-05-24,2025-07-13,MAJOR009,Business,Business,3.11,6032 Campus Dr,Berkeley,MA
+STU000209,Student209,Last209,student209@university.edu,2007-08-25,2023-09-24,MAJOR010,Computer Science,Arts,2.7,4835 Campus Dr,Madison,NC
+STU000210,Student210,Last210,student210@university.edu,2004-03-30,2021-12-20,MAJOR011,Biology,Humanities,2.35,1441 Campus Dr,Berkeley,MA
+STU000211,Student211,Last211,student211@university.edu,1997-05-10,2023-10-10,MAJOR012,Music,Humanities,2.95,7648 Campus Dr,Ann Arbor,MA
+STU000212,Student212,Last212,student212@university.edu,1998-06-10,2024-01-06,MAJOR013,Music,Business,3.5,4268 Campus Dr,Cambridge,MI
+STU000213,Student213,Last213,student213@university.edu,2004-07-08,2023-09-01,MAJOR014,Music,Engineering,3.34,2815 Campus Dr,Berkeley,MI
+STU000214,Student214,Last214,student214@university.edu,2006-01-15,2023-07-20,MAJOR015,Psychology,Science,2.7,3560 Campus Dr,Chapel Hill,MI
+STU000215,Student215,Last215,student215@university.edu,2007-01-11,2022-01-02,MAJOR016,English,Science,3.8,3174 Campus Dr,Cambridge,NC
+STU000216,Student216,Last216,student216@university.edu,2002-10-04,2023-04-30,MAJOR017,Mathematics,Business,3.48,7428 Campus Dr,Chapel Hill,WI
+STU000217,Student217,Last217,student217@university.edu,2005-04-30,2022-01-10,MAJOR018,Mathematics,Science,3.67,5346 Campus Dr,Ann Arbor,NC
+STU000218,Student218,Last218,student218@university.edu,2005-12-05,2023-04-02,MAJOR019,Psychology,Humanities,3.31,6050 Campus Dr,Madison,MI
+STU000219,Student219,Last219,student219@university.edu,1999-02-22,2022-12-03,MAJOR020,Art,Science,2.55,9737 Campus Dr,Madison,CA
+STU000220,Student220,Last220,student220@university.edu,1996-05-07,2025-06-28,MAJOR001,Biology,Engineering,3.01,2900 Campus Dr,Ann Arbor,CA
+STU000221,Student221,Last221,student221@university.edu,1999-12-09,2023-04-30,MAJOR002,Psychology,Engineering,2.66,9355 Campus Dr,Madison,WI
+STU000222,Student222,Last222,student222@university.edu,1998-02-12,2024-08-23,MAJOR003,Engineering,Engineering,2.75,4089 Campus Dr,Ann Arbor,MA
+STU000223,Student223,Last223,student223@university.edu,1998-01-05,2022-07-03,MAJOR004,Business,Science,3.8,1583 Campus Dr,Berkeley,WI
+STU000224,Student224,Last224,student224@university.edu,1999-07-28,2021-12-06,MAJOR005,Business,Humanities,2.5,7051 Campus Dr,Madison,WI
+STU000225,Student225,Last225,student225@university.edu,2000-09-13,2022-06-22,MAJOR006,Biology,Arts,2.15,5948 Campus Dr,Madison,NC
+STU000226,Student226,Last226,student226@university.edu,2005-04-09,2023-01-05,MAJOR007,Biology,Science,3.64,7537 Campus Dr,Cambridge,MI
+STU000227,Student227,Last227,student227@university.edu,1995-12-25,2025-10-08,MAJOR008,Computer Science,Arts,2.3,6958 Campus Dr,Ann Arbor,MA
+STU000228,Student228,Last228,student228@university.edu,2000-02-24,2022-05-13,MAJOR009,History,Arts,2.02,5537 Campus Dr,Ann Arbor,WI
+STU000229,Student229,Last229,student229@university.edu,2004-03-26,2022-08-06,MAJOR010,Art,Business,3.84,9079 Campus Dr,Berkeley,WI
+STU000230,Student230,Last230,student230@university.edu,2004-10-01,2025-06-16,MAJOR011,Psychology,Business,3.94,4284 Campus Dr,Madison,WI
+STU000231,Student231,Last231,student231@university.edu,2001-08-18,2023-04-24,MAJOR012,Psychology,Business,2.01,2959 Campus Dr,Madison,MA
+STU000232,Student232,Last232,student232@university.edu,1997-09-10,2025-03-27,MAJOR013,History,Humanities,3.84,7873 Campus Dr,Cambridge,CA
+STU000233,Student233,Last233,student233@university.edu,2002-01-11,2023-05-29,MAJOR014,Business,Business,2.37,5604 Campus Dr,Madison,CA
+STU000234,Student234,Last234,student234@university.edu,2001-10-28,2023-11-21,MAJOR015,Engineering,Humanities,3.66,3064 Campus Dr,Chapel Hill,NC
+STU000235,Student235,Last235,student235@university.edu,1998-04-25,2022-05-05,MAJOR016,Art,Humanities,3.3,7554 Campus Dr,Madison,WI
+STU000236,Student236,Last236,student236@university.edu,1996-02-22,2023-03-26,MAJOR017,History,Engineering,2.59,5496 Campus Dr,Madison,MI
+STU000237,Student237,Last237,student237@university.edu,1997-10-10,2024-03-01,MAJOR018,Business,Arts,2.56,1993 Campus Dr,Madison,MA
+STU000238,Student238,Last238,student238@university.edu,2003-02-18,2023-06-27,MAJOR019,Computer Science,Engineering,3.93,7226 Campus Dr,Cambridge,NC
+STU000239,Student239,Last239,student239@university.edu,2000-06-12,2022-02-05,MAJOR020,Business,Humanities,2.42,6274 Campus Dr,Cambridge,WI
+STU000240,Student240,Last240,student240@university.edu,2007-04-21,2025-03-12,MAJOR001,Engineering,Engineering,3.68,8750 Campus Dr,Ann Arbor,MI
+STU000241,Student241,Last241,student241@university.edu,1997-03-06,2022-06-06,MAJOR002,Biology,Business,3.44,5825 Campus Dr,Chapel Hill,CA
+STU000242,Student242,Last242,student242@university.edu,2006-05-06,2023-10-19,MAJOR003,Mathematics,Humanities,3.61,2329 Campus Dr,Cambridge,MA
+STU000243,Student243,Last243,student243@university.edu,2006-07-09,2023-03-17,MAJOR004,Computer Science,Business,2.67,4234 Campus Dr,Madison,CA
+STU000244,Student244,Last244,student244@university.edu,2000-10-27,2024-07-07,MAJOR005,Business,Business,2.07,2238 Campus Dr,Chapel Hill,MI
+STU000245,Student245,Last245,student245@university.edu,2002-07-02,2024-06-04,MAJOR006,Computer Science,Arts,3.67,2987 Campus Dr,Chapel Hill,CA
+STU000246,Student246,Last246,student246@university.edu,1998-08-18,2022-04-03,MAJOR007,Engineering,Engineering,2.6,5869 Campus Dr,Chapel Hill,MA
+STU000247,Student247,Last247,student247@university.edu,2006-07-04,2025-03-24,MAJOR008,Engineering,Science,2.42,334 Campus Dr,Chapel Hill,WI
+STU000248,Student248,Last248,student248@university.edu,2003-09-28,2022-09-10,MAJOR009,History,Humanities,3.52,878 Campus Dr,Chapel Hill,NC
+STU000249,Student249,Last249,student249@university.edu,2006-03-04,2024-01-11,MAJOR010,Psychology,Engineering,3.25,8466 Campus Dr,Ann Arbor,WI
+STU000250,Student250,Last250,student250@university.edu,1998-11-29,2023-09-15,MAJOR011,Biology,Engineering,2.87,4957 Campus Dr,Berkeley,WI
+STU000251,Student251,Last251,student251@university.edu,2007-04-08,2024-11-21,MAJOR012,Art,Humanities,2.35,2385 Campus Dr,Berkeley,MA
+STU000252,Student252,Last252,student252@university.edu,1996-03-05,2022-10-15,MAJOR013,Mathematics,Business,3.17,5278 Campus Dr,Madison,MI
+STU000253,Student253,Last253,student253@university.edu,1999-03-01,2022-07-07,MAJOR014,Music,Humanities,3.52,2977 Campus Dr,Madison,WI
+STU000254,Student254,Last254,student254@university.edu,2004-05-28,2021-12-07,MAJOR015,Art,Engineering,2.9,689 Campus Dr,Ann Arbor,MA
+STU000255,Student255,Last255,student255@university.edu,2006-11-30,2024-06-16,MAJOR016,Business,Arts,3.68,2845 Campus Dr,Madison,WI
+STU000256,Student256,Last256,student256@university.edu,1997-08-03,2025-04-22,MAJOR017,Engineering,Arts,3.49,374 Campus Dr,Cambridge,NC
+STU000257,Student257,Last257,student257@university.edu,1999-05-09,2022-11-19,MAJOR018,Mathematics,Engineering,2.25,7350 Campus Dr,Chapel Hill,WI
+STU000258,Student258,Last258,student258@university.edu,1999-03-08,2025-01-20,MAJOR019,Mathematics,Humanities,3.4,5636 Campus Dr,Cambridge,NC
+STU000259,Student259,Last259,student259@university.edu,2004-09-06,2022-11-07,MAJOR020,History,Business,3.96,4084 Campus Dr,Cambridge,CA
+STU000260,Student260,Last260,student260@university.edu,1996-07-26,2023-02-09,MAJOR001,History,Humanities,2.45,4501 Campus Dr,Chapel Hill,CA
+STU000261,Student261,Last261,student261@university.edu,2007-10-01,2023-07-16,MAJOR002,Engineering,Humanities,2.46,3735 Campus Dr,Ann Arbor,MI
+STU000262,Student262,Last262,student262@university.edu,1999-08-27,2023-02-15,MAJOR003,Biology,Engineering,3.78,2942 Campus Dr,Cambridge,MA
+STU000263,Student263,Last263,student263@university.edu,1997-10-02,2023-01-06,MAJOR004,Computer Science,Science,2.51,3589 Campus Dr,Ann Arbor,WI
+STU000264,Student264,Last264,student264@university.edu,1999-12-01,2022-07-17,MAJOR005,History,Arts,2.12,2161 Campus Dr,Chapel Hill,MA
+STU000265,Student265,Last265,student265@university.edu,2005-01-27,2024-11-11,MAJOR006,Art,Engineering,3.63,7442 Campus Dr,Berkeley,MI
+STU000266,Student266,Last266,student266@university.edu,2004-04-01,2024-05-22,MAJOR007,Computer Science,Arts,2.66,5633 Campus Dr,Ann Arbor,NC
+STU000267,Student267,Last267,student267@university.edu,1996-03-22,2022-06-07,MAJOR008,Biology,Humanities,3.59,7606 Campus Dr,Berkeley,MI
+STU000268,Student268,Last268,student268@university.edu,2005-07-28,2025-03-27,MAJOR009,Mathematics,Business,3.94,8905 Campus Dr,Berkeley,MI
+STU000269,Student269,Last269,student269@university.edu,1998-06-18,2022-03-30,MAJOR010,Psychology,Business,3.74,7640 Campus Dr,Cambridge,WI
+STU000270,Student270,Last270,student270@university.edu,1999-02-22,2023-11-22,MAJOR011,Mathematics,Humanities,2.02,4663 Campus Dr,Madison,MI
+STU000271,Student271,Last271,student271@university.edu,1998-03-29,2023-01-07,MAJOR012,Biology,Arts,2.37,3021 Campus Dr,Madison,CA
+STU000272,Student272,Last272,student272@university.edu,2004-04-03,2024-03-24,MAJOR013,Art,Humanities,2.66,8859 Campus Dr,Chapel Hill,NC
+STU000273,Student273,Last273,student273@university.edu,2007-04-06,2025-10-04,MAJOR014,Mathematics,Arts,2.48,4388 Campus Dr,Ann Arbor,WI
+STU000274,Student274,Last274,student274@university.edu,2001-08-27,2024-12-03,MAJOR015,Mathematics,Engineering,2.06,6859 Campus Dr,Berkeley,WI
+STU000275,Student275,Last275,student275@university.edu,2000-08-31,2024-08-29,MAJOR016,Computer Science,Science,2.26,873 Campus Dr,Cambridge,MA
+STU000276,Student276,Last276,student276@university.edu,1996-06-08,2025-08-27,MAJOR017,Business,Arts,3.44,8366 Campus Dr,Chapel Hill,CA
+STU000277,Student277,Last277,student277@university.edu,1999-06-25,2025-01-04,MAJOR018,Art,Arts,2.5,7051 Campus Dr,Madison,WI
+STU000278,Student278,Last278,student278@university.edu,2006-09-19,2024-01-08,MAJOR019,Art,Science,2.08,377 Campus Dr,Berkeley,MI
+STU000279,Student279,Last279,student279@university.edu,2003-01-05,2024-08-28,MAJOR020,History,Engineering,3.68,3339 Campus Dr,Ann Arbor,NC
+STU000280,Student280,Last280,student280@university.edu,1997-08-18,2025-09-12,MAJOR001,Engineering,Business,2.98,8480 Campus Dr,Chapel Hill,CA
+STU000281,Student281,Last281,student281@university.edu,2000-10-05,2023-09-06,MAJOR002,English,Humanities,2.86,6130 Campus Dr,Chapel Hill,WI
+STU000282,Student282,Last282,student282@university.edu,2001-04-11,2023-11-02,MAJOR003,History,Engineering,3.14,9439 Campus Dr,Ann Arbor,MI
+STU000283,Student283,Last283,student283@university.edu,2007-05-05,2023-11-24,MAJOR004,English,Arts,3.38,6436 Campus Dr,Cambridge,WI
+STU000284,Student284,Last284,student284@university.edu,2006-01-19,2023-05-02,MAJOR005,Business,Engineering,3.03,4789 Campus Dr,Berkeley,WI
+STU000285,Student285,Last285,student285@university.edu,2002-11-18,2022-04-26,MAJOR006,English,Arts,3.38,2246 Campus Dr,Ann Arbor,MA
+STU000286,Student286,Last286,student286@university.edu,2006-07-12,2023-04-11,MAJOR007,Art,Humanities,2.33,1317 Campus Dr,Chapel Hill,MI
+STU000287,Student287,Last287,student287@university.edu,2005-10-02,2025-06-10,MAJOR008,Music,Arts,2.19,6231 Campus Dr,Chapel Hill,MI
+STU000288,Student288,Last288,student288@university.edu,2001-04-11,2024-01-10,MAJOR009,Engineering,Science,3.61,761 Campus Dr,Cambridge,NC
+STU000289,Student289,Last289,student289@university.edu,1999-04-06,2022-04-29,MAJOR010,Psychology,Business,2.4,8503 Campus Dr,Madison,MA
+STU000290,Student290,Last290,student290@university.edu,2001-03-06,2025-07-01,MAJOR011,Biology,Engineering,3.37,4064 Campus Dr,Cambridge,CA
+STU000291,Student291,Last291,student291@university.edu,2004-02-18,2024-03-22,MAJOR012,Psychology,Science,3.47,2932 Campus Dr,Madison,MA
+STU000292,Student292,Last292,student292@university.edu,1998-02-14,2024-07-04,MAJOR013,Psychology,Science,3.15,1578 Campus Dr,Cambridge,CA
+STU000293,Student293,Last293,student293@university.edu,2007-01-16,2023-10-16,MAJOR014,Engineering,Engineering,2.96,5293 Campus Dr,Madison,WI
+STU000294,Student294,Last294,student294@university.edu,2006-07-17,2025-08-31,MAJOR015,Psychology,Business,3.22,4243 Campus Dr,Berkeley,MA
+STU000295,Student295,Last295,student295@university.edu,2002-08-09,2024-12-14,MAJOR016,English,Engineering,2.81,1514 Campus Dr,Madison,WI
+STU000296,Student296,Last296,student296@university.edu,2005-12-17,2025-03-06,MAJOR017,Biology,Engineering,3.48,3921 Campus Dr,Ann Arbor,WI
+STU000297,Student297,Last297,student297@university.edu,1999-09-07,2023-03-02,MAJOR018,Business,Arts,2.43,7184 Campus Dr,Cambridge,NC
+STU000298,Student298,Last298,student298@university.edu,1998-04-28,2022-10-02,MAJOR019,Mathematics,Science,2.37,4019 Campus Dr,Ann Arbor,MA
+STU000299,Student299,Last299,student299@university.edu,2005-04-23,2025-03-01,MAJOR020,Engineering,Science,3.55,1514 Campus Dr,Cambridge,WI
+STU000300,Student300,Last300,student300@university.edu,2006-01-14,2024-07-24,MAJOR001,Computer Science,Science,2.58,5102 Campus Dr,Madison,CA

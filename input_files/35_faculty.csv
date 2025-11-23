@@ -1,0 +1,61 @@
+faculty_id,first_name,last_name,email,phone,department_id,department_name,office_building,office_number,rank,hire_date,salary
+FAC0001,Professor1,Last1,faculty1@university.edu,555-5335,DEPT02,Computer Science,Science Hall,149,Assistant Professor,2010-11-20,96513.49
+FAC0002,Professor2,Last2,faculty2@university.edu,555-2484,DEPT03,Philosophy,Engineering Building,313,Professor,2016-07-29,60642.11
+FAC0003,Professor3,Last3,faculty3@university.edu,555-8123,DEPT04,Physics,Engineering Building,928,Lecturer,2022-06-15,121791.8
+FAC0004,Professor4,Last4,faculty4@university.edu,555-4392,DEPT05,Mathematics,Business School,861,Professor,2019-01-18,128447.96
+FAC0005,Professor5,Last5,faculty5@university.edu,555-7530,DEPT06,Chemistry,Engineering Building,219,Lecturer,2020-08-29,86355.15
+FAC0006,Professor6,Last6,faculty6@university.edu,555-3558,DEPT07,Chemistry,Science Hall,107,Assistant Professor,2003-07-30,67714.36
+FAC0007,Professor7,Last7,faculty7@university.edu,555-8354,DEPT08,Mathematics,Arts Center,424,Lecturer,2013-09-07,64158.11
+FAC0008,Professor8,Last8,faculty8@university.edu,555-2804,DEPT09,Philosophy,Arts Center,129,Assistant Professor,1998-01-28,140638.85
+FAC0009,Professor9,Last9,faculty9@university.edu,555-1190,DEPT10,Computer Science,Arts Center,522,Lecturer,2014-06-17,117391.89
+FAC0010,Professor10,Last10,faculty10@university.edu,555-3577,DEPT01,Business,Engineering Building,473,Professor,2020-12-30,102465.83
+FAC0011,Professor11,Last11,faculty11@university.edu,555-8081,DEPT02,Chemistry,Arts Center,286,Professor,2019-12-29,81582.73
+FAC0012,Professor12,Last12,faculty12@university.edu,555-1460,DEPT03,Physics,Engineering Building,925,Lecturer,2003-06-02,149482.28
+FAC0013,Professor13,Last13,faculty13@university.edu,555-1890,DEPT04,Business,Business School,434,Lecturer,2023-12-05,75167.84
+FAC0014,Professor14,Last14,faculty14@university.edu,555-3746,DEPT05,Chemistry,Arts Center,556,Lecturer,2004-12-28,85879.37
+FAC0015,Professor15,Last15,faculty15@university.edu,555-5931,DEPT06,Philosophy,Science Hall,476,Lecturer,2021-01-24,104853.81
+FAC0016,Professor16,Last16,faculty16@university.edu,555-4139,DEPT07,Physics,Engineering Building,830,Lecturer,1996-11-27,143697.13
+FAC0017,Professor17,Last17,faculty17@university.edu,555-9080,DEPT08,Engineering,Engineering Building,503,Assistant Professor,2010-09-24,107423.11
+FAC0018,Professor18,Last18,faculty18@university.edu,555-9562,DEPT09,Philosophy,Science Hall,510,Associate Professor,2020-06-22,102961.58
+FAC0019,Professor19,Last19,faculty19@university.edu,555-2734,DEPT10,Engineering,Science Hall,195,Assistant Professor,2013-04-28,74623.38
+FAC0020,Professor20,Last20,faculty20@university.edu,555-5310,DEPT01,Mathematics,Engineering Building,399,Professor,2008-07-23,139815.26
+FAC0021,Professor21,Last21,faculty21@university.edu,555-7823,DEPT02,Economics,Engineering Building,176,Associate Professor,2004-12-30,66691.95
+FAC0022,Professor22,Last22,faculty22@university.edu,555-8699,DEPT03,Biology,Science Hall,687,Assistant Professor,2006-07-07,96205.86
+FAC0023,Professor23,Last23,faculty23@university.edu,555-6262,DEPT04,Biology,Arts Center,770,Assistant Professor,2000-07-21,91669.54
+FAC0024,Professor24,Last24,faculty24@university.edu,555-1080,DEPT05,Chemistry,Arts Center,107,Assistant Professor,2020-10-29,143982.56
+FAC0025,Professor25,Last25,faculty25@university.edu,555-7607,DEPT06,Mathematics,Business School,129,Lecturer,2020-03-22,78566.68
+FAC0026,Professor26,Last26,faculty26@university.edu,555-1602,DEPT07,Mathematics,Science Hall,788,Associate Professor,2004-08-17,79189.55
+FAC0027,Professor27,Last27,faculty27@university.edu,555-4631,DEPT08,Mathematics,Science Hall,565,Associate Professor,2023-07-28,144377.1
+FAC0028,Professor28,Last28,faculty28@university.edu,555-6208,DEPT09,Economics,Business School,466,Lecturer,2013-04-04,61099.38
+FAC0029,Professor29,Last29,faculty29@university.edu,555-2042,DEPT10,Philosophy,Science Hall,781,Professor,2011-11-10,137020.9
+FAC0030,Professor30,Last30,faculty30@university.edu,555-7534,DEPT01,Computer Science,Business School,666,Associate Professor,2011-11-07,66760.86
+FAC0031,Professor31,Last31,faculty31@university.edu,555-7900,DEPT02,Biology,Engineering Building,377,Associate Professor,2011-04-24,146435.45
+FAC0032,Professor32,Last32,faculty32@university.edu,555-2142,DEPT03,Mathematics,Arts Center,999,Lecturer,2010-09-04,138988.51
+FAC0033,Professor33,Last33,faculty33@university.edu,555-7484,DEPT04,Business,Engineering Building,381,Associate Professor,2019-03-17,80594.21
+FAC0034,Professor34,Last34,faculty34@university.edu,555-2023,DEPT05,Business,Arts Center,229,Assistant Professor,2021-05-06,98045.63
+FAC0035,Professor35,Last35,faculty35@university.edu,555-9375,DEPT06,Biology,Business School,156,Associate Professor,2001-08-22,132602.45
+FAC0036,Professor36,Last36,faculty36@university.edu,555-6696,DEPT07,Mathematics,Arts Center,728,Associate Professor,2014-03-22,85116.99
+FAC0037,Professor37,Last37,faculty37@university.edu,555-7923,DEPT08,Business,Arts Center,250,Assistant Professor,2002-09-07,85796.19
+FAC0038,Professor38,Last38,faculty38@university.edu,555-5212,DEPT09,Engineering,Engineering Building,879,Associate Professor,2020-06-24,145190.56
+FAC0039,Professor39,Last39,faculty39@university.edu,555-5429,DEPT10,Philosophy,Arts Center,109,Lecturer,2023-05-22,130121.53
+FAC0040,Professor40,Last40,faculty40@university.edu,555-5718,DEPT01,Mathematics,Science Hall,807,Associate Professor,2003-07-23,148235.98
+FAC0041,Professor41,Last41,faculty41@university.edu,555-2707,DEPT02,Chemistry,Arts Center,756,Lecturer,2014-01-15,116946.28
+FAC0042,Professor42,Last42,faculty42@university.edu,555-1194,DEPT03,Economics,Science Hall,754,Lecturer,2000-11-16,98541.19
+FAC0043,Professor43,Last43,faculty43@university.edu,555-6263,DEPT04,Economics,Business School,154,Assistant Professor,1999-11-24,132065.54
+FAC0044,Professor44,Last44,faculty44@university.edu,555-9632,DEPT05,Chemistry,Science Hall,380,Assistant Professor,2010-06-04,117059.86
+FAC0045,Professor45,Last45,faculty45@university.edu,555-5559,DEPT06,Biology,Business School,413,Lecturer,2014-02-11,81430.61
+FAC0046,Professor46,Last46,faculty46@university.edu,555-4651,DEPT07,Engineering,Business School,354,Lecturer,1997-11-07,103003.4
+FAC0047,Professor47,Last47,faculty47@university.edu,555-2536,DEPT08,Business,Arts Center,259,Professor,2014-01-26,66885.29
+FAC0048,Professor48,Last48,faculty48@university.edu,555-8924,DEPT09,Engineering,Science Hall,360,Assistant Professor,1999-08-16,79284.0
+FAC0049,Professor49,Last49,faculty49@university.edu,555-1303,DEPT10,Mathematics,Science Hall,630,Professor,1997-01-10,95804.53
+FAC0050,Professor50,Last50,faculty50@university.edu,555-8334,DEPT01,Biology,Science Hall,855,Professor,2017-04-24,110819.34
+FAC0051,Professor51,Last51,faculty51@university.edu,555-6366,DEPT02,Engineering,Science Hall,713,Professor,2003-03-26,142953.06
+FAC0052,Professor52,Last52,faculty52@university.edu,555-3509,DEPT03,Psychology,Science Hall,643,Professor,2004-11-07,125692.93
+FAC0053,Professor53,Last53,faculty53@university.edu,555-7399,DEPT04,Business,Science Hall,506,Associate Professor,1997-09-13,114504.32
+FAC0054,Professor54,Last54,faculty54@university.edu,555-3816,DEPT05,Biology,Science Hall,536,Assistant Professor,2020-11-05,113714.44
+FAC0055,Professor55,Last55,faculty55@university.edu,555-5413,DEPT06,Computer Science,Business School,281,Lecturer,2001-11-24,118147.27
+FAC0056,Professor56,Last56,faculty56@university.edu,555-1424,DEPT07,Psychology,Science Hall,503,Associate Professor,2020-11-27,128592.45
+FAC0057,Professor57,Last57,faculty57@university.edu,555-3459,DEPT08,Mathematics,Business School,696,Professor,1997-11-12,72558.99
+FAC0058,Professor58,Last58,faculty58@university.edu,555-3433,DEPT09,Physics,Engineering Building,347,Assistant Professor,2016-08-01,89639.13
+FAC0059,Professor59,Last59,faculty59@university.edu,555-8963,DEPT10,Economics,Engineering Building,454,Assistant Professor,2015-04-17,106719.29
+FAC0060,Professor60,Last60,faculty60@university.edu,555-6636,DEPT01,Business,Science Hall,534,Associate Professor,2004-03-30,122937.35

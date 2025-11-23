@@ -1,0 +1,201 @@
+customer_id,first_name,last_name,ssn,email,phone,branch_id,branch_name,branch_city,branch_state,customer_since,customer_type
+BC000001,Customer1,Last1,708-30-3715,customer1@bank.com,555-4048,BRANCH002,Branch 2,San Francisco,FL,2019-11-24,Individual
+BC000002,Customer2,Last2,634-20-4225,customer2@bank.com,555-9193,BRANCH003,Branch 3,Chicago,CA,2008-09-16,Individual
+BC000003,Customer3,Last3,322-53-1457,customer3@bank.com,555-7304,BRANCH004,Branch 4,San Francisco,MA,2009-08-12,Individual
+BC000004,Customer4,Last4,889-84-5772,customer4@bank.com,555-1694,BRANCH005,Branch 5,New York,IL,2018-03-10,Individual
+BC000005,Customer5,Last5,275-49-6544,customer5@bank.com,555-3628,BRANCH006,Branch 6,San Francisco,FL,2021-06-05,Business
+BC000006,Customer6,Last6,930-57-7354,customer6@bank.com,555-8254,BRANCH007,Branch 7,New York,FL,2009-12-23,Corporate
+BC000007,Customer7,Last7,680-38-4714,customer7@bank.com,555-6709,BRANCH008,Branch 8,New York,IL,2015-08-05,Individual
+BC000008,Customer8,Last8,810-88-4099,customer8@bank.com,555-4221,BRANCH009,Branch 9,Boston,IL,2022-05-14,Business
+BC000009,Customer9,Last9,301-53-4838,customer9@bank.com,555-4395,BRANCH010,Branch 10,Miami,MA,2013-06-30,Corporate
+BC000010,Customer10,Last10,696-56-2305,customer10@bank.com,555-1354,BRANCH011,Branch 11,Chicago,CA,2007-10-20,Individual
+BC000011,Customer11,Last11,693-91-5390,customer11@bank.com,555-6575,BRANCH012,Branch 12,Miami,MA,2016-10-17,Corporate
+BC000012,Customer12,Last12,453-17-9335,customer12@bank.com,555-4033,BRANCH013,Branch 13,Chicago,MA,2022-01-02,Individual
+BC000013,Customer13,Last13,286-99-4130,customer13@bank.com,555-1229,BRANCH014,Branch 14,New York,MA,2024-10-19,Corporate
+BC000014,Customer14,Last14,531-18-8139,customer14@bank.com,555-5972,BRANCH015,Branch 15,Miami,IL,2016-01-25,Corporate
+BC000015,Customer15,Last15,567-46-8641,customer15@bank.com,555-6735,BRANCH001,Branch 1,San Francisco,FL,2022-09-14,Business
+BC000016,Customer16,Last16,660-41-7008,customer16@bank.com,555-7239,BRANCH002,Branch 2,Chicago,NY,2012-06-06,Corporate
+BC000017,Customer17,Last17,889-58-3234,customer17@bank.com,555-3283,BRANCH003,Branch 3,Boston,NY,2008-02-29,Individual
+BC000018,Customer18,Last18,440-26-7045,customer18@bank.com,555-5328,BRANCH004,Branch 4,New York,NY,2008-03-02,Corporate
+BC000019,Customer19,Last19,163-57-6817,customer19@bank.com,555-7725,BRANCH005,Branch 5,San Francisco,IL,2023-04-17,Individual
+BC000020,Customer20,Last20,532-94-7687,customer20@bank.com,555-8302,BRANCH006,Branch 6,Boston,FL,2024-04-24,Corporate
+BC000021,Customer21,Last21,683-43-1808,customer21@bank.com,555-6129,BRANCH007,Branch 7,Miami,MA,2018-02-14,Business
+BC000022,Customer22,Last22,136-41-4283,customer22@bank.com,555-7951,BRANCH008,Branch 8,Chicago,CA,2006-01-11,Business
+BC000023,Customer23,Last23,962-51-4253,customer23@bank.com,555-3553,BRANCH009,Branch 9,New York,MA,2017-09-20,Business
+BC000024,Customer24,Last24,970-38-3297,customer24@bank.com,555-7684,BRANCH010,Branch 10,New York,IL,2019-12-14,Business
+BC000025,Customer25,Last25,989-17-4403,customer25@bank.com,555-8839,BRANCH011,Branch 11,New York,IL,2021-07-20,Corporate
+BC000026,Customer26,Last26,372-34-2962,customer26@bank.com,555-1704,BRANCH012,Branch 12,Miami,NY,2017-05-20,Corporate
+BC000027,Customer27,Last27,963-62-9740,customer27@bank.com,555-5054,BRANCH013,Branch 13,New York,FL,2008-05-14,Business
+BC000028,Customer28,Last28,346-19-4052,customer28@bank.com,555-3679,BRANCH014,Branch 14,Chicago,CA,2008-05-10,Business
+BC000029,Customer29,Last29,382-85-8278,customer29@bank.com,555-5615,BRANCH015,Branch 15,Boston,FL,2014-07-03,Individual
+BC000030,Customer30,Last30,545-66-7247,customer30@bank.com,555-5759,BRANCH001,Branch 1,Chicago,CA,2013-07-18,Business
+BC000031,Customer31,Last31,742-39-1606,customer31@bank.com,555-8646,BRANCH002,Branch 2,New York,MA,2013-02-21,Individual
+BC000032,Customer32,Last32,852-15-2133,customer32@bank.com,555-1600,BRANCH003,Branch 3,New York,CA,2018-04-19,Business
+BC000033,Customer33,Last33,636-11-7093,customer33@bank.com,555-7418,BRANCH004,Branch 4,Miami,IL,2022-01-04,Individual
+BC000034,Customer34,Last34,215-75-8903,customer34@bank.com,555-6036,BRANCH005,Branch 5,Miami,NY,2024-04-29,Business
+BC000035,Customer35,Last35,362-84-2139,customer35@bank.com,555-1895,BRANCH006,Branch 6,New York,MA,2021-02-05,Corporate
+BC000036,Customer36,Last36,296-98-2169,customer36@bank.com,555-5807,BRANCH007,Branch 7,Miami,CA,2024-03-17,Business
+BC000037,Customer37,Last37,682-86-4407,customer37@bank.com,555-1266,BRANCH008,Branch 8,Boston,IL,2023-08-19,Business
+BC000038,Customer38,Last38,187-26-2202,customer38@bank.com,555-1966,BRANCH009,Branch 9,Boston,NY,2009-11-05,Business
+BC000039,Customer39,Last39,801-36-2229,customer39@bank.com,555-1478,BRANCH010,Branch 10,Chicago,IL,2007-04-11,Individual
+BC000040,Customer40,Last40,322-21-6970,customer40@bank.com,555-9555,BRANCH011,Branch 11,Miami,MA,2012-07-28,Business
+BC000041,Customer41,Last41,139-59-7803,customer41@bank.com,555-1252,BRANCH012,Branch 12,Boston,MA,2006-09-26,Business
+BC000042,Customer42,Last42,763-24-5379,customer42@bank.com,555-2900,BRANCH013,Branch 13,Chicago,FL,2019-10-15,Business
+BC000043,Customer43,Last43,173-52-7605,customer43@bank.com,555-1344,BRANCH014,Branch 14,Miami,IL,2022-03-14,Business
+BC000044,Customer44,Last44,836-26-8501,customer44@bank.com,555-8768,BRANCH015,Branch 15,New York,CA,2023-06-11,Business
+BC000045,Customer45,Last45,897-39-9845,customer45@bank.com,555-7361,BRANCH001,Branch 1,New York,NY,2017-05-22,Individual
+BC000046,Customer46,Last46,220-20-8117,customer46@bank.com,555-3853,BRANCH002,Branch 2,Boston,NY,2019-02-27,Individual
+BC000047,Customer47,Last47,869-57-4158,customer47@bank.com,555-5313,BRANCH003,Branch 3,New York,NY,2016-02-02,Individual
+BC000048,Customer48,Last48,762-63-6334,customer48@bank.com,555-1170,BRANCH004,Branch 4,Chicago,MA,2020-09-16,Business
+BC000049,Customer49,Last49,456-37-2990,customer49@bank.com,555-1590,BRANCH005,Branch 5,Boston,CA,2013-09-14,Individual
+BC000050,Customer50,Last50,291-28-1112,customer50@bank.com,555-8187,BRANCH006,Branch 6,San Francisco,IL,2008-06-11,Individual
+BC000051,Customer51,Last51,658-92-6016,customer51@bank.com,555-6257,BRANCH007,Branch 7,San Francisco,IL,2024-06-14,Corporate
+BC000052,Customer52,Last52,629-65-1564,customer52@bank.com,555-8020,BRANCH008,Branch 8,Miami,CA,2017-10-11,Individual
+BC000053,Customer53,Last53,932-40-7676,customer53@bank.com,555-1638,BRANCH009,Branch 9,New York,NY,2011-11-03,Corporate
+BC000054,Customer54,Last54,770-88-4892,customer54@bank.com,555-2218,BRANCH010,Branch 10,Miami,NY,2007-07-25,Corporate
+BC000055,Customer55,Last55,957-44-1965,customer55@bank.com,555-1421,BRANCH011,Branch 11,Miami,FL,2009-07-31,Corporate
+BC000056,Customer56,Last56,217-31-8400,customer56@bank.com,555-2812,BRANCH012,Branch 12,Miami,CA,2010-01-21,Corporate
+BC000057,Customer57,Last57,965-92-4026,customer57@bank.com,555-9459,BRANCH013,Branch 13,Miami,MA,2018-01-15,Corporate
+BC000058,Customer58,Last58,178-52-5208,customer58@bank.com,555-3457,BRANCH014,Branch 14,Chicago,IL,2010-08-21,Individual
+BC000059,Customer59,Last59,405-52-1720,customer59@bank.com,555-3435,BRANCH015,Branch 15,Boston,MA,2019-01-21,Corporate
+BC000060,Customer60,Last60,277-71-4978,customer60@bank.com,555-9725,BRANCH001,Branch 1,Boston,FL,2016-01-26,Business
+BC000061,Customer61,Last61,385-80-2024,customer61@bank.com,555-2360,BRANCH002,Branch 2,New York,IL,2023-04-30,Individual
+BC000062,Customer62,Last62,679-91-3222,customer62@bank.com,555-8673,BRANCH003,Branch 3,San Francisco,IL,2020-08-29,Individual
+BC000063,Customer63,Last63,853-64-9072,customer63@bank.com,555-8712,BRANCH004,Branch 4,Boston,FL,2013-04-24,Individual
+BC000064,Customer64,Last64,779-59-8463,customer64@bank.com,555-8516,BRANCH005,Branch 5,Miami,NY,2024-08-22,Business
+BC000065,Customer65,Last65,103-75-3207,customer65@bank.com,555-5119,BRANCH006,Branch 6,New York,FL,2011-03-24,Individual
+BC000066,Customer66,Last66,748-55-2363,customer66@bank.com,555-4587,BRANCH007,Branch 7,San Francisco,NY,2016-12-05,Business
+BC000067,Customer67,Last67,690-32-1897,customer67@bank.com,555-3953,BRANCH008,Branch 8,San Francisco,MA,2016-04-04,Individual
+BC000068,Customer68,Last68,948-59-3686,customer68@bank.com,555-1264,BRANCH009,Branch 9,New York,MA,2006-05-15,Individual
+BC000069,Customer69,Last69,703-51-2919,customer69@bank.com,555-3300,BRANCH010,Branch 10,Boston,MA,2023-08-08,Corporate
+BC000070,Customer70,Last70,675-63-7934,customer70@bank.com,555-2808,BRANCH011,Branch 11,New York,NY,2012-06-17,Business
+BC000071,Customer71,Last71,101-96-4921,customer71@bank.com,555-1441,BRANCH012,Branch 12,Miami,CA,2010-02-19,Corporate
+BC000072,Customer72,Last72,787-71-7407,customer72@bank.com,555-8920,BRANCH013,Branch 13,San Francisco,MA,2024-06-08,Corporate
+BC000073,Customer73,Last73,527-39-4387,customer73@bank.com,555-4580,BRANCH014,Branch 14,Miami,FL,2010-05-13,Business
+BC000074,Customer74,Last74,145-60-7406,customer74@bank.com,555-7625,BRANCH015,Branch 15,Boston,MA,2024-09-15,Corporate
+BC000075,Customer75,Last75,448-55-1324,customer75@bank.com,555-9620,BRANCH001,Branch 1,New York,NY,2017-04-12,Individual
+BC000076,Customer76,Last76,795-87-1873,customer76@bank.com,555-9984,BRANCH002,Branch 2,San Francisco,NY,2015-07-27,Corporate
+BC000077,Customer77,Last77,736-33-6909,customer77@bank.com,555-1785,BRANCH003,Branch 3,Miami,FL,2006-04-19,Individual
+BC000078,Customer78,Last78,459-57-8062,customer78@bank.com,555-5833,BRANCH004,Branch 4,Chicago,NY,2011-10-12,Corporate
+BC000079,Customer79,Last79,866-46-2106,customer79@bank.com,555-3077,BRANCH005,Branch 5,Chicago,CA,2015-07-13,Individual
+BC000080,Customer80,Last80,501-16-7091,customer80@bank.com,555-1210,BRANCH006,Branch 6,San Francisco,FL,2010-08-23,Corporate
+BC000081,Customer81,Last81,724-15-8212,customer81@bank.com,555-7536,BRANCH007,Branch 7,New York,FL,2022-04-06,Corporate
+BC000082,Customer82,Last82,616-24-6087,customer82@bank.com,555-9791,BRANCH008,Branch 8,San Francisco,MA,2013-11-01,Corporate
+BC000083,Customer83,Last83,369-88-1235,customer83@bank.com,555-4883,BRANCH009,Branch 9,San Francisco,NY,2014-10-23,Business
+BC000084,Customer84,Last84,385-82-2533,customer84@bank.com,555-2948,BRANCH010,Branch 10,Boston,MA,2015-01-21,Business
+BC000085,Customer85,Last85,480-12-1665,customer85@bank.com,555-5572,BRANCH011,Branch 11,San Francisco,MA,2017-04-18,Corporate
+BC000086,Customer86,Last86,991-35-2723,customer86@bank.com,555-6446,BRANCH012,Branch 12,Boston,IL,2010-06-11,Corporate
+BC000087,Customer87,Last87,980-26-3905,customer87@bank.com,555-6279,BRANCH013,Branch 13,New York,FL,2019-05-06,Corporate
+BC000088,Customer88,Last88,503-14-4241,customer88@bank.com,555-1964,BRANCH014,Branch 14,San Francisco,MA,2013-10-13,Business
+BC000089,Customer89,Last89,668-64-8243,customer89@bank.com,555-6899,BRANCH015,Branch 15,Boston,MA,2016-08-30,Individual
+BC000090,Customer90,Last90,890-51-2228,customer90@bank.com,555-6168,BRANCH001,Branch 1,San Francisco,IL,2010-01-24,Corporate
+BC000091,Customer91,Last91,605-46-4308,customer91@bank.com,555-3238,BRANCH002,Branch 2,Boston,NY,2013-04-12,Individual
+BC000092,Customer92,Last92,274-17-8507,customer92@bank.com,555-9940,BRANCH003,Branch 3,New York,NY,2020-03-31,Business
+BC000093,Customer93,Last93,652-21-1034,customer93@bank.com,555-2895,BRANCH004,Branch 4,New York,CA,2010-09-06,Individual
+BC000094,Customer94,Last94,921-10-9237,customer94@bank.com,555-3494,BRANCH005,Branch 5,San Francisco,IL,2022-09-23,Business
+BC000095,Customer95,Last95,109-86-1402,customer95@bank.com,555-8602,BRANCH006,Branch 6,Chicago,MA,2009-02-07,Corporate
+BC000096,Customer96,Last96,647-55-2864,customer96@bank.com,555-7562,BRANCH007,Branch 7,Boston,NY,2012-04-13,Individual
+BC000097,Customer97,Last97,610-60-5271,customer97@bank.com,555-6118,BRANCH008,Branch 8,Chicago,FL,2023-10-28,Business
+BC000098,Customer98,Last98,328-85-5733,customer98@bank.com,555-7531,BRANCH009,Branch 9,New York,MA,2010-05-23,Individual
+BC000099,Customer99,Last99,228-98-3767,customer99@bank.com,555-8638,BRANCH010,Branch 10,Boston,CA,2015-03-22,Individual
+BC000100,Customer100,Last100,119-53-5400,customer100@bank.com,555-1616,BRANCH011,Branch 11,San Francisco,MA,2024-06-19,Corporate
+BC000101,Customer101,Last101,969-33-9572,customer101@bank.com,555-5952,BRANCH012,Branch 12,Boston,IL,2008-09-23,Business
+BC000102,Customer102,Last102,698-28-2491,customer102@bank.com,555-9690,BRANCH013,Branch 13,Miami,IL,2016-04-22,Corporate
+BC000103,Customer103,Last103,619-61-5098,customer103@bank.com,555-4558,BRANCH014,Branch 14,San Francisco,FL,2014-10-24,Business
+BC000104,Customer104,Last104,460-34-2038,customer104@bank.com,555-9720,BRANCH015,Branch 15,New York,CA,2019-09-01,Corporate
+BC000105,Customer105,Last105,401-81-8223,customer105@bank.com,555-7727,BRANCH001,Branch 1,New York,IL,2018-02-02,Business
+BC000106,Customer106,Last106,329-38-8228,customer106@bank.com,555-4798,BRANCH002,Branch 2,Boston,NY,2010-12-26,Individual
+BC000107,Customer107,Last107,624-52-8182,customer107@bank.com,555-6561,BRANCH003,Branch 3,San Francisco,MA,2011-05-19,Business
+BC000108,Customer108,Last108,553-60-4540,customer108@bank.com,555-2715,BRANCH004,Branch 4,Miami,CA,2010-03-27,Business
+BC000109,Customer109,Last109,284-83-1262,customer109@bank.com,555-1213,BRANCH005,Branch 5,San Francisco,IL,2011-08-02,Individual
+BC000110,Customer110,Last110,757-72-9801,customer110@bank.com,555-6601,BRANCH006,Branch 6,San Francisco,CA,2018-04-11,Business
+BC000111,Customer111,Last111,841-94-2284,customer111@bank.com,555-6199,BRANCH007,Branch 7,New York,CA,2022-05-27,Business
+BC000112,Customer112,Last112,603-61-1074,customer112@bank.com,555-9569,BRANCH008,Branch 8,Miami,MA,2023-11-28,Individual
+BC000113,Customer113,Last113,120-58-7999,customer113@bank.com,555-6199,BRANCH009,Branch 9,Miami,FL,2014-11-26,Corporate
+BC000114,Customer114,Last114,793-30-6086,customer114@bank.com,555-3120,BRANCH010,Branch 10,Chicago,MA,2016-10-24,Corporate
+BC000115,Customer115,Last115,233-83-4580,customer115@bank.com,555-6400,BRANCH011,Branch 11,Chicago,NY,2010-10-25,Corporate
+BC000116,Customer116,Last116,407-47-6517,customer116@bank.com,555-1291,BRANCH012,Branch 12,San Francisco,FL,2012-07-21,Business
+BC000117,Customer117,Last117,298-77-4252,customer117@bank.com,555-5157,BRANCH013,Branch 13,Boston,MA,2011-05-20,Individual
+BC000118,Customer118,Last118,635-25-5218,customer118@bank.com,555-5820,BRANCH014,Branch 14,Miami,FL,2016-02-15,Individual
+BC000119,Customer119,Last119,240-87-7626,customer119@bank.com,555-6418,BRANCH015,Branch 15,San Francisco,CA,2009-06-26,Corporate
+BC000120,Customer120,Last120,826-38-2257,customer120@bank.com,555-6645,BRANCH001,Branch 1,San Francisco,NY,2014-02-23,Individual
+BC000121,Customer121,Last121,577-86-2710,customer121@bank.com,555-1695,BRANCH002,Branch 2,Chicago,FL,2009-04-16,Business
+BC000122,Customer122,Last122,628-64-1374,customer122@bank.com,555-2240,BRANCH003,Branch 3,Chicago,NY,2013-05-03,Corporate
+BC000123,Customer123,Last123,883-91-4701,customer123@bank.com,555-4911,BRANCH004,Branch 4,Chicago,IL,2023-04-27,Individual
+BC000124,Customer124,Last124,720-77-3440,customer124@bank.com,555-5120,BRANCH005,Branch 5,Chicago,IL,2007-12-31,Individual
+BC000125,Customer125,Last125,620-36-4265,customer125@bank.com,555-9129,BRANCH006,Branch 6,Miami,FL,2022-06-23,Business
+BC000126,Customer126,Last126,766-72-6039,customer126@bank.com,555-3370,BRANCH007,Branch 7,Chicago,NY,2014-08-19,Business
+BC000127,Customer127,Last127,327-77-3177,customer127@bank.com,555-1750,BRANCH008,Branch 8,San Francisco,FL,2016-12-04,Corporate
+BC000128,Customer128,Last128,160-93-1909,customer128@bank.com,555-8262,BRANCH009,Branch 9,Miami,MA,2014-11-14,Business
+BC000129,Customer129,Last129,987-52-6473,customer129@bank.com,555-1009,BRANCH010,Branch 10,New York,IL,2020-08-20,Corporate
+BC000130,Customer130,Last130,426-71-7287,customer130@bank.com,555-1977,BRANCH011,Branch 11,San Francisco,MA,2014-10-03,Individual
+BC000131,Customer131,Last131,322-59-2113,customer131@bank.com,555-5409,BRANCH012,Branch 12,San Francisco,IL,2014-04-27,Business
+BC000132,Customer132,Last132,186-55-2526,customer132@bank.com,555-8119,BRANCH013,Branch 13,San Francisco,CA,2011-02-02,Business
+BC000133,Customer133,Last133,547-63-2054,customer133@bank.com,555-5509,BRANCH014,Branch 14,Miami,CA,2009-03-19,Business
+BC000134,Customer134,Last134,768-40-7825,customer134@bank.com,555-5943,BRANCH015,Branch 15,Miami,IL,2023-03-20,Business
+BC000135,Customer135,Last135,640-30-8366,customer135@bank.com,555-6925,BRANCH001,Branch 1,Boston,MA,2020-05-07,Individual
+BC000136,Customer136,Last136,880-59-2119,customer136@bank.com,555-5266,BRANCH002,Branch 2,Boston,NY,2023-02-08,Business
+BC000137,Customer137,Last137,785-42-2408,customer137@bank.com,555-7190,BRANCH003,Branch 3,Chicago,NY,2008-08-16,Individual
+BC000138,Customer138,Last138,162-85-3540,customer138@bank.com,555-6364,BRANCH004,Branch 4,Boston,FL,2007-03-07,Individual
+BC000139,Customer139,Last139,969-96-6407,customer139@bank.com,555-7989,BRANCH005,Branch 5,San Francisco,MA,2013-03-25,Individual
+BC000140,Customer140,Last140,740-81-8763,customer140@bank.com,555-8824,BRANCH006,Branch 6,Boston,MA,2017-07-14,Business
+BC000141,Customer141,Last141,100-27-4676,customer141@bank.com,555-5876,BRANCH007,Branch 7,Boston,NY,2018-07-20,Business
+BC000142,Customer142,Last142,217-34-8400,customer142@bank.com,555-5465,BRANCH008,Branch 8,New York,CA,2012-12-22,Corporate
+BC000143,Customer143,Last143,900-30-7850,customer143@bank.com,555-6833,BRANCH009,Branch 9,Boston,IL,2020-11-04,Corporate
+BC000144,Customer144,Last144,328-95-7167,customer144@bank.com,555-8842,BRANCH010,Branch 10,Chicago,MA,2020-11-21,Business
+BC000145,Customer145,Last145,478-42-6587,customer145@bank.com,555-5234,BRANCH011,Branch 11,New York,CA,2007-06-05,Business
+BC000146,Customer146,Last146,698-91-9358,customer146@bank.com,555-5043,BRANCH012,Branch 12,Miami,MA,2016-10-18,Corporate
+BC000147,Customer147,Last147,466-52-4880,customer147@bank.com,555-7542,BRANCH013,Branch 13,Chicago,CA,2020-11-01,Corporate
+BC000148,Customer148,Last148,150-84-5292,customer148@bank.com,555-8176,BRANCH014,Branch 14,New York,IL,2019-02-19,Business
+BC000149,Customer149,Last149,606-60-6866,customer149@bank.com,555-9262,BRANCH015,Branch 15,San Francisco,FL,2010-01-23,Corporate
+BC000150,Customer150,Last150,974-11-2115,customer150@bank.com,555-8675,BRANCH001,Branch 1,Boston,FL,2021-03-19,Business
+BC000151,Customer151,Last151,163-44-4932,customer151@bank.com,555-9379,BRANCH002,Branch 2,Miami,IL,2008-09-09,Individual
+BC000152,Customer152,Last152,986-76-8384,customer152@bank.com,555-2028,BRANCH003,Branch 3,Chicago,FL,2019-09-01,Business
+BC000153,Customer153,Last153,767-93-5366,customer153@bank.com,555-4681,BRANCH004,Branch 4,New York,CA,2006-06-11,Corporate
+BC000154,Customer154,Last154,734-98-8637,customer154@bank.com,555-4933,BRANCH005,Branch 5,Miami,IL,2017-12-06,Business
+BC000155,Customer155,Last155,993-32-5592,customer155@bank.com,555-1994,BRANCH006,Branch 6,San Francisco,FL,2007-08-24,Business
+BC000156,Customer156,Last156,939-78-1121,customer156@bank.com,555-5940,BRANCH007,Branch 7,Boston,FL,2013-02-13,Business
+BC000157,Customer157,Last157,819-90-1766,customer157@bank.com,555-9835,BRANCH008,Branch 8,Boston,MA,2020-06-05,Business
+BC000158,Customer158,Last158,772-32-8989,customer158@bank.com,555-3712,BRANCH009,Branch 9,Chicago,MA,2006-11-03,Business
+BC000159,Customer159,Last159,206-24-6750,customer159@bank.com,555-8297,BRANCH010,Branch 10,Miami,MA,2020-07-23,Business
+BC000160,Customer160,Last160,900-78-2393,customer160@bank.com,555-6593,BRANCH011,Branch 11,Boston,NY,2006-01-31,Business
+BC000161,Customer161,Last161,260-18-9008,customer161@bank.com,555-4467,BRANCH012,Branch 12,Boston,MA,2005-12-14,Individual
+BC000162,Customer162,Last162,340-77-9114,customer162@bank.com,555-4235,BRANCH013,Branch 13,New York,IL,2024-06-13,Corporate
+BC000163,Customer163,Last163,755-37-2234,customer163@bank.com,555-2922,BRANCH014,Branch 14,Boston,MA,2015-08-02,Corporate
+BC000164,Customer164,Last164,223-64-3778,customer164@bank.com,555-6090,BRANCH015,Branch 15,Boston,FL,2008-08-26,Corporate
+BC000165,Customer165,Last165,635-83-8071,customer165@bank.com,555-8856,BRANCH001,Branch 1,Boston,CA,2008-05-19,Individual
+BC000166,Customer166,Last166,614-27-3951,customer166@bank.com,555-6112,BRANCH002,Branch 2,Boston,FL,2010-10-15,Corporate
+BC000167,Customer167,Last167,285-26-5221,customer167@bank.com,555-9094,BRANCH003,Branch 3,Boston,FL,2015-05-26,Business
+BC000168,Customer168,Last168,143-97-8468,customer168@bank.com,555-2679,BRANCH004,Branch 4,Boston,MA,2022-11-02,Corporate
+BC000169,Customer169,Last169,374-76-6886,customer169@bank.com,555-8540,BRANCH005,Branch 5,Miami,CA,2017-05-30,Business
+BC000170,Customer170,Last170,649-57-3826,customer170@bank.com,555-4150,BRANCH006,Branch 6,Chicago,CA,2011-07-01,Corporate
+BC000171,Customer171,Last171,156-13-4098,customer171@bank.com,555-5789,BRANCH007,Branch 7,New York,CA,2007-06-20,Business
+BC000172,Customer172,Last172,344-42-6588,customer172@bank.com,555-5413,BRANCH008,Branch 8,San Francisco,IL,2014-03-04,Individual
+BC000173,Customer173,Last173,167-54-6155,customer173@bank.com,555-9485,BRANCH009,Branch 9,San Francisco,CA,2023-06-01,Corporate
+BC000174,Customer174,Last174,215-82-6459,customer174@bank.com,555-2380,BRANCH010,Branch 10,Boston,NY,2007-05-11,Corporate
+BC000175,Customer175,Last175,101-67-1426,customer175@bank.com,555-8123,BRANCH011,Branch 11,Boston,MA,2010-04-02,Business
+BC000176,Customer176,Last176,783-87-4234,customer176@bank.com,555-2916,BRANCH012,Branch 12,San Francisco,NY,2007-02-08,Business
+BC000177,Customer177,Last177,984-48-6123,customer177@bank.com,555-4994,BRANCH013,Branch 13,Miami,CA,2020-07-26,Business
+BC000178,Customer178,Last178,403-30-6714,customer178@bank.com,555-6282,BRANCH014,Branch 14,New York,CA,2016-10-22,Individual
+BC000179,Customer179,Last179,348-98-3864,customer179@bank.com,555-2450,BRANCH015,Branch 15,New York,NY,2021-04-20,Business
+BC000180,Customer180,Last180,407-99-7610,customer180@bank.com,555-8391,BRANCH001,Branch 1,Chicago,FL,2023-05-09,Business
+BC000181,Customer181,Last181,693-85-6868,customer181@bank.com,555-8356,BRANCH002,Branch 2,Boston,NY,2019-09-08,Individual
+BC000182,Customer182,Last182,819-71-1030,customer182@bank.com,555-6904,BRANCH003,Branch 3,Boston,FL,2010-02-22,Corporate
+BC000183,Customer183,Last183,228-57-4214,customer183@bank.com,555-4057,BRANCH004,Branch 4,New York,NY,2018-12-09,Individual
+BC000184,Customer184,Last184,437-49-7076,customer184@bank.com,555-7362,BRANCH005,Branch 5,San Francisco,MA,2014-05-04,Corporate
+BC000185,Customer185,Last185,622-75-4775,customer185@bank.com,555-8158,BRANCH006,Branch 6,Miami,MA,2019-08-16,Business
+BC000186,Customer186,Last186,747-48-6110,customer186@bank.com,555-6069,BRANCH007,Branch 7,Miami,FL,2022-04-10,Individual
+BC000187,Customer187,Last187,777-61-4178,customer187@bank.com,555-3167,BRANCH008,Branch 8,Boston,MA,2007-10-28,Individual
+BC000188,Customer188,Last188,678-27-1444,customer188@bank.com,555-7176,BRANCH009,Branch 9,New York,IL,2021-09-30,Corporate
+BC000189,Customer189,Last189,401-28-3296,customer189@bank.com,555-2251,BRANCH010,Branch 10,New York,FL,2006-04-18,Individual
+BC000190,Customer190,Last190,372-67-5303,customer190@bank.com,555-4481,BRANCH011,Branch 11,Chicago,NY,2015-03-28,Corporate
+BC000191,Customer191,Last191,779-71-9871,customer191@bank.com,555-3776,BRANCH012,Branch 12,New York,FL,2011-11-30,Corporate
+BC000192,Customer192,Last192,312-74-8866,customer192@bank.com,555-3201,BRANCH013,Branch 13,New York,NY,2021-10-18,Individual
+BC000193,Customer193,Last193,320-75-3474,customer193@bank.com,555-9278,BRANCH014,Branch 14,San Francisco,FL,2007-12-06,Corporate
+BC000194,Customer194,Last194,954-15-2717,customer194@bank.com,555-7047,BRANCH015,Branch 15,New York,IL,2010-12-16,Business
+BC000195,Customer195,Last195,405-72-7976,customer195@bank.com,555-2288,BRANCH001,Branch 1,Boston,FL,2008-01-13,Individual
+BC000196,Customer196,Last196,840-90-7361,customer196@bank.com,555-9402,BRANCH002,Branch 2,New York,CA,2024-01-17,Business
+BC000197,Customer197,Last197,844-13-1100,customer197@bank.com,555-6353,BRANCH003,Branch 3,Chicago,MA,2013-03-21,Individual
+BC000198,Customer198,Last198,181-99-4286,customer198@bank.com,555-2941,BRANCH004,Branch 4,Chicago,CA,2019-07-06,Business
+BC000199,Customer199,Last199,100-55-9087,customer199@bank.com,555-5292,BRANCH005,Branch 5,San Francisco,CA,2022-08-09,Corporate
+BC000200,Customer200,Last200,210-25-6636,customer200@bank.com,555-5359,BRANCH006,Branch 6,Miami,IL,2011-01-03,Corporate

@@ -1,0 +1,21 @@
+category_id,category_name,parent_category_id,description
+CAT01,Category 1,,Description for category 1
+CAT02,Category 2,CAT01,Description for category 2
+CAT03,Category 3,CAT01,Description for category 3
+CAT04,Category 4,CAT02,Description for category 4
+CAT05,Category 5,CAT02,Description for category 5
+CAT06,Category 6,CAT03,Description for category 6
+CAT07,Category 7,CAT03,Description for category 7
+CAT08,Category 8,CAT04,Description for category 8
+CAT09,Category 9,CAT04,Description for category 9
+CAT10,Category 10,CAT05,Description for category 10
+CAT11,Category 11,CAT05,Description for category 11
+CAT12,Category 12,CAT06,Description for category 12
+CAT13,Category 13,CAT06,Description for category 13
+CAT14,Category 14,CAT07,Description for category 14
+CAT15,Category 15,CAT07,Description for category 15
+CAT16,Category 16,CAT08,Description for category 16
+CAT17,Category 17,CAT08,Description for category 17
+CAT18,Category 18,CAT09,Description for category 18
+CAT19,Category 19,CAT09,Description for category 19
+CAT20,Category 20,CAT10,Description for category 20

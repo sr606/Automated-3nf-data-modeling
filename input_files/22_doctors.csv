@@ -1,0 +1,51 @@
+doctor_id,first_name,last_name,specialty_id,specialty_name,years_experience,hospital_id,hospital_name,hospital_city,phone,email
+DOC0001,Dr. 1,Doctor1,SPEC02,ENT,7,HOSP02,Hospital 2,Boston,555-1059,doctor1@hospital.com
+DOC0002,Dr. 2,Doctor2,SPEC03,Orthopedics,2,HOSP03,Hospital 3,LA,555-7623,doctor2@hospital.com
+DOC0003,Dr. 3,Doctor3,SPEC04,Emergency,12,HOSP04,Hospital 4,Boston,555-7063,doctor3@hospital.com
+DOC0004,Dr. 4,Doctor4,SPEC05,Anesthesiology,18,HOSP05,Hospital 5,Chicago,555-7212,doctor4@hospital.com
+DOC0005,Dr. 5,Doctor5,SPEC06,Surgery,5,HOSP01,Hospital 1,Chicago,555-1320,doctor5@hospital.com
+DOC0006,Dr. 6,Doctor6,SPEC07,Emergency,3,HOSP02,Hospital 2,LA,555-8091,doctor6@hospital.com
+DOC0007,Dr. 7,Doctor7,SPEC08,Emergency,25,HOSP03,Hospital 3,LA,555-5401,doctor7@hospital.com
+DOC0008,Dr. 8,Doctor8,SPEC09,Dermatology,5,HOSP04,Hospital 4,Boston,555-7438,doctor8@hospital.com
+DOC0009,Dr. 9,Doctor9,SPEC10,Emergency,24,HOSP05,Hospital 5,Chicago,555-2417,doctor9@hospital.com
+DOC0010,Dr. 10,Doctor10,SPEC11,Ophthalmology,6,HOSP01,Hospital 1,New York,555-5623,doctor10@hospital.com
+DOC0011,Dr. 11,Doctor11,SPEC12,Cardiology,29,HOSP02,Hospital 2,Houston,555-6307,doctor11@hospital.com
+DOC0012,Dr. 12,Doctor12,SPEC13,Dermatology,26,HOSP03,Hospital 3,Houston,555-5405,doctor12@hospital.com
+DOC0013,Dr. 13,Doctor13,SPEC14,ENT,40,HOSP04,Hospital 4,LA,555-1687,doctor13@hospital.com
+DOC0014,Dr. 14,Doctor14,SPEC15,Family Medicine,40,HOSP05,Hospital 5,Boston,555-7017,doctor14@hospital.com
+DOC0015,Dr. 15,Doctor15,SPEC01,ENT,36,HOSP01,Hospital 1,New York,555-8043,doctor15@hospital.com
+DOC0016,Dr. 16,Doctor16,SPEC02,Radiology,36,HOSP02,Hospital 2,New York,555-5820,doctor16@hospital.com
+DOC0017,Dr. 17,Doctor17,SPEC03,Family Medicine,10,HOSP03,Hospital 3,LA,555-9753,doctor17@hospital.com
+DOC0018,Dr. 18,Doctor18,SPEC04,Ophthalmology,37,HOSP04,Hospital 4,Houston,555-7639,doctor18@hospital.com
+DOC0019,Dr. 19,Doctor19,SPEC05,Neurology,25,HOSP05,Hospital 5,Houston,555-8522,doctor19@hospital.com
+DOC0020,Dr. 20,Doctor20,SPEC06,ENT,1,HOSP01,Hospital 1,Houston,555-4835,doctor20@hospital.com
+DOC0021,Dr. 21,Doctor21,SPEC07,Family Medicine,28,HOSP02,Hospital 2,Houston,555-9520,doctor21@hospital.com
+DOC0022,Dr. 22,Doctor22,SPEC08,Emergency,37,HOSP03,Hospital 3,Boston,555-8741,doctor22@hospital.com
+DOC0023,Dr. 23,Doctor23,SPEC09,Family Medicine,32,HOSP04,Hospital 4,Houston,555-2190,doctor23@hospital.com
+DOC0024,Dr. 24,Doctor24,SPEC10,Psychiatry,2,HOSP05,Hospital 5,Chicago,555-8024,doctor24@hospital.com
+DOC0025,Dr. 25,Doctor25,SPEC11,Neurology,24,HOSP01,Hospital 1,LA,555-2270,doctor25@hospital.com
+DOC0026,Dr. 26,Doctor26,SPEC12,Internal Medicine,30,HOSP02,Hospital 2,LA,555-1382,doctor26@hospital.com
+DOC0027,Dr. 27,Doctor27,SPEC13,Ophthalmology,39,HOSP03,Hospital 3,New York,555-3072,doctor27@hospital.com
+DOC0028,Dr. 28,Doctor28,SPEC14,Cardiology,6,HOSP04,Hospital 4,New York,555-8071,doctor28@hospital.com
+DOC0029,Dr. 29,Doctor29,SPEC15,Emergency,23,HOSP05,Hospital 5,LA,555-9552,doctor29@hospital.com
+DOC0030,Dr. 30,Doctor30,SPEC01,Internal Medicine,36,HOSP01,Hospital 1,New York,555-7228,doctor30@hospital.com
+DOC0031,Dr. 31,Doctor31,SPEC02,Cardiology,20,HOSP02,Hospital 2,Boston,555-1095,doctor31@hospital.com
+DOC0032,Dr. 32,Doctor32,SPEC03,ENT,37,HOSP03,Hospital 3,Chicago,555-3280,doctor32@hospital.com
+DOC0033,Dr. 33,Doctor33,SPEC04,Dermatology,30,HOSP04,Hospital 4,Chicago,555-6498,doctor33@hospital.com
+DOC0034,Dr. 34,Doctor34,SPEC05,Family Medicine,21,HOSP05,Hospital 5,Boston,555-8545,doctor34@hospital.com
+DOC0035,Dr. 35,Doctor35,SPEC06,Surgery,30,HOSP01,Hospital 1,Chicago,555-2478,doctor35@hospital.com
+DOC0036,Dr. 36,Doctor36,SPEC07,Oncology,9,HOSP02,Hospital 2,LA,555-5862,doctor36@hospital.com
+DOC0037,Dr. 37,Doctor37,SPEC08,Radiology,39,HOSP03,Hospital 3,New York,555-2222,doctor37@hospital.com
+DOC0038,Dr. 38,Doctor38,SPEC09,Dermatology,35,HOSP04,Hospital 4,Houston,555-3370,doctor38@hospital.com
+DOC0039,Dr. 39,Doctor39,SPEC10,Pediatrics,6,HOSP05,Hospital 5,Houston,555-7599,doctor39@hospital.com
+DOC0040,Dr. 40,Doctor40,SPEC11,Neurology,28,HOSP01,Hospital 1,Chicago,555-3900,doctor40@hospital.com
+DOC0041,Dr. 41,Doctor41,SPEC12,Neurology,10,HOSP02,Hospital 2,Houston,555-8823,doctor41@hospital.com
+DOC0042,Dr. 42,Doctor42,SPEC13,Psychiatry,33,HOSP03,Hospital 3,Houston,555-2219,doctor42@hospital.com
+DOC0043,Dr. 43,Doctor43,SPEC14,Surgery,4,HOSP04,Hospital 4,Chicago,555-7003,doctor43@hospital.com
+DOC0044,Dr. 44,Doctor44,SPEC15,Pediatrics,9,HOSP05,Hospital 5,Boston,555-6678,doctor44@hospital.com
+DOC0045,Dr. 45,Doctor45,SPEC01,Oncology,19,HOSP01,Hospital 1,Chicago,555-8964,doctor45@hospital.com
+DOC0046,Dr. 46,Doctor46,SPEC02,Anesthesiology,3,HOSP02,Hospital 2,Chicago,555-8128,doctor46@hospital.com
+DOC0047,Dr. 47,Doctor47,SPEC03,ENT,33,HOSP03,Hospital 3,New York,555-1047,doctor47@hospital.com
+DOC0048,Dr. 48,Doctor48,SPEC04,Anesthesiology,37,HOSP04,Hospital 4,New York,555-3069,doctor48@hospital.com
+DOC0049,Dr. 49,Doctor49,SPEC05,Anesthesiology,24,HOSP05,Hospital 5,LA,555-1000,doctor49@hospital.com
+DOC0050,Dr. 50,Doctor50,SPEC06,Ophthalmology,37,HOSP01,Hospital 1,Boston,555-1815,doctor50@hospital.com

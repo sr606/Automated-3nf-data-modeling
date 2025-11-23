@@ -165,18 +165,26 @@ class Normalizer:
             new_table_name = f"{table_name}_{'_'.join(key_cols)}"
             
             # Columns for new table: partial key + dependent columns
-            new_table_cols = key_cols + dependent_cols
+            # Only include columns that actually exist in the dataframe
+            available_key_cols = [col for col in key_cols if col in df.columns]
+            available_dependent_cols = [col for col in dependent_cols if col in result_tables[table_name].columns]
+            
+            if not available_key_cols or not available_dependent_cols:
+                # Skip if columns don't exist
+                continue
+            
+            new_table_cols = available_key_cols + available_dependent_cols
             
             # Create new table
             new_df = df[new_table_cols].drop_duplicates().reset_index(drop=True)
             result_tables[new_table_name] = new_df
             
-            # Remove dependent columns from original table
-            result_tables[table_name] = result_tables[table_name].drop(columns=dependent_cols)
+            # Remove dependent columns from original table (only those that exist)
+            result_tables[table_name] = result_tables[table_name].drop(columns=available_dependent_cols)
             
             self.normalization_log.append(f"  → Created table '{new_table_name}' for partial dependency")
-            self.normalization_log.append(f"     PK: ({', '.join(key_cols)})")
-            self.normalization_log.append(f"     Attributes: {', '.join(dependent_cols)}")
+            self.normalization_log.append(f"     PK: ({', '.join(available_key_cols)})")
+            self.normalization_log.append(f"     Attributes: {', '.join(available_dependent_cols)}")
         
         return result_tables
     

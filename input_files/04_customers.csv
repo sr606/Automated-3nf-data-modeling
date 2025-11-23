@@ -1,0 +1,101 @@
+customer_id,first_name,last_name,email,phone,address_id,street,city,state,zip,country
+CUST0001,FirstName1,LastName1,customer1@example.com,555-7302,ADDR002,6959 Main St,Phoenix,CA,45860,USA
+CUST0002,FirstName2,LastName2,customer2@example.com,555-7518,ADDR003,5717 Main St,Chicago,TX,27481,USA
+CUST0003,FirstName3,LastName3,customer3@example.com,555-3263,ADDR004,6862 Main St,Phoenix,AZ,49179,USA
+CUST0004,FirstName4,LastName4,customer4@example.com,555-9975,ADDR005,5243 Main St,Phoenix,CA,36330,USA
+CUST0005,FirstName5,LastName5,customer5@example.com,555-4435,ADDR006,4860 Main St,Chicago,CA,95208,USA
+CUST0006,FirstName6,LastName6,customer6@example.com,555-3913,ADDR007,8355 Main St,Phoenix,IL,25126,USA
+CUST0007,FirstName7,LastName7,customer7@example.com,555-6771,ADDR008,9312 Main St,Houston,AZ,84794,USA
+CUST0008,FirstName8,LastName8,customer8@example.com,555-7839,ADDR009,8847 Main St,Chicago,TX,11673,USA
+CUST0009,FirstName9,LastName9,customer9@example.com,555-9564,ADDR010,1844 Main St,New York,TX,29048,USA
+CUST0010,FirstName10,LastName10,customer10@example.com,555-1869,ADDR011,1027 Main St,Los Angeles,IL,31094,USA
+CUST0011,FirstName11,LastName11,customer11@example.com,555-5695,ADDR012,4205 Main St,Los Angeles,NY,48684,USA
+CUST0012,FirstName12,LastName12,customer12@example.com,555-4342,ADDR013,8966 Main St,New York,IL,69322,USA
+CUST0013,FirstName13,LastName13,customer13@example.com,555-2679,ADDR014,9305 Main St,Los Angeles,AZ,60972,USA
+CUST0014,FirstName14,LastName14,customer14@example.com,555-4892,ADDR015,8470 Main St,Chicago,NY,60014,USA
+CUST0015,FirstName15,LastName15,customer15@example.com,555-7349,ADDR016,6925 Main St,Chicago,AZ,17051,USA
+CUST0016,FirstName16,LastName16,customer16@example.com,555-1212,ADDR017,4217 Main St,Los Angeles,AZ,68073,USA
+CUST0017,FirstName17,LastName17,customer17@example.com,555-4695,ADDR018,6125 Main St,Phoenix,AZ,89087,USA
+CUST0018,FirstName18,LastName18,customer18@example.com,555-4218,ADDR019,3270 Main St,Chicago,TX,33255,USA
+CUST0019,FirstName19,LastName19,customer19@example.com,555-2220,ADDR020,3163 Main St,Los Angeles,AZ,25643,USA
+CUST0020,FirstName20,LastName20,customer20@example.com,555-7180,ADDR021,765 Main St,Houston,IL,82954,USA
+CUST0021,FirstName21,LastName21,customer21@example.com,555-5329,ADDR022,2231 Main St,Los Angeles,AZ,43425,USA
+CUST0022,FirstName22,LastName22,customer22@example.com,555-1092,ADDR023,5515 Main St,Houston,CA,15235,USA
+CUST0023,FirstName23,LastName23,customer23@example.com,555-3518,ADDR024,5385 Main St,Phoenix,NY,91968,USA
+CUST0024,FirstName24,LastName24,customer24@example.com,555-5934,ADDR025,8137 Main St,Phoenix,AZ,56934,USA
+CUST0025,FirstName25,LastName25,customer25@example.com,555-2194,ADDR026,5307 Main St,Phoenix,CA,34100,USA
+CUST0026,FirstName26,LastName26,customer26@example.com,555-9529,ADDR027,1217 Main St,Phoenix,CA,64516,USA
+CUST0027,FirstName27,LastName27,customer27@example.com,555-9897,ADDR028,8898 Main St,Houston,NY,55796,USA
+CUST0028,FirstName28,LastName28,customer28@example.com,555-4624,ADDR029,3595 Main St,Chicago,IL,57290,USA
+CUST0029,FirstName29,LastName29,customer29@example.com,555-5809,ADDR030,3679 Main St,Phoenix,AZ,72240,USA
+CUST0030,FirstName30,LastName30,customer30@example.com,555-1144,ADDR001,1979 Main St,Chicago,TX,41502,USA
+CUST0031,FirstName31,LastName31,customer31@example.com,555-4994,ADDR002,753 Main St,Chicago,TX,24860,USA
+CUST0032,FirstName32,LastName32,customer32@example.com,555-7322,ADDR003,4303 Main St,Phoenix,IL,13238,USA
+CUST0033,FirstName33,LastName33,customer33@example.com,555-9468,ADDR004,6243 Main St,Phoenix,AZ,68400,USA
+CUST0034,FirstName34,LastName34,customer34@example.com,555-8975,ADDR005,818 Main St,Chicago,CA,51984,USA
+CUST0035,FirstName35,LastName35,customer35@example.com,555-9419,ADDR006,1449 Main St,New York,CA,80513,USA
+CUST0036,FirstName36,LastName36,customer36@example.com,555-9736,ADDR007,220 Main St,New York,CA,97862,USA
+CUST0037,FirstName37,LastName37,customer37@example.com,555-4492,ADDR008,7050 Main St,New York,CA,80484,USA
+CUST0038,FirstName38,LastName38,customer38@example.com,555-8130,ADDR009,1281 Main St,Los Angeles,NY,70191,USA
+CUST0039,FirstName39,LastName39,customer39@example.com,555-6434,ADDR010,720 Main St,New York,NY,17113,USA
+CUST0040,FirstName40,LastName40,customer40@example.com,555-3916,ADDR011,4227 Main St,Phoenix,NY,85361,USA
+CUST0041,FirstName41,LastName41,customer41@example.com,555-4729,ADDR012,4337 Main St,Houston,TX,69129,USA
+CUST0042,FirstName42,LastName42,customer42@example.com,555-7626,ADDR013,7194 Main St,Chicago,NY,61052,USA
+CUST0043,FirstName43,LastName43,customer43@example.com,555-2938,ADDR014,8862 Main St,New York,AZ,18288,USA
+CUST0044,FirstName44,LastName44,customer44@example.com,555-1745,ADDR015,1289 Main St,Chicago,AZ,23911,USA
+CUST0045,FirstName45,LastName45,customer45@example.com,555-5748,ADDR016,5037 Main St,Phoenix,NY,46899,USA
+CUST0046,FirstName46,LastName46,customer46@example.com,555-8170,ADDR017,6349 Main St,Houston,NY,72126,USA
+CUST0047,FirstName47,LastName47,customer47@example.com,555-3561,ADDR018,8840 Main St,Los Angeles,CA,61248,USA
+CUST0048,FirstName48,LastName48,customer48@example.com,555-9941,ADDR019,4932 Main St,Los Angeles,IL,98773,USA
+CUST0049,FirstName49,LastName49,customer49@example.com,555-7113,ADDR020,282 Main St,Phoenix,AZ,28530,USA
+CUST0050,FirstName50,LastName50,customer50@example.com,555-3019,ADDR021,784 Main St,New York,AZ,88204,USA
+CUST0051,FirstName51,LastName51,customer51@example.com,555-7456,ADDR022,8900 Main St,Phoenix,NY,49936,USA
+CUST0052,FirstName52,LastName52,customer52@example.com,555-4441,ADDR023,5733 Main St,Los Angeles,TX,94663,USA
+CUST0053,FirstName53,LastName53,customer53@example.com,555-9397,ADDR024,2433 Main St,Los Angeles,CA,38939,USA
+CUST0054,FirstName54,LastName54,customer54@example.com,555-5140,ADDR025,3283 Main St,New York,CA,97946,USA
+CUST0055,FirstName55,LastName55,customer55@example.com,555-1891,ADDR026,9092 Main St,Houston,AZ,19587,USA
+CUST0056,FirstName56,LastName56,customer56@example.com,555-5762,ADDR027,1203 Main St,Chicago,NY,35875,USA
+CUST0057,FirstName57,LastName57,customer57@example.com,555-8982,ADDR028,5520 Main St,Chicago,CA,97988,USA
+CUST0058,FirstName58,LastName58,customer58@example.com,555-4842,ADDR029,1739 Main St,Chicago,AZ,19149,USA
+CUST0059,FirstName59,LastName59,customer59@example.com,555-4170,ADDR030,5306 Main St,Houston,TX,53036,USA
+CUST0060,FirstName60,LastName60,customer60@example.com,555-6008,ADDR001,9671 Main St,Los Angeles,AZ,84299,USA
+CUST0061,FirstName61,LastName61,customer61@example.com,555-6971,ADDR002,5282 Main St,Houston,CA,10633,USA
+CUST0062,FirstName62,LastName62,customer62@example.com,555-6131,ADDR003,4133 Main St,Los Angeles,TX,46264,USA
+CUST0063,FirstName63,LastName63,customer63@example.com,555-6889,ADDR004,2300 Main St,Chicago,TX,70666,USA
+CUST0064,FirstName64,LastName64,customer64@example.com,555-8296,ADDR005,5977 Main St,Chicago,TX,82308,USA
+CUST0065,FirstName65,LastName65,customer65@example.com,555-2783,ADDR006,2979 Main St,Phoenix,NY,46780,USA
+CUST0066,FirstName66,LastName66,customer66@example.com,555-3293,ADDR007,8924 Main St,Los Angeles,IL,92132,USA
+CUST0067,FirstName67,LastName67,customer67@example.com,555-2252,ADDR008,1335 Main St,New York,AZ,92788,USA
+CUST0068,FirstName68,LastName68,customer68@example.com,555-1511,ADDR009,9633 Main St,Phoenix,TX,87337,USA
+CUST0069,FirstName69,LastName69,customer69@example.com,555-4485,ADDR010,700 Main St,Phoenix,IL,81233,USA
+CUST0070,FirstName70,LastName70,customer70@example.com,555-9842,ADDR011,7834 Main St,Los Angeles,IL,61445,USA
+CUST0071,FirstName71,LastName71,customer71@example.com,555-4658,ADDR012,9760 Main St,Chicago,CA,70909,USA
+CUST0072,FirstName72,LastName72,customer72@example.com,555-9210,ADDR013,8462 Main St,New York,TX,57692,USA
+CUST0073,FirstName73,LastName73,customer73@example.com,555-9227,ADDR014,273 Main St,Los Angeles,AZ,99674,USA
+CUST0074,FirstName74,LastName74,customer74@example.com,555-3717,ADDR015,8523 Main St,Los Angeles,TX,30869,USA
+CUST0075,FirstName75,LastName75,customer75@example.com,555-3935,ADDR016,9379 Main St,Phoenix,CA,73373,USA
+CUST0076,FirstName76,LastName76,customer76@example.com,555-6878,ADDR017,762 Main St,Los Angeles,TX,40375,USA
+CUST0077,FirstName77,LastName77,customer77@example.com,555-2029,ADDR018,4431 Main St,Chicago,CA,15610,USA
+CUST0078,FirstName78,LastName78,customer78@example.com,555-4387,ADDR019,8585 Main St,Chicago,TX,71561,USA
+CUST0079,FirstName79,LastName79,customer79@example.com,555-8448,ADDR020,860 Main St,New York,IL,23529,USA
+CUST0080,FirstName80,LastName80,customer80@example.com,555-9542,ADDR021,4580 Main St,Chicago,AZ,81349,USA
+CUST0081,FirstName81,LastName81,customer81@example.com,555-3848,ADDR022,6271 Main St,Houston,IL,87028,USA
+CUST0082,FirstName82,LastName82,customer82@example.com,555-2275,ADDR023,8565 Main St,Chicago,TX,39215,USA
+CUST0083,FirstName83,LastName83,customer83@example.com,555-9460,ADDR024,6749 Main St,Chicago,IL,73813,USA
+CUST0084,FirstName84,LastName84,customer84@example.com,555-8898,ADDR025,9999 Main St,New York,AZ,28214,USA
+CUST0085,FirstName85,LastName85,customer85@example.com,555-8207,ADDR026,2813 Main St,Los Angeles,NY,77441,USA
+CUST0086,FirstName86,LastName86,customer86@example.com,555-5600,ADDR027,3565 Main St,Los Angeles,CA,30625,USA
+CUST0087,FirstName87,LastName87,customer87@example.com,555-6934,ADDR028,9963 Main St,New York,CA,64344,USA
+CUST0088,FirstName88,LastName88,customer88@example.com,555-6410,ADDR029,1956 Main St,Houston,TX,72786,USA
+CUST0089,FirstName89,LastName89,customer89@example.com,555-4452,ADDR030,9779 Main St,Los Angeles,TX,12942,USA
+CUST0090,FirstName90,LastName90,customer90@example.com,555-4992,ADDR001,806 Main St,Los Angeles,AZ,87640,USA
+CUST0091,FirstName91,LastName91,customer91@example.com,555-3639,ADDR002,2307 Main St,Phoenix,NY,85008,USA
+CUST0092,FirstName92,LastName92,customer92@example.com,555-3406,ADDR003,1016 Main St,Los Angeles,IL,33597,USA
+CUST0093,FirstName93,LastName93,customer93@example.com,555-9464,ADDR004,6742 Main St,Phoenix,AZ,93574,USA
+CUST0094,FirstName94,LastName94,customer94@example.com,555-1305,ADDR005,4744 Main St,New York,CA,68877,USA
+CUST0095,FirstName95,LastName95,customer95@example.com,555-8723,ADDR006,7991 Main St,Los Angeles,CA,63840,USA
+CUST0096,FirstName96,LastName96,customer96@example.com,555-3338,ADDR007,9646 Main St,Los Angeles,AZ,96461,USA
+CUST0097,FirstName97,LastName97,customer97@example.com,555-9369,ADDR008,4433 Main St,Los Angeles,IL,69437,USA
+CUST0098,FirstName98,LastName98,customer98@example.com,555-2127,ADDR009,3865 Main St,Houston,TX,27329,USA
+CUST0099,FirstName99,LastName99,customer99@example.com,555-2778,ADDR010,371 Main St,Los Angeles,AZ,76107,USA
+CUST0100,FirstName100,LastName100,customer100@example.com,555-7877,ADDR011,2550 Main St,Phoenix,NY,33255,USA

@@ -1,0 +1,81 @@
+course_id,course_code,course_name,instructor_id,instructor_name,instructor_email,department_id,department_name,credits,semester,max_enrollment
+COURSE0001,CS183,Course 1,INST002,Professor 2,prof2@university.edu,DEPT02,Philosophy,5,Summer 2025,26
+COURSE0002,CS384,Course 2,INST003,Professor 3,prof3@university.edu,DEPT03,Psychology,5,Summer 2025,28
+COURSE0003,CS396,Course 3,INST004,Professor 4,prof4@university.edu,DEPT04,Business,5,Spring 2025,58
+COURSE0004,CS514,Course 4,INST005,Professor 5,prof5@university.edu,DEPT05,Engineering,3,Fall 2024,34
+COURSE0005,CS522,Course 5,INST006,Professor 6,prof6@university.edu,DEPT06,Philosophy,3,Summer 2025,93
+COURSE0006,CS544,Course 6,INST007,Professor 7,prof7@university.edu,DEPT07,Philosophy,3,Summer 2025,39
+COURSE0007,CS135,Course 7,INST008,Professor 8,prof8@university.edu,DEPT08,Chemistry,3,Spring 2025,70
+COURSE0008,CS593,Course 8,INST009,Professor 9,prof9@university.edu,DEPT09,Psychology,5,Summer 2025,46
+COURSE0009,CS148,Course 9,INST010,Professor 10,prof10@university.edu,DEPT10,Economics,3,Fall 2024,75
+COURSE0010,CS551,Course 10,INST011,Professor 11,prof11@university.edu,DEPT01,Business,4,Fall 2024,58
+COURSE0011,CS598,Course 11,INST012,Professor 12,prof12@university.edu,DEPT02,Mathematics,4,Fall 2024,21
+COURSE0012,CS539,Course 12,INST013,Professor 13,prof13@university.edu,DEPT03,Chemistry,5,Summer 2025,92
+COURSE0013,CS147,Course 13,INST014,Professor 14,prof14@university.edu,DEPT04,Philosophy,3,Summer 2025,81
+COURSE0014,CS248,Course 14,INST015,Professor 15,prof15@university.edu,DEPT05,Computer Science,4,Fall 2024,34
+COURSE0015,CS222,Course 15,INST016,Professor 16,prof16@university.edu,DEPT06,Chemistry,3,Fall 2024,51
+COURSE0016,CS239,Course 16,INST017,Professor 17,prof17@university.edu,DEPT07,Biology,5,Spring 2025,75
+COURSE0017,CS114,Course 17,INST018,Professor 18,prof18@university.edu,DEPT08,Economics,3,Spring 2025,86
+COURSE0018,CS343,Course 18,INST019,Professor 19,prof19@university.edu,DEPT09,Business,4,Fall 2024,83
+COURSE0019,CS332,Course 19,INST020,Professor 20,prof20@university.edu,DEPT10,Engineering,5,Fall 2024,65
+COURSE0020,CS462,Course 20,INST021,Professor 21,prof21@university.edu,DEPT01,Economics,3,Fall 2024,29
+COURSE0021,CS522,Course 21,INST022,Professor 22,prof22@university.edu,DEPT02,Business,5,Fall 2024,35
+COURSE0022,CS301,Course 22,INST023,Professor 23,prof23@university.edu,DEPT03,Computer Science,3,Summer 2025,83
+COURSE0023,CS591,Course 23,INST024,Professor 24,prof24@university.edu,DEPT04,Psychology,5,Fall 2024,31
+COURSE0024,CS433,Course 24,INST025,Professor 25,prof25@university.edu,DEPT05,Computer Science,4,Summer 2025,76
+COURSE0025,CS599,Course 25,INST026,Professor 26,prof26@university.edu,DEPT06,Computer Science,3,Summer 2025,98
+COURSE0026,CS294,Course 26,INST027,Professor 27,prof27@university.edu,DEPT07,Chemistry,3,Spring 2025,71
+COURSE0027,CS545,Course 27,INST028,Professor 28,prof28@university.edu,DEPT08,Economics,3,Fall 2024,64
+COURSE0028,CS404,Course 28,INST029,Professor 29,prof29@university.edu,DEPT09,Philosophy,4,Spring 2025,96
+COURSE0029,CS541,Course 29,INST030,Professor 30,prof30@university.edu,DEPT10,Business,4,Summer 2025,97
+COURSE0030,CS225,Course 30,INST001,Professor 1,prof1@university.edu,DEPT01,Physics,3,Fall 2024,79
+COURSE0031,CS130,Course 31,INST002,Professor 2,prof2@university.edu,DEPT02,Computer Science,4,Fall 2024,60
+COURSE0032,CS367,Course 32,INST003,Professor 3,prof3@university.edu,DEPT03,Computer Science,3,Summer 2025,83
+COURSE0033,CS543,Course 33,INST004,Professor 4,prof4@university.edu,DEPT04,Mathematics,4,Summer 2025,26
+COURSE0034,CS386,Course 34,INST005,Professor 5,prof5@university.edu,DEPT05,Business,3,Fall 2024,43
+COURSE0035,CS210,Course 35,INST006,Professor 6,prof6@university.edu,DEPT06,Biology,3,Fall 2024,71
+COURSE0036,CS272,Course 36,INST007,Professor 7,prof7@university.edu,DEPT07,Psychology,4,Spring 2025,56
+COURSE0037,CS551,Course 37,INST008,Professor 8,prof8@university.edu,DEPT08,Psychology,5,Summer 2025,90
+COURSE0038,CS198,Course 38,INST009,Professor 9,prof9@university.edu,DEPT09,Philosophy,5,Fall 2024,51
+COURSE0039,CS339,Course 39,INST010,Professor 10,prof10@university.edu,DEPT10,Engineering,5,Summer 2025,20
+COURSE0040,CS530,Course 40,INST011,Professor 11,prof11@university.edu,DEPT01,Philosophy,4,Fall 2024,38
+COURSE0041,CS368,Course 41,INST012,Professor 12,prof12@university.edu,DEPT02,Engineering,5,Summer 2025,38
+COURSE0042,CS451,Course 42,INST013,Professor 13,prof13@university.edu,DEPT03,Engineering,5,Spring 2025,55
+COURSE0043,CS282,Course 43,INST014,Professor 14,prof14@university.edu,DEPT04,Engineering,3,Fall 2024,99
+COURSE0044,CS493,Course 44,INST015,Professor 15,prof15@university.edu,DEPT05,Mathematics,5,Spring 2025,23
+COURSE0045,CS593,Course 45,INST016,Professor 16,prof16@university.edu,DEPT06,Chemistry,4,Summer 2025,41
+COURSE0046,CS498,Course 46,INST017,Professor 17,prof17@university.edu,DEPT07,Chemistry,4,Spring 2025,89
+COURSE0047,CS387,Course 47,INST018,Professor 18,prof18@university.edu,DEPT08,Chemistry,5,Summer 2025,82
+COURSE0048,CS200,Course 48,INST019,Professor 19,prof19@university.edu,DEPT09,Business,5,Summer 2025,44
+COURSE0049,CS174,Course 49,INST020,Professor 20,prof20@university.edu,DEPT10,Chemistry,5,Fall 2024,24
+COURSE0050,CS232,Course 50,INST021,Professor 21,prof21@university.edu,DEPT01,Chemistry,4,Spring 2025,76
+COURSE0051,CS286,Course 51,INST022,Professor 22,prof22@university.edu,DEPT02,Psychology,4,Spring 2025,73
+COURSE0052,CS560,Course 52,INST023,Professor 23,prof23@university.edu,DEPT03,Biology,5,Spring 2025,81
+COURSE0053,CS583,Course 53,INST024,Professor 24,prof24@university.edu,DEPT04,Biology,3,Spring 2025,49
+COURSE0054,CS351,Course 54,INST025,Professor 25,prof25@university.edu,DEPT05,Mathematics,3,Fall 2024,71
+COURSE0055,CS216,Course 55,INST026,Professor 26,prof26@university.edu,DEPT06,Mathematics,4,Spring 2025,64
+COURSE0056,CS555,Course 56,INST027,Professor 27,prof27@university.edu,DEPT07,Physics,5,Spring 2025,81
+COURSE0057,CS304,Course 57,INST028,Professor 28,prof28@university.edu,DEPT08,Computer Science,3,Spring 2025,65
+COURSE0058,CS362,Course 58,INST029,Professor 29,prof29@university.edu,DEPT09,Biology,3,Summer 2025,33
+COURSE0059,CS156,Course 59,INST030,Professor 30,prof30@university.edu,DEPT10,Biology,4,Fall 2024,67
+COURSE0060,CS324,Course 60,INST001,Professor 1,prof1@university.edu,DEPT01,Physics,5,Fall 2024,59
+COURSE0061,CS464,Course 61,INST002,Professor 2,prof2@university.edu,DEPT02,Chemistry,5,Spring 2025,28
+COURSE0062,CS137,Course 62,INST003,Professor 3,prof3@university.edu,DEPT03,Business,5,Spring 2025,35
+COURSE0063,CS152,Course 63,INST004,Professor 4,prof4@university.edu,DEPT04,Biology,4,Fall 2024,45
+COURSE0064,CS549,Course 64,INST005,Professor 5,prof5@university.edu,DEPT05,Business,3,Fall 2024,86
+COURSE0065,CS411,Course 65,INST006,Professor 6,prof6@university.edu,DEPT06,Physics,4,Summer 2025,22
+COURSE0066,CS500,Course 66,INST007,Professor 7,prof7@university.edu,DEPT07,Engineering,4,Spring 2025,100
+COURSE0067,CS238,Course 67,INST008,Professor 8,prof8@university.edu,DEPT08,Business,4,Spring 2025,42
+COURSE0068,CS479,Course 68,INST009,Professor 9,prof9@university.edu,DEPT09,Business,5,Fall 2024,68
+COURSE0069,CS359,Course 69,INST010,Professor 10,prof10@university.edu,DEPT10,Biology,3,Spring 2025,77
+COURSE0070,CS145,Course 70,INST011,Professor 11,prof11@university.edu,DEPT01,Biology,3,Fall 2024,57
+COURSE0071,CS549,Course 71,INST012,Professor 12,prof12@university.edu,DEPT02,Biology,5,Summer 2025,60
+COURSE0072,CS243,Course 72,INST013,Professor 13,prof13@university.edu,DEPT03,Engineering,5,Spring 2025,72
+COURSE0073,CS503,Course 73,INST014,Professor 14,prof14@university.edu,DEPT04,Business,3,Fall 2024,49
+COURSE0074,CS103,Course 74,INST015,Professor 15,prof15@university.edu,DEPT05,Mathematics,3,Summer 2025,72
+COURSE0075,CS429,Course 75,INST016,Professor 16,prof16@university.edu,DEPT06,Physics,3,Spring 2025,39
+COURSE0076,CS589,Course 76,INST017,Professor 17,prof17@university.edu,DEPT07,Chemistry,5,Spring 2025,95
+COURSE0077,CS341,Course 77,INST018,Professor 18,prof18@university.edu,DEPT08,Biology,5,Fall 2024,32
+COURSE0078,CS433,Course 78,INST019,Professor 19,prof19@university.edu,DEPT09,Economics,5,Fall 2024,69
+COURSE0079,CS508,Course 79,INST020,Professor 20,prof20@university.edu,DEPT10,Psychology,3,Summer 2025,67
+COURSE0080,CS436,Course 80,INST021,Professor 21,prof21@university.edu,DEPT01,Computer Science,5,Spring 2025,100

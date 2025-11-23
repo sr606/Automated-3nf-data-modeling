@@ -1,0 +1,26 @@
+department_id,department_name,hospital_id,hospital_name,building,floor,beds
+HDEPT001,Cardiology,HOSP02,Hospital 2,Main,5,29
+HDEPT002,Emergency,HOSP03,Hospital 3,South Wing,10,81
+HDEPT003,Neurology,HOSP04,Hospital 4,South Wing,7,86
+HDEPT004,Oncology,HOSP05,Hospital 5,East Tower,2,49
+HDEPT005,Maternity,HOSP01,Hospital 1,North Wing,7,13
+HDEPT006,Radiology,HOSP02,Hospital 2,Main,10,14
+HDEPT007,ICU,HOSP03,Hospital 3,Main,2,46
+HDEPT008,Neurology,HOSP04,Hospital 4,Main,1,37
+HDEPT009,Laboratory,HOSP05,Hospital 5,North Wing,8,75
+HDEPT010,Radiology,HOSP01,Hospital 1,Main,9,86
+HDEPT011,Maternity,HOSP02,Hospital 2,Main,5,60
+HDEPT012,ICU,HOSP03,Hospital 3,East Tower,4,81
+HDEPT013,Radiology,HOSP04,Hospital 4,Main,7,75
+HDEPT014,Oncology,HOSP05,Hospital 5,South Wing,2,77
+HDEPT015,Cardiology,HOSP01,Hospital 1,East Tower,10,15
+HDEPT016,Cardiology,HOSP02,Hospital 2,Main,10,58
+HDEPT017,Cardiology,HOSP03,Hospital 3,East Tower,9,78
+HDEPT018,Surgery,HOSP04,Hospital 4,East Tower,8,32
+HDEPT019,Radiology,HOSP05,Hospital 5,Main,1,71
+HDEPT020,Surgery,HOSP01,Hospital 1,East Tower,3,10
+HDEPT021,Radiology,HOSP02,Hospital 2,Main,5,67
+HDEPT022,Surgery,HOSP03,Hospital 3,North Wing,8,36
+HDEPT023,Cardiology,HOSP04,Hospital 4,East Tower,5,12
+HDEPT024,Oncology,HOSP05,Hospital 5,North Wing,1,78
+HDEPT025,Maternity,HOSP01,Hospital 1,Main,7,87
