@@ -1,0 +1,11 @@
+customer_id,customer_name,email,phone,city,state,country,loyalty_points
+1,John Doe,john.doe@email.com,555-0101,New York,NY,USA,1500
+2,Jane Smith,jane.smith@email.com,555-0102,Los Angeles,CA,USA,2300
+3,Bob Johnson,bob.johnson@email.com,555-0103,Chicago,IL,USA,800
+4,Alice Williams,alice.w@email.com,555-0104,Houston,TX,USA,1200
+5,Charlie Brown,charlie.b@email.com,555-0105,Phoenix,AZ,USA,500
+6,Diana Prince,diana.p@email.com,555-0106,Philadelphia,PA,USA,3400
+7,Edward Norton,edward.n@email.com,555-0107,San Antonio,TX,USA,950
+8,Fiona Green,fiona.g@email.com,555-0108,San Diego,CA,USA,1800
+9,George Martin,george.m@email.com,555-0109,Dallas,TX,USA,2100
+10,Helen Clark,helen.c@email.com,555-0110,San Jose,CA,USA,670

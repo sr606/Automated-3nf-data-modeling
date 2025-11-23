@@ -1,0 +1,5 @@
+product_id,product_name,category,supplier_name,base_price
+201,Widget A,Electronics,Supplier X,50.0
+202,Widget B,Electronics,Supplier Y,100.0
+203,Widget C,Home,Supplier Z,75.0
+204,Widget D,Home,Supplier Z,150.0

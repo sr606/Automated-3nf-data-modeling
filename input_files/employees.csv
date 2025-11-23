@@ -1,0 +1,11 @@
+employee_id,employee_name,department,manager_id,salary,hire_date,skills,office_location
+1,Sarah Johnson,Engineering,NULL,120000,2020-01-15,"Python,Java,SQL",Building A - Floor 3
+2,Michael Chen,Engineering,1,95000,2020-06-01,"Python,JavaScript,React",Building A - Floor 3
+3,Emily Davis,Engineering,1,98000,2021-03-10,"Java,Spring,Kubernetes",Building A - Floor 3
+4,David Wilson,Sales,NULL,85000,2019-08-20,"Negotiation,CRM,Excel",Building B - Floor 1
+5,Lisa Anderson,Sales,4,72000,2021-01-05,"Communication,Salesforce,Presentations",Building B - Floor 1
+6,Robert Taylor,HR,NULL,78000,2018-11-12,"Recruiting,Employee Relations",Building C - Floor 2
+7,Jennifer Martinez,HR,6,68000,2020-09-25,"Benefits Admin,Training",Building C - Floor 2
+8,James Thompson,Marketing,NULL,82000,2019-05-14,"SEO,Content Marketing,Analytics",Building B - Floor 2
+9,Patricia White,Marketing,8,70000,2021-07-18,"Social Media,Design,Copywriting",Building B - Floor 2
+10,Christopher Lee,Finance,NULL,110000,2017-04-03,"Accounting,Financial Analysis,Excel",Building C - Floor 1

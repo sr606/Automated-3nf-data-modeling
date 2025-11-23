@@ -1,0 +1,6 @@
+order_id,customer_id,order_date,total_amount,status
+101,1,2024-01-15,150.0,completed
+102,2,2024-01-16,250.0,shipped
+103,1,2024-01-17,75.0,completed
+104,3,2024-01-18,300.0,processing
+105,2,2024-01-19,125.0,shipped

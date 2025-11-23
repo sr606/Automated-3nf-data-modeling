@@ -1,0 +1,7 @@
+order_item_id,order_id,product_id,product_name,product_category,supplier,quantity,price,discount
+1001,101,201,Widget A,Electronics,Supplier X,2,50.0,5.0
+1002,101,202,Widget B,Electronics,Supplier Y,1,100.0,0.0
+1003,102,203,Widget C,Home,Supplier Z,3,75.0,10.0
+1004,103,201,Widget A,Electronics,Supplier X,1,50.0,5.0
+1005,104,204,Widget D,Home,Supplier Z,2,150.0,0.0
+1006,105,203,Widget C,Home,Supplier Z,1,75.0,0.0
