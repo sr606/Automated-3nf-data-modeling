@@ -273,12 +273,14 @@ class SQLGenerator:
         FK acceptance rule:
           B.x → A.y  is valid only if  y ∈ PrimaryKey(A) OR y ∈ UniqueColumns(A)
         
+        CRITICAL: For composite PKs, the column alone is NOT sufficient unless it's also UNIQUE.
+        
         Args:
             pk_table: Target table name
             pk_column: Referenced column name
             
         Returns:
-            True if pk_column is PK or UNIQUE in pk_table, False otherwise
+            True if pk_column is a complete PK or UNIQUE in pk_table, False otherwise
         """
         # Check if we have profile information for this table
         if pk_table not in self.profiles:
@@ -286,24 +288,28 @@ class SQLGenerator:
         
         profile = self.profiles[pk_table]
         
-        # Check if column is in primary key
+        # Check if column is the COMPLETE primary key (single-column PK)
         if profile.get('primary_key'):
-            if pk_column in profile['primary_key']:
+            pk = profile['primary_key']
+            # Must be a single-column PK or the complete composite PK
+            if len(pk) == 1 and pk_column in pk:
                 return True
+            # For composite PKs, reject unless column is also UNIQUE
+            elif len(pk) > 1 and pk_column in pk:
+                # Check if this column alone is UNIQUE (in candidate_keys)
+                if profile.get('candidate_keys'):
+                    for candidate_key in profile['candidate_keys']:
+                        if len(candidate_key) == 1 and pk_column in candidate_key:
+                            return True
+                # Column is part of composite PK but not UNIQUE alone - REJECT
+                return False
         
-        # Check if column is in any candidate key (unique constraint)
+        # Check if column is in any single-column candidate key (unique constraint)
         if profile.get('candidate_keys'):
             for candidate_key in profile['candidate_keys']:
                 # Single-column unique constraint
                 if len(candidate_key) == 1 and pk_column in candidate_key:
                     return True
-                # Multi-column unique constraint where this column is part of it
-                # Only accept if it's a single-column reference
-                elif len(candidate_key) > 1 and pk_column in candidate_key:
-                    # For multi-column unique constraints, we need to be more careful
-                    # Only accept if the FK references the entire unique key
-                    # For now, skip multi-column unique constraints
-                    pass
         
         return False
     

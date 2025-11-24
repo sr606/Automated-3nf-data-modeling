@@ -877,223 +877,218 @@ CREATE TABLE col_50_atm_transactions_t_202e (
 -- FOREIGN KEY constraints
 -- =====================================================
 
-ALTER TABLE col_01_products
-    ADD CONSTRAINT fk_col_01_products_1
-    FOREIGN KEY (category_id)
-    REFERENCES col_10_categories(category_id);
-
 ALTER TABLE col_02_orders
-    ADD CONSTRAINT fk_col_02_orders_2
+    ADD CONSTRAINT fk_col_02_orders_1
     FOREIGN KEY (customer_id)
     REFERENCES col_04_customers(customer_id);
 
 ALTER TABLE col_03_order_items
-    ADD CONSTRAINT fk_col_03_order_items_3
+    ADD CONSTRAINT fk_col_03_order_items_2
     FOREIGN KEY (order_id)
     REFERENCES col_02_orders(order_id);
 
 ALTER TABLE col_03_order_items
-    ADD CONSTRAINT fk_col_03_order_items_4
+    ADD CONSTRAINT fk_col_03_order_items_3
+    FOREIGN KEY (product_id)
+    REFERENCES col_01_products(product_id);
+
+ALTER TABLE col_05_reviews
+    ADD CONSTRAINT fk_col_05_reviews_4
     FOREIGN KEY (product_id)
     REFERENCES col_01_products(product_id);
 
 ALTER TABLE col_05_reviews
     ADD CONSTRAINT fk_col_05_reviews_5
-    FOREIGN KEY (product_id)
-    REFERENCES col_01_products(product_id);
-
-ALTER TABLE col_05_reviews
-    ADD CONSTRAINT fk_col_05_reviews_6
     FOREIGN KEY (customer_id)
     REFERENCES col_04_customers(customer_id);
 
 ALTER TABLE col_06_inventory
-    ADD CONSTRAINT fk_col_06_inventory_7
+    ADD CONSTRAINT fk_col_06_inventory_6
     FOREIGN KEY (product_id)
     REFERENCES col_01_products(product_id);
 
 ALTER TABLE col_09_payments
-    ADD CONSTRAINT fk_col_09_payments_8
+    ADD CONSTRAINT fk_col_09_payments_7
     FOREIGN KEY (order_id)
     REFERENCES col_02_orders(order_id);
 
 ALTER TABLE col_11_employees
-    ADD CONSTRAINT fk_col_11_employees_9
+    ADD CONSTRAINT fk_col_11_employees_8
     FOREIGN KEY (department_id)
     REFERENCES col_16_departments(department_id);
 
 ALTER TABLE col_12_employee_skills
-    ADD CONSTRAINT fk_col_12_employee_skills_10
+    ADD CONSTRAINT fk_col_12_employee_skills_9
     FOREIGN KEY (employee_id)
     REFERENCES col_11_employees(employee_id);
 
 ALTER TABLE col_14_project_assignments
-    ADD CONSTRAINT fk_col_14_project_assig_8d23
+    ADD CONSTRAINT fk_col_14_project_assig_aad1
     FOREIGN KEY (project_id)
     REFERENCES col_13_projects(project_id);
 
 ALTER TABLE col_14_project_assignments
-    ADD CONSTRAINT fk_col_14_project_assig_997f
+    ADD CONSTRAINT fk_col_14_project_assig_9fdd
+    FOREIGN KEY (employee_id)
+    REFERENCES col_11_employees(employee_id);
+
+ALTER TABLE col_15_timesheets
+    ADD CONSTRAINT fk_col_15_timesheets_12
     FOREIGN KEY (employee_id)
     REFERENCES col_11_employees(employee_id);
 
 ALTER TABLE col_15_timesheets
     ADD CONSTRAINT fk_col_15_timesheets_13
-    FOREIGN KEY (employee_id)
-    REFERENCES col_11_employees(employee_id);
-
-ALTER TABLE col_15_timesheets
-    ADD CONSTRAINT fk_col_15_timesheets_14
     FOREIGN KEY (project_id)
     REFERENCES col_13_projects(project_id);
 
 ALTER TABLE col_17_performance_reviews
-    ADD CONSTRAINT fk_col_17_performance_r_9dd7
+    ADD CONSTRAINT fk_col_17_performance_r_1d04
     FOREIGN KEY (employee_id)
     REFERENCES col_11_employees(employee_id);
 
 ALTER TABLE col_17_performance_reviews
-    ADD CONSTRAINT fk_col_17_performance_r_800d
+    ADD CONSTRAINT fk_col_17_performance_r_9dd7
     FOREIGN KEY (reviewer_id)
     REFERENCES col_11_employees(employee_id);
 
 ALTER TABLE col_19_training_enrollments
-    ADD CONSTRAINT fk_col_19_training_enro_ad53
+    ADD CONSTRAINT fk_col_19_training_enro_e2da
     FOREIGN KEY (employee_id)
     REFERENCES col_11_employees(employee_id);
 
 ALTER TABLE col_19_training_enrollments
-    ADD CONSTRAINT fk_col_19_training_enro_e7fa
+    ADD CONSTRAINT fk_col_19_training_enro_1858
     FOREIGN KEY (course_id)
     REFERENCES col_18_training_courses(course_id);
 
 ALTER TABLE col_20_employee_benefits
-    ADD CONSTRAINT fk_col_20_employee_benefits_19
+    ADD CONSTRAINT fk_col_20_employee_benefits_18
     FOREIGN KEY (employee_id)
     REFERENCES col_11_employees(employee_id);
 
 ALTER TABLE col_23_appointments
-    ADD CONSTRAINT fk_col_23_appointments_20
+    ADD CONSTRAINT fk_col_23_appointments_19
     FOREIGN KEY (patient_id)
     REFERENCES col_21_patients(patient_id);
 
 ALTER TABLE col_23_appointments
-    ADD CONSTRAINT fk_col_23_appointments_21
+    ADD CONSTRAINT fk_col_23_appointments_20
     FOREIGN KEY (doctor_id)
     REFERENCES col_22_doctors(doctor_id);
 
 ALTER TABLE col_24_prescriptions
-    ADD CONSTRAINT fk_col_24_prescriptions_22
+    ADD CONSTRAINT fk_col_24_prescriptions_21
     FOREIGN KEY (patient_id)
     REFERENCES col_21_patients(patient_id);
 
 ALTER TABLE col_24_prescriptions
-    ADD CONSTRAINT fk_col_24_prescriptions_23
+    ADD CONSTRAINT fk_col_24_prescriptions_22
     FOREIGN KEY (doctor_id)
     REFERENCES col_22_doctors(doctor_id);
 
 ALTER TABLE col_25_lab_tests
-    ADD CONSTRAINT fk_col_25_lab_tests_24
+    ADD CONSTRAINT fk_col_25_lab_tests_23
+    FOREIGN KEY (patient_id)
+    REFERENCES col_21_patients(patient_id);
+
+ALTER TABLE col_26_diagnoses
+    ADD CONSTRAINT fk_col_26_diagnoses_24
     FOREIGN KEY (patient_id)
     REFERENCES col_21_patients(patient_id);
 
 ALTER TABLE col_26_diagnoses
     ADD CONSTRAINT fk_col_26_diagnoses_25
-    FOREIGN KEY (patient_id)
-    REFERENCES col_21_patients(patient_id);
-
-ALTER TABLE col_26_diagnoses
-    ADD CONSTRAINT fk_col_26_diagnoses_26
     FOREIGN KEY (doctor_id)
     REFERENCES col_22_doctors(doctor_id);
 
 ALTER TABLE col_27_treatments
-    ADD CONSTRAINT fk_col_27_treatments_27
+    ADD CONSTRAINT fk_col_27_treatments_26
     FOREIGN KEY (doctor_id)
     REFERENCES col_22_doctors(doctor_id);
 
 ALTER TABLE col_28_medical_history
-    ADD CONSTRAINT fk_col_28_medical_history_28
+    ADD CONSTRAINT fk_col_28_medical_history_27
     FOREIGN KEY (patient_id)
     REFERENCES col_21_patients(patient_id);
 
 ALTER TABLE col_29_billing
-    ADD CONSTRAINT fk_col_29_billing_29
+    ADD CONSTRAINT fk_col_29_billing_28
     FOREIGN KEY (patient_id)
     REFERENCES col_21_patients(patient_id);
 
 ALTER TABLE col_32_courses
-    ADD CONSTRAINT fk_col_32_courses_30
+    ADD CONSTRAINT fk_col_32_courses_29
     FOREIGN KEY (department_id)
     REFERENCES col_16_departments(department_id);
 
 ALTER TABLE col_33_course_enrollments
-    ADD CONSTRAINT fk_col_33_course_enroll_995a
+    ADD CONSTRAINT fk_col_33_course_enroll_55eb
     FOREIGN KEY (student_id)
     REFERENCES col_31_students(student_id);
 
 ALTER TABLE col_33_course_enrollments
-    ADD CONSTRAINT fk_col_33_course_enroll_84cb
+    ADD CONSTRAINT fk_col_33_course_enroll_5dc3
     FOREIGN KEY (course_id)
     REFERENCES col_32_courses(course_id);
 
 ALTER TABLE col_35_faculty
-    ADD CONSTRAINT fk_col_35_faculty_33
+    ADD CONSTRAINT fk_col_35_faculty_32
     FOREIGN KEY (department_id)
     REFERENCES col_16_departments(department_id);
 
 ALTER TABLE col_37_class_schedules
-    ADD CONSTRAINT fk_col_37_class_schedules_34
+    ADD CONSTRAINT fk_col_37_class_schedules_33
     FOREIGN KEY (course_id)
     REFERENCES col_32_courses(course_id);
 
 ALTER TABLE col_37_class_schedules
-    ADD CONSTRAINT fk_col_37_class_schedules_35
+    ADD CONSTRAINT fk_col_37_class_schedules_34
     FOREIGN KEY (classroom_id)
     REFERENCES col_36_classrooms(classroom_id);
 
 ALTER TABLE col_40_book_checkouts
-    ADD CONSTRAINT fk_col_40_book_checkouts_36
+    ADD CONSTRAINT fk_col_40_book_checkouts_35
     FOREIGN KEY (book_id)
     REFERENCES col_39_library_books(book_id);
 
 ALTER TABLE col_40_book_checkouts
-    ADD CONSTRAINT fk_col_40_book_checkouts_37
+    ADD CONSTRAINT fk_col_40_book_checkouts_36
     FOREIGN KEY (student_id)
     REFERENCES col_31_students(student_id);
 
 ALTER TABLE col_42_bank_accounts
-    ADD CONSTRAINT fk_col_42_bank_accounts_38
+    ADD CONSTRAINT fk_col_42_bank_accounts_37
     FOREIGN KEY (customer_id)
     REFERENCES col_41_bank_customers(customer_id);
 
 ALTER TABLE col_43_transactions
-    ADD CONSTRAINT fk_col_43_transactions_39
+    ADD CONSTRAINT fk_col_43_transactions_38
     FOREIGN KEY (account_id)
     REFERENCES col_42_bank_accounts(account_id);
 
 ALTER TABLE col_45_loan_payments
-    ADD CONSTRAINT fk_col_45_loan_payments_40
+    ADD CONSTRAINT fk_col_45_loan_payments_39
     FOREIGN KEY (loan_id)
     REFERENCES col_44_loans(loan_id);
 
 ALTER TABLE col_46_credit_cards
-    ADD CONSTRAINT fk_col_46_credit_cards_41
+    ADD CONSTRAINT fk_col_46_credit_cards_40
     FOREIGN KEY (customer_id)
     REFERENCES col_41_bank_customers(customer_id);
 
 ALTER TABLE col_47_credit_card_transa_c098
-    ADD CONSTRAINT fk_col_47_credit_card_t_b424
+    ADD CONSTRAINT fk_col_47_credit_card_t_4ae3
     FOREIGN KEY (card_id)
     REFERENCES col_46_credit_cards(card_id);
 
 ALTER TABLE col_49_securities_holdings
-    ADD CONSTRAINT fk_col_49_securities_ho_2a96
+    ADD CONSTRAINT fk_col_49_securities_ho_c43d
     FOREIGN KEY (portfolio_id)
     REFERENCES col_48_investment_portfolios(portfolio_id);
 
 ALTER TABLE col_50_atm_transactions
-    ADD CONSTRAINT fk_col_50_atm_transactions_44
+    ADD CONSTRAINT fk_col_50_atm_transactions_43
     FOREIGN KEY (account_id)
     REFERENCES col_42_bank_accounts(account_id);
 
