@@ -137,13 +137,36 @@ class SQLGenerator:
     
     def get_primary_key_columns(self, table_name: str, df: pd.DataFrame) -> List[str]:
         """
-        Determine primary key columns for a table
-        RULE: Never use a foreign key as primary key
+        Determine primary key columns for a table.
+        
+        RULES (PRIORITY ORDER):
+        1) ALWAYS prefer artificial surrogate key (<table>_id or *_id that's not an FK)
+        2) NEVER use FK columns as PK
+        3) NEVER use business columns (name, category, status, tag, quantity, price) as PK
+        4) For tag/attribute/multivalue tables: use their own surrogate PK, not parent FK
+        5) For associative tables (many-to-many): if no surrogate, use composite of all FKs
+        6) Never force or create columns - only use what exists in metadata
         """
-        # Check if original table had a PK
+        # PRIORITY 1: Look for artificial surrogate key ending with _id
+        # This handles tag tables, attribute tables, and child tables
+        for col in df.columns:
+            if col.endswith('_id'):
+                # Must not be a foreign key to another table
+                if not self._is_foreign_key_in_table(table_name, [col]):
+                    # Verify it's unique
+                    if df[col].nunique() == len(df) and df[col].notna().all():
+                        return [col]
+                    # Even if not unique now, this is the intended PK from normalization
+                    # Check if this matches the table name pattern
+                    col_base = col.replace('_id', '').lower()
+                    table_base = table_name.lower().replace('_', '')
+                    if col_base in table_base or table_base in col_base:
+                        return [col]
+        
+        # PRIORITY 2: Check profile data for existing PK (if already determined)
         original_table = None
         for orig_name in self.metadata.keys():
-            if table_name.startswith(orig_name):
+            if table_name == orig_name or table_name.startswith(orig_name):
                 original_table = orig_name
                 break
         
@@ -155,39 +178,73 @@ class SQLGenerator:
                 if pk_cols:
                     # Verify these are not foreign keys
                     if self._validate_pk_not_fk(table_name, pk_cols):
-                        # Verify uniqueness
-                        if not df.duplicated(subset=pk_cols, keep=False).any():
-                            return pk_cols
-                        else:
-                            print(f"  WARNING: PK {pk_cols} for {table_name} is not unique, generating surrogate key")
-                    is_fk = self._is_foreign_key_in_table(table_name, pk_cols)
-                    if not is_fk:
-                        return pk_cols
+                        # Verify these are not business columns
+                        if not self._are_business_columns(pk_cols):
+                            # Verify uniqueness
+                            if not df.duplicated(subset=pk_cols, keep=False).any():
+                                return pk_cols
+                            else:
+                                print(f"  WARNING: PK {pk_cols} for {table_name} is not unique, checking for surrogate key")
         
-        # Look for surrogate key (typically first column ending with _id)
-        # Prefer surrogate keys for child/event tables
+        # PRIORITY 3: For associative/link tables - composite key of all FKs
+        # (only if no surrogate key exists)
+        fk_cols_in_table = []
+        for fk in self.foreign_keys:
+            if fk['fk_table'] == table_name and fk['fk_column'] in df.columns:
+                fk_cols_in_table.append(fk['fk_column'])
+        
+        # If table has multiple FKs and few other columns, it's likely associative
+        if len(fk_cols_in_table) >= 2 and len(df.columns) - len(fk_cols_in_table) <= 2:
+            # Check if FK combination is unique
+            if not df.duplicated(subset=fk_cols_in_table, keep=False).any():
+                return fk_cols_in_table
+        
+        # PRIORITY 4: Look for any column with _id, _key, _code suffix that's unique and not FK
         for col in df.columns:
-            if col.endswith('_id'):
-                # Check if this is the table's own ID (not a FK)
-                table_base = table_name.split('_')[0]
-                if table_base in col or table_name in col:
-                    # Verify it's not a FK
-                    if not self._is_foreign_key_in_table(table_name, [col]):
+            col_lower = col.lower()
+            if any(col_lower.endswith(suffix) for suffix in ['_id', '_key', '_code', '_ref']):
+                if not self._is_foreign_key_in_table(table_name, [col]):
+                    if df[col].nunique() == len(df) and df[col].notna().all():
                         return [col]
         
-        # Find columns with high uniqueness that are not FKs
+        # PRIORITY 5: First non-FK, non-business column that's unique
         for col in df.columns:
-            if df[col].nunique() == len(df) and df[col].notna().all():
-                if not self._is_foreign_key_in_table(table_name, [col]):
-                    return [col]
+            if not self._is_foreign_key_in_table(table_name, [col]):
+                if not self._are_business_columns([col]):
+                    if df[col].nunique() == len(df) and df[col].notna().all():
+                        return [col]
         
-        # If no suitable PK found, use first column that's not a FK
+        # FALLBACK: Use first column that's not an FK
         for col in df.columns:
             if not self._is_foreign_key_in_table(table_name, [col]):
                 return [col]
         
         # Last resort: use first column
         return [df.columns[0]] if len(df.columns) > 0 else []
+    
+    def _are_business_columns(self, columns: List[str]) -> bool:
+        """
+        Check if columns are business/descriptive attributes that should never be PKs.
+        Business columns: name, title, description, category, status, type, tag, 
+                         quantity, price, amount, date (as descriptor), etc.
+        """
+        business_patterns = [
+            'name', 'title', 'description', 'desc', 'label',
+            'category', 'status', 'state', 'type', 'kind',
+            'tag', 'skill', 'attribute', 'feature', 'property',
+            'quantity', 'qty', 'amount', 'price', 'cost', 'value',
+            'address', 'email', 'phone', 'contact',
+            'note', 'comment', 'remark', 'message'
+        ]
+        
+        for col in columns:
+            col_lower = col.lower()
+            # Check if column name contains any business pattern
+            for pattern in business_patterns:
+                if pattern in col_lower and not col_lower.endswith('_id'):
+                    return True
+        
+        return False
     
     def _is_foreign_key_in_table(self, table_name: str, columns: List[str]) -> bool:
         """
@@ -200,6 +257,52 @@ class SQLGenerator:
                     return True
         
         return False
+    
+    def _would_create_circular_fk(self, fk_table: str, pk_table: str) -> bool:
+        """
+        Check if adding FK from fk_table to pk_table would create circular dependency.
+        
+        RULE 4: Prevent circular FK chains for execution safety.
+        Example: A->B, B->C, C->A would be circular
+        
+        Args:
+            fk_table: Table that would have the FK
+            pk_table: Table being referenced
+            
+        Returns:
+            True if circular dependency would be created
+        """
+        # Build dependency graph from existing FKs
+        dependencies = {}
+        for fk in self.foreign_keys:
+            child = fk['fk_table']
+            parent = fk['pk_table']
+            if child not in dependencies:
+                dependencies[child] = set()
+            dependencies[child].add(parent)
+        
+        # Check if pk_table already depends on fk_table (directly or transitively)
+        def has_path(start: str, target: str, visited: set = None) -> bool:
+            if visited is None:
+                visited = set()
+            
+            if start == target:
+                return True
+            
+            if start in visited:
+                return False
+            
+            visited.add(start)
+            
+            if start in dependencies:
+                for parent in dependencies[start]:
+                    if has_path(parent, target, visited):
+                        return True
+            
+            return False
+        
+        # If pk_table depends on fk_table, adding FK would create cycle
+        return has_path(pk_table, fk_table)
     
     def generate_create_table_script(self, table_name: str, df: pd.DataFrame) -> str:
         """
@@ -266,18 +369,19 @@ class SQLGenerator:
         
         return sql
     
-    def _is_valid_fk_target(self, pk_table: str, pk_column: str) -> bool:
+    def _is_valid_fk_target(self, pk_table: str, pk_column: str, fk_table: str = None) -> bool:
         """
         Validate that the referenced column is a PRIMARY KEY or UNIQUE KEY in the target table.
         
-        FK acceptance rule:
-          B.x → A.y  is valid only if  y ∈ PrimaryKey(A) OR y ∈ UniqueColumns(A)
-        
-        CRITICAL: For composite PKs, the column alone is NOT sufficient unless it's also UNIQUE.
+        FK acceptance rules:
+          1) B.x → A.y  is valid only if  y ∈ PrimaryKey(A) OR y ∈ UniqueColumns(A)
+          2) For composite PKs, the FK must reference ALL columns or the column must be separately UNIQUE
+          3) If parent PK contains columns not in child table, skip FK (never force columns)
         
         Args:
             pk_table: Target table name
-            pk_column: Referenced column name
+            pk_column: Referenced column name (single column)
+            fk_table: Source table name (optional, for composite PK validation)
             
         Returns:
             True if pk_column is a complete PK or UNIQUE in pk_table, False otherwise
@@ -291,17 +395,22 @@ class SQLGenerator:
         # Check if column is the COMPLETE primary key (single-column PK)
         if profile.get('primary_key'):
             pk = profile['primary_key']
-            # Must be a single-column PK or the complete composite PK
+            
+            # Single-column PK - always valid
             if len(pk) == 1 and pk_column in pk:
                 return True
-            # For composite PKs, reject unless column is also UNIQUE
+            
+            # Composite PK - must check if column is separately UNIQUE
             elif len(pk) > 1 and pk_column in pk:
-                # Check if this column alone is UNIQUE (in candidate_keys)
+                # For composite PKs, check if this column alone is UNIQUE (in candidate_keys)
                 if profile.get('candidate_keys'):
                     for candidate_key in profile['candidate_keys']:
                         if len(candidate_key) == 1 and pk_column in candidate_key:
                             return True
-                # Column is part of composite PK but not UNIQUE alone - REJECT
+                
+                # RULE 2: For composite PKs, we should reference ALL columns
+                # If only one column is referenced, it must be UNIQUE (checked above)
+                # Since it's not UNIQUE alone, reject this FK
                 return False
         
         # Check if column is in any single-column candidate key (unique constraint)
@@ -312,6 +421,33 @@ class SQLGenerator:
                     return True
         
         return False
+    
+    def _can_reference_composite_pk(self, fk_table: str, pk_table: str, pk_columns: List[str]) -> bool:
+        """
+        Check if child table can reference a composite PK.
+        
+        RULE: Child must have ALL columns of the composite PK, or we skip the FK.
+        Never force or add columns to satisfy FK constraints.
+        
+        Args:
+            fk_table: Child table name
+            pk_table: Parent table name  
+            pk_columns: All columns in parent's composite PK
+            
+        Returns:
+            True if child has all required columns, False otherwise
+        """
+        if fk_table not in self.normalized_tables:
+            return False
+        
+        child_df = self.normalized_tables[fk_table]
+        
+        # Check if ALL composite PK columns exist in child
+        for col in pk_columns:
+            if col not in child_df.columns:
+                return False
+        
+        return True
     
     def generate_foreign_key_constraints(self) -> List[str]:
         """
@@ -374,10 +510,40 @@ class SQLGenerator:
                 continue
             
             # CRITICAL: Validate that referenced column is PK or UNIQUE in target table
-            if not self._is_valid_fk_target(actual_pk_table, pk_column):
+            # RULE 2: For composite PKs, validate all columns are present
+            if not self._is_valid_fk_target(actual_pk_table, pk_column, actual_fk_table):
+                # Check if this is a composite PK issue
+                if actual_pk_table in self.profiles:
+                    parent_pk = self.profiles[actual_pk_table].get('primary_key', [])
+                    if len(parent_pk) > 1 and pk_column in parent_pk:
+                        # Composite PK - check if we can reference all columns
+                        if not self._can_reference_composite_pk(actual_fk_table, actual_pk_table, parent_pk):
+                            skipped_fks.append({
+                                'fk': f"{actual_fk_table}.{fk_column} -> {actual_pk_table}.{pk_column}",
+                                'reason': f"Composite PK {parent_pk} in {actual_pk_table} - child missing required columns"
+                            })
+                        else:
+                            skipped_fks.append({
+                                'fk': f"{actual_fk_table}.{fk_column} -> {actual_pk_table}.{pk_column}",
+                                'reason': f"{pk_column} is part of composite PK {parent_pk} but not UNIQUE alone in {actual_pk_table}"
+                            })
+                    else:
+                        skipped_fks.append({
+                            'fk': f"{actual_fk_table}.{fk_column} -> {actual_pk_table}.{pk_column}",
+                            'reason': f"{pk_column} is not a PRIMARY KEY or UNIQUE KEY in {actual_pk_table}"
+                        })
+                else:
+                    skipped_fks.append({
+                        'fk': f"{actual_fk_table}.{fk_column} -> {actual_pk_table}.{pk_column}",
+                        'reason': f"No profile data for {actual_pk_table}"
+                    })
+                continue
+            
+            # RULE 4: Check for circular dependencies (execution safety)
+            if self._would_create_circular_fk(actual_fk_table, actual_pk_table):
                 skipped_fks.append({
                     'fk': f"{actual_fk_table}.{fk_column} -> {actual_pk_table}.{pk_column}",
-                    'reason': f"{pk_column} is not a PRIMARY KEY or UNIQUE KEY in {actual_pk_table}"
+                    'reason': f"Would create circular FK dependency"
                 })
                 continue
             
