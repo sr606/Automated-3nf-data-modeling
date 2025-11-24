@@ -46,31 +46,37 @@ class SQLGenerator:
         self.profiles = profiles
         self.foreign_keys = foreign_keys
         self.table_schemas = {}
+        self.generated_tables = set()  # Track generated tables to prevent duplicates
         
     def sanitize_identifier(self, name: str) -> str:
         """
-        Sanitize SQL identifier to avoid reserved keywords and invalid characters
+        Sanitize SQL identifier to avoid reserved keywords and invalid characters.
+        Enforces Oracle's 30-character limit with hash suffix for uniqueness.
         """
-        # Convert to uppercase for comparison
-        name_upper = name.upper()
-        
-        # If it's a reserved word, wrap in quotes or add suffix
-        if name_upper in self.ORACLE_RESERVED_WORDS:
-            # Option 1: Add suffix
-            return f"{name}_col"
-            # Option 2: Wrap in quotes (commented out)
-            # return f'"{name}"'
-        
-        # Replace invalid characters
+        # Replace spaces and special characters with underscores
         sanitized = re.sub(r'[^A-Za-z0-9_]', '_', name)
         
+        # Remove consecutive underscores
+        sanitized = re.sub(r'_+', '_', sanitized)
+        
         # Ensure it starts with a letter
-        if not sanitized[0].isalpha():
+        if not sanitized or not sanitized[0].isalpha():
             sanitized = 'col_' + sanitized
         
-        # Limit length to 30 characters (Oracle limit)
+        # Convert to uppercase for reserved word check
+        name_upper = sanitized.upper()
+        
+        # If it's a reserved word, add suffix
+        if name_upper in self.ORACLE_RESERVED_WORDS:
+            sanitized = f"{sanitized}_col"
+        
+        # Enforce 30-character limit with hash suffix for uniqueness
         if len(sanitized) > 30:
-            sanitized = sanitized[:30]
+            # Use hash of original name for uniqueness
+            import hashlib
+            hash_suffix = hashlib.md5(name.encode()).hexdigest()[:4]
+            # Truncate to 25 chars and add 5-char suffix (_XXXX)
+            sanitized = sanitized[:25] + '_' + hash_suffix
         
         return sanitized
     
@@ -153,7 +159,7 @@ class SQLGenerator:
                         if not df.duplicated(subset=pk_cols, keep=False).any():
                             return pk_cols
                         else:
-                            print(f"  ⚠ PK {pk_cols} for {table_name} is not unique, generating surrogate key")
+                            print(f"  WARNING: PK {pk_cols} for {table_name} is not unique, generating surrogate key")
                     is_fk = self._is_foreign_key_in_table(table_name, pk_cols)
                     if not is_fk:
                         return pk_cols
@@ -197,9 +203,17 @@ class SQLGenerator:
     
     def generate_create_table_script(self, table_name: str, df: pd.DataFrame) -> str:
         """
-        Generate CREATE TABLE script for a normalized table
+        Generate CREATE TABLE script for a normalized table.
+        Ensures all columns and constraints are inside the table definition.
+        Prevents duplicate CREATE TABLE statements.
         """
         sanitized_table_name = self.sanitize_identifier(table_name)
+        
+        # Check if table already generated
+        if sanitized_table_name in self.generated_tables:
+            return f"-- Table {sanitized_table_name} already defined\n"
+        
+        self.generated_tables.add(sanitized_table_name)
         
         # Get column definitions
         column_defs = []
@@ -226,13 +240,19 @@ class SQLGenerator:
             
             column_defs.append(f"    {sanitized_col} {datatype}{null_constraint}")
         
-        # Add primary key constraint
+        # Add primary key constraint INSIDE table definition
         if pk_columns:
             sanitized_pk_cols = [self.sanitize_identifier(col) for col in pk_columns]
-            pk_constraint = f"    CONSTRAINT pk_{sanitized_table_name} PRIMARY KEY ({', '.join(sanitized_pk_cols)})"
+            # Enforce 30-char limit for constraint name
+            constraint_name = f"pk_{sanitized_table_name}"
+            if len(constraint_name) > 30:
+                import hashlib
+                hash_suffix = hashlib.md5(table_name.encode()).hexdigest()[:4]
+                constraint_name = f"pk_{sanitized_table_name[:22]}_{hash_suffix}"
+            pk_constraint = f"    CONSTRAINT {constraint_name} PRIMARY KEY ({', '.join(sanitized_pk_cols)})"
             column_defs.append(pk_constraint)
         
-        # Build CREATE TABLE statement
+        # Build CREATE TABLE statement - columns INSIDE parentheses
         sql = f"CREATE TABLE {sanitized_table_name} (\n"
         sql += ",\n".join(column_defs)
         sql += "\n);"
@@ -304,10 +324,16 @@ class SQLGenerator:
             if not (sanitized_fk_column and sanitized_pk_column):
                 continue
             
-            # Generate constraint name
+            # Generate constraint name with 30-char limit
+            import hashlib
             constraint_name = f"fk_{sanitized_fk_table}_{constraint_counter}"
             if len(constraint_name) > 30:
-                constraint_name = f"fk_{constraint_counter}"
+                # Create unique constraint name with hash
+                hash_suffix = hashlib.md5(f"{actual_fk_table}_{actual_pk_table}_{constraint_counter}".encode()).hexdigest()[:4]
+                constraint_name = f"fk_{sanitized_fk_table[:20]}_{hash_suffix}"
+                # Ensure still under 30 chars
+                if len(constraint_name) > 30:
+                    constraint_name = f"fk_{constraint_counter}_{hash_suffix}"
             
             # Generate ALTER TABLE statement
             sql = f"ALTER TABLE {sanitized_fk_table}\n"
@@ -353,9 +379,16 @@ class SQLGenerator:
             if not sanitized_column:
                 continue
             
+            # Generate index name with 30-char limit
+            import hashlib
             index_name = f"idx_{sanitized_table}_{index_counter}"
             if len(index_name) > 30:
-                index_name = f"idx_{index_counter}"
+                # Create unique index name with hash
+                hash_suffix = hashlib.md5(f"{actual_fk_table}_{fk_column}_{index_counter}".encode()).hexdigest()[:4]
+                index_name = f"idx_{sanitized_table[:21]}_{hash_suffix}"
+                # Ensure still under 30 chars
+                if len(index_name) > 30:
+                    index_name = f"idx_{index_counter}_{hash_suffix}"
             
             sql = f"CREATE INDEX {index_name} ON {sanitized_table}({sanitized_column});"
             indexes.append(sql)
@@ -442,6 +475,72 @@ class SQLGenerator:
         print(f"  - Indexes: {len(indexes)}")
         
         return str(output_file)
+    
+    def generate_complete_schema(self) -> str:
+        """
+        Generate complete SQL schema as a string (for testing/export).
+        Returns the full DDL script without saving to file.
+        """
+        all_sql = []
+        
+        # Header
+        all_sql.append("-- =====================================================")
+        all_sql.append("-- Auto-generated 3NF Normalized Database Schema")
+        all_sql.append("-- Generated by: Automated 3NF Data Modeling System")
+        all_sql.append("-- =====================================================")
+        all_sql.append("")
+        
+        # Drop tables (in reverse order to avoid FK constraints)
+        all_sql.append("-- Drop existing tables (if any)")
+        all_sql.append("-- Execute these statements if you need to recreate the schema")
+        all_sql.append("")
+        
+        for table_name in reversed(list(self.normalized_tables.keys())):
+            sanitized_name = self.sanitize_identifier(table_name)
+            all_sql.append(f"-- DROP TABLE {sanitized_name} CASCADE CONSTRAINTS;")
+        all_sql.append("")
+        
+        # Create tables
+        all_sql.append("-- =====================================================")
+        all_sql.append("-- CREATE TABLE statements")
+        all_sql.append("-- =====================================================")
+        all_sql.append("")
+        
+        for table_name, df in self.normalized_tables.items():
+            all_sql.append(f"-- Table: {table_name}")
+            all_sql.append(f"-- Rows: {len(df)}")
+            create_sql = self.generate_create_table_script(table_name, df)
+            all_sql.append(create_sql)
+            all_sql.append("")
+        
+        # Foreign key constraints
+        all_sql.append("-- =====================================================")
+        all_sql.append("-- FOREIGN KEY constraints")
+        all_sql.append("-- =====================================================")
+        all_sql.append("")
+        
+        fk_constraints = self.generate_foreign_key_constraints()
+        for constraint in fk_constraints:
+            all_sql.append(constraint)
+            all_sql.append("")
+        
+        # Indexes
+        all_sql.append("-- =====================================================")
+        all_sql.append("-- CREATE INDEX statements")
+        all_sql.append("-- =====================================================")
+        all_sql.append("")
+        
+        indexes = self.generate_indexes()
+        for index in indexes:
+            all_sql.append(index)
+            all_sql.append("")
+        
+        # Commit
+        all_sql.append("-- =====================================================")
+        all_sql.append("COMMIT;")
+        all_sql.append("-- =====================================================")
+        
+        return "\n".join(all_sql)
 
 
 if __name__ == "__main__":

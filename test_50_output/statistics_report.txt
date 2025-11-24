@@ -1,0 +1,32 @@
+================================================================================
+3NF NORMALIZATION TEST - 50 FILES
+================================================================================
+Generated: 2025-11-24 16:40:59
+
+Processing time: 0.0 seconds
+
+INPUT:
+  Files processed: 0
+  Total rows: 0
+  Total columns: 0
+
+NORMALIZATION VIOLATIONS:
+  1NF violations: 0
+  2NF violations: 0
+  3NF violations: 0
+
+FOREIGN KEYS:
+  Total detected: 0
+  - Strict: 0
+  - Inferred: 0
+
+OUTPUT:
+  Normalized tables: 0
+  Natural keys: 0
+  Surrogate keys: 0
+  Child tables: 0
+
+VALIDATION:
+  Status: FAILED
+  Errors: 0
+  Warnings: 0

@@ -1,0 +1,51 @@
+classroom_id,room_number,building_id,building_name,building_address,capacity,room_type,has_projector,has_computers
+ROOM0001,367,BLDG02,Engineering Building,294 Campus Way,91,Seminar Room,False,False
+ROOM0002,293,BLDG03,Arts Center,306 Campus Way,100,Computer Lab,True,False
+ROOM0003,983,BLDG04,Library,284 Campus Way,45,Lab,True,True
+ROOM0004,723,BLDG05,Library,289 Campus Way,28,Computer Lab,True,False
+ROOM0005,367,BLDG06,Engineering Building,478 Campus Way,186,Studio,False,True
+ROOM0006,732,BLDG07,Music Hall,394 Campus Way,56,Lab,True,False
+ROOM0007,680,BLDG08,Arts Center,779 Campus Way,104,Seminar Room,True,False
+ROOM0008,467,BLDG09,Law Building,603 Campus Way,146,Studio,True,False
+ROOM0009,402,BLDG10,Arts Center,600 Campus Way,73,Computer Lab,False,False
+ROOM0010,252,BLDG01,Business School,633 Campus Way,180,Lecture Hall,False,True
+ROOM0011,230,BLDG02,Music Hall,252 Campus Way,41,Seminar Room,False,True
+ROOM0012,204,BLDG03,Engineering Building,345 Campus Way,187,Seminar Room,True,True
+ROOM0013,130,BLDG04,Medical Building,436 Campus Way,68,Lab,True,True
+ROOM0014,989,BLDG05,Library,514 Campus Way,167,Lab,False,True
+ROOM0015,274,BLDG06,Business School,242 Campus Way,52,Seminar Room,True,True
+ROOM0016,134,BLDG07,Law Building,595 Campus Way,83,Studio,False,False
+ROOM0017,160,BLDG08,Music Hall,411 Campus Way,73,Studio,True,True
+ROOM0018,591,BLDG09,Science Hall,639 Campus Way,110,Studio,False,True
+ROOM0019,591,BLDG10,Music Hall,273 Campus Way,51,Seminar Room,True,False
+ROOM0020,935,BLDG01,Law Building,290 Campus Way,55,Computer Lab,True,True
+ROOM0021,732,BLDG02,Music Hall,314 Campus Way,134,Lecture Hall,False,True
+ROOM0022,739,BLDG03,Business School,176 Campus Way,134,Studio,False,False
+ROOM0023,831,BLDG04,Music Hall,657 Campus Way,163,Seminar Room,True,True
+ROOM0024,554,BLDG05,Library,765 Campus Way,132,Seminar Room,True,True
+ROOM0025,328,BLDG06,Business School,556 Campus Way,35,Lab,False,False
+ROOM0026,273,BLDG07,Library,962 Campus Way,113,Lab,False,True
+ROOM0027,550,BLDG08,Medical Building,115 Campus Way,23,Lab,True,False
+ROOM0028,429,BLDG09,Law Building,631 Campus Way,53,Seminar Room,False,True
+ROOM0029,783,BLDG10,Engineering Building,897 Campus Way,150,Lecture Hall,True,True
+ROOM0030,629,BLDG01,Student Union,159 Campus Way,54,Studio,False,False
+ROOM0031,592,BLDG02,Music Hall,666 Campus Way,62,Lab,False,False
+ROOM0032,324,BLDG03,Medical Building,171 Campus Way,115,Computer Lab,False,True
+ROOM0033,428,BLDG04,Business School,321 Campus Way,28,Computer Lab,True,False
+ROOM0034,520,BLDG05,Athletic Center,797 Campus Way,146,Lecture Hall,False,True
+ROOM0035,883,BLDG06,Business School,192 Campus Way,45,Studio,True,False
+ROOM0036,813,BLDG07,Engineering Building,206 Campus Way,171,Lab,False,True
+ROOM0037,126,BLDG08,Music Hall,350 Campus Way,145,Seminar Room,True,True
+ROOM0038,361,BLDG09,Science Hall,335 Campus Way,144,Computer Lab,True,False
+ROOM0039,108,BLDG10,Business School,597 Campus Way,166,Seminar Room,True,False
+ROOM0040,199,BLDG01,Law Building,694 Campus Way,55,Lecture Hall,True,False
+ROOM0041,479,BLDG02,Law Building,232 Campus Way,31,Computer Lab,True,True
+ROOM0042,500,BLDG03,Arts Center,948 Campus Way,89,Computer Lab,False,True
+ROOM0043,405,BLDG04,Athletic Center,672 Campus Way,89,Computer Lab,True,True
+ROOM0044,468,BLDG05,Student Union,162 Campus Way,128,Lab,True,True
+ROOM0045,443,BLDG06,Business School,493 Campus Way,132,Studio,True,True
+ROOM0046,124,BLDG07,Medical Building,262 Campus Way,28,Studio,False,False
+ROOM0047,661,BLDG08,Music Hall,123 Campus Way,79,Lab,False,True
+ROOM0048,650,BLDG09,Engineering Building,682 Campus Way,174,Computer Lab,False,False
+ROOM0049,429,BLDG10,Athletic Center,434 Campus Way,200,Computer Lab,True,False
+ROOM0050,369,BLDG01,Library,289 Campus Way,28,Lab,False,True

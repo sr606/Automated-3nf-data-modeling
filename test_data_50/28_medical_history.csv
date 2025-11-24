@@ -1,0 +1,301 @@
+history_id,patient_id,record_date,condition,status,notes
+HIST000001,PT000094,2020-05-02,Hypertension,Resolved,Medical history notes 1
+HIST000002,PT000142,2017-11-17,Asthma,Managed,Medical history notes 2
+HIST000003,PT000075,2022-01-22,Diabetes,Managed,Medical history notes 3
+HIST000004,PT000162,2017-05-30,Heart Disease,Active,Medical history notes 4
+HIST000005,PT000155,2016-08-28,Diabetes,Resolved,Medical history notes 5
+HIST000006,PT000083,2024-11-04,Diabetes,Worsened,Medical history notes 6
+HIST000007,PT000171,2022-06-26,Asthma,Managed,Medical history notes 7
+HIST000008,PT000081,2017-06-03,Hypertension,Worsened,Medical history notes 8
+HIST000009,PT000179,2025-07-18,Heart Disease,Resolved,Medical history notes 9
+HIST000010,PT000122,2023-10-22,Arthritis,Active,Medical history notes 10
+HIST000011,PT000107,2020-10-14,Hypertension,Resolved,Medical history notes 11
+HIST000012,PT000114,2023-02-03,Heart Disease,Active,Medical history notes 12
+HIST000013,PT000036,2016-05-30,Diabetes,Managed,Medical history notes 13
+HIST000014,PT000122,2021-09-11,Heart Disease,Resolved,Medical history notes 14
+HIST000015,PT000195,2021-02-15,Asthma,Active,Medical history notes 15
+HIST000016,PT000045,2017-06-13,Heart Disease,Active,Medical history notes 16
+HIST000017,PT000132,2023-01-04,Arthritis,Active,Medical history notes 17
+HIST000018,PT000131,2017-02-09,Heart Disease,Worsened,Medical history notes 18
+HIST000019,PT000041,2025-09-27,Arthritis,Active,Medical history notes 19
+HIST000020,PT000109,2019-06-30,Hypertension,Active,Medical history notes 20
+HIST000021,PT000155,2016-07-25,Heart Disease,Resolved,Medical history notes 21
+HIST000022,PT000006,2017-01-13,Hypertension,Managed,Medical history notes 22
+HIST000023,PT000019,2021-01-03,Heart Disease,Active,Medical history notes 23
+HIST000024,PT000080,2022-02-18,Diabetes,Managed,Medical history notes 24
+HIST000025,PT000185,2018-12-29,Arthritis,Resolved,Medical history notes 25
+HIST000026,PT000033,2018-04-21,Heart Disease,Worsened,Medical history notes 26
+HIST000027,PT000059,2018-04-23,Diabetes,Resolved,Medical history notes 27
+HIST000028,PT000195,2023-06-26,Asthma,Resolved,Medical history notes 28
+HIST000029,PT000199,2019-12-10,Arthritis,Active,Medical history notes 29
+HIST000030,PT000079,2020-04-07,Asthma,Active,Medical history notes 30
+HIST000031,PT000169,2022-08-16,Hypertension,Active,Medical history notes 31
+HIST000032,PT000038,2021-10-03,Arthritis,Resolved,Medical history notes 32
+HIST000033,PT000103,2022-07-23,Asthma,Active,Medical history notes 33
+HIST000034,PT000174,2024-04-10,Arthritis,Resolved,Medical history notes 34
+HIST000035,PT000185,2023-03-27,Diabetes,Resolved,Medical history notes 35
+HIST000036,PT000066,2024-05-30,Heart Disease,Managed,Medical history notes 36
+HIST000037,PT000197,2021-09-26,Heart Disease,Worsened,Medical history notes 37
+HIST000038,PT000120,2023-10-29,Arthritis,Active,Medical history notes 38
+HIST000039,PT000029,2017-11-03,Asthma,Managed,Medical history notes 39
+HIST000040,PT000152,2025-08-16,Asthma,Managed,Medical history notes 40
+HIST000041,PT000050,2024-12-10,Arthritis,Resolved,Medical history notes 41
+HIST000042,PT000166,2022-07-17,Hypertension,Worsened,Medical history notes 42
+HIST000043,PT000158,2021-09-20,Hypertension,Active,Medical history notes 43
+HIST000044,PT000010,2018-03-17,Hypertension,Worsened,Medical history notes 44
+HIST000045,PT000124,2024-07-25,Diabetes,Managed,Medical history notes 45
+HIST000046,PT000005,2021-04-27,Hypertension,Active,Medical history notes 46
+HIST000047,PT000173,2020-08-26,Arthritis,Resolved,Medical history notes 47
+HIST000048,PT000100,2017-02-14,Asthma,Active,Medical history notes 48
+HIST000049,PT000116,2023-07-02,Hypertension,Active,Medical history notes 49
+HIST000050,PT000110,2024-04-24,Arthritis,Active,Medical history notes 50
+HIST000051,PT000191,2025-04-18,Arthritis,Worsened,Medical history notes 51
+HIST000052,PT000059,2016-09-12,Arthritis,Resolved,Medical history notes 52
+HIST000053,PT000041,2024-10-18,Arthritis,Resolved,Medical history notes 53
+HIST000054,PT000102,2019-07-15,Diabetes,Managed,Medical history notes 54
+HIST000055,PT000114,2023-06-15,Heart Disease,Worsened,Medical history notes 55
+HIST000056,PT000200,2020-06-20,Diabetes,Active,Medical history notes 56
+HIST000057,PT000092,2024-05-12,Arthritis,Worsened,Medical history notes 57
+HIST000058,PT000125,2025-11-19,Heart Disease,Managed,Medical history notes 58
+HIST000059,PT000089,2016-05-11,Arthritis,Active,Medical history notes 59
+HIST000060,PT000096,2016-03-19,Hypertension,Active,Medical history notes 60
+HIST000061,PT000066,2022-10-28,Asthma,Active,Medical history notes 61
+HIST000062,PT000003,2016-10-28,Hypertension,Active,Medical history notes 62
+HIST000063,PT000034,2017-03-12,Heart Disease,Resolved,Medical history notes 63
+HIST000064,PT000144,2020-05-09,Arthritis,Active,Medical history notes 64
+HIST000065,PT000055,2017-07-18,Asthma,Managed,Medical history notes 65
+HIST000066,PT000015,2023-12-28,Arthritis,Managed,Medical history notes 66
+HIST000067,PT000129,2021-05-31,Heart Disease,Worsened,Medical history notes 67
+HIST000068,PT000013,2023-03-26,Diabetes,Managed,Medical history notes 68
+HIST000069,PT000003,2019-02-12,Hypertension,Managed,Medical history notes 69
+HIST000070,PT000105,2018-03-20,Heart Disease,Managed,Medical history notes 70
+HIST000071,PT000077,2018-11-19,Diabetes,Resolved,Medical history notes 71
+HIST000072,PT000062,2017-01-19,Heart Disease,Active,Medical history notes 72
+HIST000073,PT000012,2025-01-18,Hypertension,Resolved,Medical history notes 73
+HIST000074,PT000115,2023-12-18,Diabetes,Active,Medical history notes 74
+HIST000075,PT000193,2022-05-19,Diabetes,Resolved,Medical history notes 75
+HIST000076,PT000063,2022-09-30,Heart Disease,Active,Medical history notes 76
+HIST000077,PT000026,2019-10-12,Asthma,Resolved,Medical history notes 77
+HIST000078,PT000039,2025-11-12,Diabetes,Resolved,Medical history notes 78
+HIST000079,PT000138,2018-07-10,Arthritis,Resolved,Medical history notes 79
+HIST000080,PT000093,2016-12-20,Hypertension,Resolved,Medical history notes 80
+HIST000081,PT000009,2017-04-02,Arthritis,Resolved,Medical history notes 81
+HIST000082,PT000176,2017-09-11,Diabetes,Worsened,Medical history notes 82
+HIST000083,PT000134,2024-07-14,Heart Disease,Resolved,Medical history notes 83
+HIST000084,PT000107,2016-06-18,Diabetes,Resolved,Medical history notes 84
+HIST000085,PT000138,2019-07-23,Diabetes,Worsened,Medical history notes 85
+HIST000086,PT000063,2017-08-14,Heart Disease,Active,Medical history notes 86
+HIST000087,PT000120,2017-06-30,Arthritis,Managed,Medical history notes 87
+HIST000088,PT000166,2020-06-11,Heart Disease,Worsened,Medical history notes 88
+HIST000089,PT000048,2025-05-18,Diabetes,Active,Medical history notes 89
+HIST000090,PT000091,2024-06-11,Diabetes,Managed,Medical history notes 90
+HIST000091,PT000179,2017-11-08,Diabetes,Active,Medical history notes 91
+HIST000092,PT000122,2025-10-18,Heart Disease,Active,Medical history notes 92
+HIST000093,PT000112,2023-03-11,Asthma,Managed,Medical history notes 93
+HIST000094,PT000008,2016-12-26,Arthritis,Managed,Medical history notes 94
+HIST000095,PT000027,2023-11-16,Hypertension,Worsened,Medical history notes 95
+HIST000096,PT000002,2019-12-18,Asthma,Active,Medical history notes 96
+HIST000097,PT000196,2024-08-29,Arthritis,Active,Medical history notes 97
+HIST000098,PT000160,2022-12-05,Asthma,Managed,Medical history notes 98
+HIST000099,PT000067,2021-10-27,Heart Disease,Worsened,Medical history notes 99
+HIST000100,PT000037,2018-12-24,Heart Disease,Managed,Medical history notes 100
+HIST000101,PT000087,2021-07-12,Diabetes,Resolved,Medical history notes 101
+HIST000102,PT000117,2021-02-05,Heart Disease,Active,Medical history notes 102
+HIST000103,PT000061,2020-12-21,Heart Disease,Active,Medical history notes 103
+HIST000104,PT000177,2017-06-05,Arthritis,Worsened,Medical history notes 104
+HIST000105,PT000193,2024-04-23,Heart Disease,Resolved,Medical history notes 105
+HIST000106,PT000150,2021-12-03,Heart Disease,Active,Medical history notes 106
+HIST000107,PT000035,2017-07-29,Heart Disease,Worsened,Medical history notes 107
+HIST000108,PT000199,2020-12-15,Arthritis,Resolved,Medical history notes 108
+HIST000109,PT000007,2021-09-21,Asthma,Worsened,Medical history notes 109
+HIST000110,PT000054,2020-10-01,Diabetes,Resolved,Medical history notes 110
+HIST000111,PT000140,2016-05-29,Arthritis,Worsened,Medical history notes 111
+HIST000112,PT000192,2022-09-07,Diabetes,Resolved,Medical history notes 112
+HIST000113,PT000187,2024-04-30,Hypertension,Managed,Medical history notes 113
+HIST000114,PT000171,2021-08-17,Diabetes,Managed,Medical history notes 114
+HIST000115,PT000077,2017-01-24,Heart Disease,Worsened,Medical history notes 115
+HIST000116,PT000046,2020-05-09,Heart Disease,Resolved,Medical history notes 116
+HIST000117,PT000187,2023-06-13,Diabetes,Managed,Medical history notes 117
+HIST000118,PT000175,2024-08-28,Diabetes,Worsened,Medical history notes 118
+HIST000119,PT000107,2017-02-27,Diabetes,Managed,Medical history notes 119
+HIST000120,PT000045,2018-11-16,Diabetes,Managed,Medical history notes 120
+HIST000121,PT000048,2022-08-01,Arthritis,Resolved,Medical history notes 121
+HIST000122,PT000029,2019-02-27,Heart Disease,Worsened,Medical history notes 122
+HIST000123,PT000054,2015-12-13,Heart Disease,Managed,Medical history notes 123
+HIST000124,PT000123,2025-08-04,Asthma,Worsened,Medical history notes 124
+HIST000125,PT000081,2021-09-01,Arthritis,Worsened,Medical history notes 125
+HIST000126,PT000152,2020-03-03,Heart Disease,Active,Medical history notes 126
+HIST000127,PT000056,2021-08-31,Arthritis,Resolved,Medical history notes 127
+HIST000128,PT000001,2025-07-31,Asthma,Resolved,Medical history notes 128
+HIST000129,PT000125,2018-03-28,Arthritis,Resolved,Medical history notes 129
+HIST000130,PT000103,2017-09-21,Hypertension,Active,Medical history notes 130
+HIST000131,PT000196,2022-01-12,Arthritis,Resolved,Medical history notes 131
+HIST000132,PT000192,2024-04-09,Arthritis,Active,Medical history notes 132
+HIST000133,PT000170,2018-09-04,Hypertension,Worsened,Medical history notes 133
+HIST000134,PT000015,2021-08-06,Asthma,Resolved,Medical history notes 134
+HIST000135,PT000072,2025-03-05,Diabetes,Managed,Medical history notes 135
+HIST000136,PT000013,2021-09-01,Hypertension,Active,Medical history notes 136
+HIST000137,PT000021,2019-10-21,Heart Disease,Resolved,Medical history notes 137
+HIST000138,PT000033,2020-02-20,Hypertension,Managed,Medical history notes 138
+HIST000139,PT000123,2024-07-03,Arthritis,Resolved,Medical history notes 139
+HIST000140,PT000006,2024-11-30,Arthritis,Active,Medical history notes 140
+HIST000141,PT000115,2018-02-01,Arthritis,Worsened,Medical history notes 141
+HIST000142,PT000167,2025-04-19,Heart Disease,Managed,Medical history notes 142
+HIST000143,PT000174,2020-11-14,Arthritis,Managed,Medical history notes 143
+HIST000144,PT000148,2020-07-18,Asthma,Worsened,Medical history notes 144
+HIST000145,PT000160,2019-03-02,Diabetes,Managed,Medical history notes 145
+HIST000146,PT000042,2016-02-28,Hypertension,Active,Medical history notes 146
+HIST000147,PT000126,2024-07-03,Diabetes,Managed,Medical history notes 147
+HIST000148,PT000140,2016-04-28,Heart Disease,Managed,Medical history notes 148
+HIST000149,PT000107,2021-11-27,Arthritis,Active,Medical history notes 149
+HIST000150,PT000142,2018-12-12,Arthritis,Active,Medical history notes 150
+HIST000151,PT000003,2021-01-16,Diabetes,Worsened,Medical history notes 151
+HIST000152,PT000055,2018-10-23,Asthma,Worsened,Medical history notes 152
+HIST000153,PT000063,2024-11-01,Heart Disease,Resolved,Medical history notes 153
+HIST000154,PT000025,2024-01-05,Arthritis,Worsened,Medical history notes 154
+HIST000155,PT000094,2016-07-22,Asthma,Worsened,Medical history notes 155
+HIST000156,PT000046,2017-07-18,Heart Disease,Active,Medical history notes 156
+HIST000157,PT000108,2019-03-16,Asthma,Worsened,Medical history notes 157
+HIST000158,PT000056,2020-06-04,Arthritis,Active,Medical history notes 158
+HIST000159,PT000023,2019-06-18,Hypertension,Active,Medical history notes 159
+HIST000160,PT000101,2019-12-13,Hypertension,Active,Medical history notes 160
+HIST000161,PT000030,2017-05-02,Hypertension,Active,Medical history notes 161
+HIST000162,PT000128,2025-01-13,Heart Disease,Worsened,Medical history notes 162
+HIST000163,PT000090,2023-10-13,Hypertension,Active,Medical history notes 163
+HIST000164,PT000100,2023-05-30,Hypertension,Worsened,Medical history notes 164
+HIST000165,PT000031,2016-11-24,Hypertension,Active,Medical history notes 165
+HIST000166,PT000121,2019-01-05,Arthritis,Managed,Medical history notes 166
+HIST000167,PT000069,2019-05-30,Diabetes,Active,Medical history notes 167
+HIST000168,PT000080,2018-03-02,Arthritis,Active,Medical history notes 168
+HIST000169,PT000063,2020-07-22,Hypertension,Managed,Medical history notes 169
+HIST000170,PT000192,2022-07-31,Asthma,Managed,Medical history notes 170
+HIST000171,PT000129,2023-05-17,Asthma,Worsened,Medical history notes 171
+HIST000172,PT000061,2018-04-09,Arthritis,Active,Medical history notes 172
+HIST000173,PT000040,2020-06-29,Asthma,Resolved,Medical history notes 173
+HIST000174,PT000155,2018-10-22,Hypertension,Resolved,Medical history notes 174
+HIST000175,PT000083,2017-03-07,Asthma,Active,Medical history notes 175
+HIST000176,PT000113,2016-10-29,Asthma,Active,Medical history notes 176
+HIST000177,PT000154,2018-01-15,Hypertension,Managed,Medical history notes 177
+HIST000178,PT000143,2016-01-09,Diabetes,Managed,Medical history notes 178
+HIST000179,PT000127,2016-03-02,Heart Disease,Resolved,Medical history notes 179
+HIST000180,PT000028,2016-09-17,Hypertension,Resolved,Medical history notes 180
+HIST000181,PT000104,2016-10-19,Diabetes,Active,Medical history notes 181
+HIST000182,PT000179,2019-10-26,Heart Disease,Resolved,Medical history notes 182
+HIST000183,PT000147,2019-03-10,Asthma,Managed,Medical history notes 183
+HIST000184,PT000067,2024-10-19,Hypertension,Managed,Medical history notes 184
+HIST000185,PT000082,2023-04-11,Diabetes,Managed,Medical history notes 185
+HIST000186,PT000100,2023-06-16,Diabetes,Resolved,Medical history notes 186
+HIST000187,PT000003,2017-03-29,Heart Disease,Worsened,Medical history notes 187
+HIST000188,PT000134,2018-06-24,Asthma,Active,Medical history notes 188
+HIST000189,PT000167,2019-04-25,Heart Disease,Managed,Medical history notes 189
+HIST000190,PT000093,2016-01-03,Arthritis,Worsened,Medical history notes 190
+HIST000191,PT000035,2018-11-02,Asthma,Active,Medical history notes 191
+HIST000192,PT000144,2017-06-30,Arthritis,Resolved,Medical history notes 192
+HIST000193,PT000180,2024-09-09,Heart Disease,Worsened,Medical history notes 193
+HIST000194,PT000163,2017-03-10,Hypertension,Managed,Medical history notes 194
+HIST000195,PT000167,2017-05-15,Diabetes,Worsened,Medical history notes 195
+HIST000196,PT000103,2020-03-13,Diabetes,Active,Medical history notes 196
+HIST000197,PT000053,2023-06-24,Arthritis,Worsened,Medical history notes 197
+HIST000198,PT000050,2021-02-01,Heart Disease,Active,Medical history notes 198
+HIST000199,PT000123,2018-02-17,Hypertension,Active,Medical history notes 199
+HIST000200,PT000123,2018-07-13,Hypertension,Managed,Medical history notes 200
+HIST000201,PT000003,2017-12-22,Hypertension,Managed,Medical history notes 201
+HIST000202,PT000034,2018-08-08,Hypertension,Resolved,Medical history notes 202
+HIST000203,PT000189,2016-05-09,Asthma,Active,Medical history notes 203
+HIST000204,PT000177,2018-12-24,Arthritis,Resolved,Medical history notes 204
+HIST000205,PT000016,2021-04-12,Hypertension,Resolved,Medical history notes 205
+HIST000206,PT000188,2023-04-07,Heart Disease,Managed,Medical history notes 206
+HIST000207,PT000079,2025-09-25,Diabetes,Active,Medical history notes 207
+HIST000208,PT000167,2017-01-10,Asthma,Managed,Medical history notes 208
+HIST000209,PT000069,2024-01-05,Asthma,Managed,Medical history notes 209
+HIST000210,PT000040,2018-05-23,Diabetes,Resolved,Medical history notes 210
+HIST000211,PT000178,2022-10-06,Hypertension,Managed,Medical history notes 211
+HIST000212,PT000002,2018-01-27,Arthritis,Managed,Medical history notes 212
+HIST000213,PT000113,2021-04-14,Asthma,Active,Medical history notes 213
+HIST000214,PT000031,2018-05-27,Arthritis,Worsened,Medical history notes 214
+HIST000215,PT000169,2025-03-02,Asthma,Worsened,Medical history notes 215
+HIST000216,PT000071,2025-10-21,Arthritis,Managed,Medical history notes 216
+HIST000217,PT000027,2022-06-07,Heart Disease,Managed,Medical history notes 217
+HIST000218,PT000050,2018-12-07,Arthritis,Active,Medical history notes 218
+HIST000219,PT000050,2020-08-27,Diabetes,Managed,Medical history notes 219
+HIST000220,PT000080,2016-07-30,Hypertension,Managed,Medical history notes 220
+HIST000221,PT000084,2024-11-06,Arthritis,Active,Medical history notes 221
+HIST000222,PT000131,2016-08-25,Hypertension,Worsened,Medical history notes 222
+HIST000223,PT000020,2018-05-31,Diabetes,Active,Medical history notes 223
+HIST000224,PT000165,2023-08-29,Asthma,Worsened,Medical history notes 224
+HIST000225,PT000082,2018-12-25,Asthma,Resolved,Medical history notes 225
+HIST000226,PT000192,2019-06-01,Arthritis,Resolved,Medical history notes 226
+HIST000227,PT000010,2018-10-14,Hypertension,Resolved,Medical history notes 227
+HIST000228,PT000123,2021-08-11,Heart Disease,Worsened,Medical history notes 228
+HIST000229,PT000150,2018-06-14,Heart Disease,Resolved,Medical history notes 229
+HIST000230,PT000199,2024-01-06,Arthritis,Managed,Medical history notes 230
+HIST000231,PT000060,2023-04-19,Arthritis,Worsened,Medical history notes 231
+HIST000232,PT000024,2019-07-09,Asthma,Active,Medical history notes 232
+HIST000233,PT000017,2018-11-20,Arthritis,Resolved,Medical history notes 233
+HIST000234,PT000156,2018-04-22,Diabetes,Resolved,Medical history notes 234
+HIST000235,PT000079,2024-06-22,Asthma,Resolved,Medical history notes 235
+HIST000236,PT000076,2025-11-14,Heart Disease,Worsened,Medical history notes 236
+HIST000237,PT000173,2023-11-27,Arthritis,Resolved,Medical history notes 237
+HIST000238,PT000070,2021-04-19,Hypertension,Resolved,Medical history notes 238
+HIST000239,PT000077,2018-05-02,Arthritis,Resolved,Medical history notes 239
+HIST000240,PT000061,2023-01-04,Hypertension,Worsened,Medical history notes 240
+HIST000241,PT000095,2024-09-30,Arthritis,Worsened,Medical history notes 241
+HIST000242,PT000112,2019-01-12,Asthma,Active,Medical history notes 242
+HIST000243,PT000130,2021-01-08,Asthma,Managed,Medical history notes 243
+HIST000244,PT000045,2022-09-16,Hypertension,Resolved,Medical history notes 244
+HIST000245,PT000099,2018-12-10,Hypertension,Managed,Medical history notes 245
+HIST000246,PT000088,2025-08-30,Heart Disease,Managed,Medical history notes 246
+HIST000247,PT000053,2022-01-31,Diabetes,Managed,Medical history notes 247
+HIST000248,PT000042,2017-05-20,Arthritis,Managed,Medical history notes 248
+HIST000249,PT000156,2022-11-05,Heart Disease,Active,Medical history notes 249
+HIST000250,PT000064,2019-07-07,Heart Disease,Worsened,Medical history notes 250
+HIST000251,PT000073,2022-03-26,Hypertension,Managed,Medical history notes 251
+HIST000252,PT000154,2024-10-26,Heart Disease,Worsened,Medical history notes 252
+HIST000253,PT000085,2025-05-24,Asthma,Worsened,Medical history notes 253
+HIST000254,PT000032,2016-11-23,Arthritis,Resolved,Medical history notes 254
+HIST000255,PT000002,2025-06-22,Arthritis,Managed,Medical history notes 255
+HIST000256,PT000071,2024-05-14,Arthritis,Worsened,Medical history notes 256
+HIST000257,PT000055,2022-10-25,Asthma,Worsened,Medical history notes 257
+HIST000258,PT000171,2021-08-31,Arthritis,Worsened,Medical history notes 258
+HIST000259,PT000111,2020-11-06,Arthritis,Managed,Medical history notes 259
+HIST000260,PT000117,2025-09-17,Heart Disease,Active,Medical history notes 260
+HIST000261,PT000118,2018-01-16,Diabetes,Worsened,Medical history notes 261
+HIST000262,PT000150,2025-04-27,Diabetes,Managed,Medical history notes 262
+HIST000263,PT000160,2020-12-16,Diabetes,Active,Medical history notes 263
+HIST000264,PT000007,2017-05-22,Hypertension,Managed,Medical history notes 264
+HIST000265,PT000184,2020-11-14,Diabetes,Managed,Medical history notes 265
+HIST000266,PT000101,2020-07-05,Asthma,Worsened,Medical history notes 266
+HIST000267,PT000111,2017-09-25,Asthma,Active,Medical history notes 267
+HIST000268,PT000168,2022-02-05,Diabetes,Worsened,Medical history notes 268
+HIST000269,PT000006,2018-03-15,Diabetes,Worsened,Medical history notes 269
+HIST000270,PT000126,2018-06-21,Asthma,Managed,Medical history notes 270
+HIST000271,PT000145,2015-12-14,Hypertension,Resolved,Medical history notes 271
+HIST000272,PT000073,2018-02-10,Hypertension,Managed,Medical history notes 272
+HIST000273,PT000157,2015-12-11,Heart Disease,Managed,Medical history notes 273
+HIST000274,PT000005,2015-12-30,Asthma,Managed,Medical history notes 274
+HIST000275,PT000195,2025-09-16,Asthma,Worsened,Medical history notes 275
+HIST000276,PT000105,2016-04-15,Arthritis,Resolved,Medical history notes 276
+HIST000277,PT000125,2022-01-18,Asthma,Active,Medical history notes 277
+HIST000278,PT000035,2016-08-24,Asthma,Resolved,Medical history notes 278
+HIST000279,PT000144,2021-01-08,Diabetes,Worsened,Medical history notes 279
+HIST000280,PT000180,2019-11-16,Arthritis,Resolved,Medical history notes 280
+HIST000281,PT000085,2016-11-27,Heart Disease,Active,Medical history notes 281
+HIST000282,PT000077,2025-07-10,Hypertension,Managed,Medical history notes 282
+HIST000283,PT000015,2016-03-24,Hypertension,Managed,Medical history notes 283
+HIST000284,PT000181,2020-05-24,Heart Disease,Resolved,Medical history notes 284
+HIST000285,PT000194,2021-09-04,Asthma,Active,Medical history notes 285
+HIST000286,PT000162,2021-04-14,Hypertension,Managed,Medical history notes 286
+HIST000287,PT000147,2023-02-26,Heart Disease,Active,Medical history notes 287
+HIST000288,PT000172,2021-07-29,Hypertension,Managed,Medical history notes 288
+HIST000289,PT000132,2021-12-18,Hypertension,Active,Medical history notes 289
+HIST000290,PT000185,2016-06-23,Diabetes,Active,Medical history notes 290
+HIST000291,PT000198,2025-01-02,Hypertension,Worsened,Medical history notes 291
+HIST000292,PT000141,2019-06-01,Heart Disease,Managed,Medical history notes 292
+HIST000293,PT000022,2016-11-07,Arthritis,Resolved,Medical history notes 293
+HIST000294,PT000001,2017-05-20,Asthma,Managed,Medical history notes 294
+HIST000295,PT000038,2016-02-28,Heart Disease,Worsened,Medical history notes 295
+HIST000296,PT000090,2020-01-07,Heart Disease,Worsened,Medical history notes 296
+HIST000297,PT000013,2023-06-22,Heart Disease,Managed,Medical history notes 297
+HIST000298,PT000107,2024-04-02,Diabetes,Resolved,Medical history notes 298
+HIST000299,PT000192,2021-02-27,Hypertension,Managed,Medical history notes 299
+HIST000300,PT000078,2018-04-09,Asthma,Resolved,Medical history notes 300
