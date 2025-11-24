@@ -266,12 +266,55 @@ class SQLGenerator:
         
         return sql
     
+    def _is_valid_fk_target(self, pk_table: str, pk_column: str) -> bool:
+        """
+        Validate that the referenced column is a PRIMARY KEY or UNIQUE KEY in the target table.
+        
+        FK acceptance rule:
+          B.x → A.y  is valid only if  y ∈ PrimaryKey(A) OR y ∈ UniqueColumns(A)
+        
+        Args:
+            pk_table: Target table name
+            pk_column: Referenced column name
+            
+        Returns:
+            True if pk_column is PK or UNIQUE in pk_table, False otherwise
+        """
+        # Check if we have profile information for this table
+        if pk_table not in self.profiles:
+            return False
+        
+        profile = self.profiles[pk_table]
+        
+        # Check if column is in primary key
+        if profile.get('primary_key'):
+            if pk_column in profile['primary_key']:
+                return True
+        
+        # Check if column is in any candidate key (unique constraint)
+        if profile.get('candidate_keys'):
+            for candidate_key in profile['candidate_keys']:
+                # Single-column unique constraint
+                if len(candidate_key) == 1 and pk_column in candidate_key:
+                    return True
+                # Multi-column unique constraint where this column is part of it
+                # Only accept if it's a single-column reference
+                elif len(candidate_key) > 1 and pk_column in candidate_key:
+                    # For multi-column unique constraints, we need to be more careful
+                    # Only accept if the FK references the entire unique key
+                    # For now, skip multi-column unique constraints
+                    pass
+        
+        return False
+    
     def generate_foreign_key_constraints(self) -> List[str]:
         """
-        Generate ALTER TABLE statements for foreign key constraints
+        Generate ALTER TABLE statements for foreign key constraints.
+        Only generates FKs where the referenced column is a PRIMARY KEY or UNIQUE KEY.
         """
         constraints = []
         constraint_counter = 1
+        skipped_fks = []
         
         for fk in self.foreign_keys:
             fk_table = fk['fk_table']
@@ -324,6 +367,14 @@ class SQLGenerator:
             if not (sanitized_fk_column and sanitized_pk_column):
                 continue
             
+            # CRITICAL: Validate that referenced column is PK or UNIQUE in target table
+            if not self._is_valid_fk_target(actual_pk_table, pk_column):
+                skipped_fks.append({
+                    'fk': f"{actual_fk_table}.{fk_column} -> {actual_pk_table}.{pk_column}",
+                    'reason': f"{pk_column} is not a PRIMARY KEY or UNIQUE KEY in {actual_pk_table}"
+                })
+                continue
+            
             # Generate constraint name with 30-char limit
             import hashlib
             constraint_name = f"fk_{sanitized_fk_table}_{constraint_counter}"
@@ -343,6 +394,12 @@ class SQLGenerator:
             
             constraints.append(sql)
             constraint_counter += 1
+        
+        # Report skipped FKs
+        if skipped_fks:
+            print(f"\n[!] Skipped {len(skipped_fks)} foreign key(s) - referenced column not PK/UNIQUE:")
+            for skipped in skipped_fks:
+                print(f"    - {skipped['fk']}: {skipped['reason']}")
         
         return constraints
     
