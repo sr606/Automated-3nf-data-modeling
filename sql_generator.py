@@ -83,9 +83,22 @@ class SQLGenerator:
     def infer_oracle_datatype(self, df: pd.DataFrame, col: str, 
                              metadata_type: str = None) -> str:
         """
-        Infer Oracle datatype from DataFrame column
+        Infer Oracle datatype from DataFrame column.
+        
+        DATA QUALITY RULE 1: Time field sizing
+        If column name contains 'time' and datatype is VARCHAR/VARCHAR2,
+        ensure length >= 5 to support HH:MM format (e.g., '10:00', '09:45')
         """
         if metadata_type:
+            # Apply time field sizing rule to existing VARCHAR metadata
+            if 'time' in col.lower() and ('VARCHAR' in metadata_type.upper()):
+                # Extract length from VARCHAR(n) or VARCHAR2(n)
+                match = re.match(r'VARCHAR2?\((\d+)\)', metadata_type, re.IGNORECASE)
+                if match:
+                    length = int(match.group(1))
+                    if length < 5:
+                        # Enforce minimum length of 5 for time fields
+                        return "VARCHAR2(5)"
             return metadata_type
         
         series = df[col]
@@ -122,6 +135,11 @@ class SQLGenerator:
             max_length = 255
         else:
             max_length = min(int(max_length * 1.5), 4000)
+        
+        # DATA QUALITY RULE 1: Time field sizing
+        # If column name contains 'time' (case-insensitive), ensure minimum length of 5
+        if 'time' in col.lower() and max_length < 5:
+            max_length = 5
         
         return f"VARCHAR2({max_length})"
     
@@ -265,6 +283,8 @@ class SQLGenerator:
         RULE 4: Prevent circular FK chains for execution safety.
         Example: A->B, B->C, C->A would be circular
         
+        NOTE: Self-referencing FKs (fk_table == pk_table) are ALLOWED for hierarchies.
+        
         Args:
             fk_table: Table that would have the FK
             pk_table: Table being referenced
@@ -272,11 +292,18 @@ class SQLGenerator:
         Returns:
             True if circular dependency would be created
         """
+        # Self-referencing FKs are allowed (hierarchical relationships)
+        if fk_table == pk_table:
+            return False
+        
         # Build dependency graph from existing FKs
         dependencies = {}
         for fk in self.foreign_keys:
             child = fk['fk_table']
             parent = fk['pk_table']
+            # Skip self-referencing FKs in cycle detection
+            if child == parent:
+                continue
             if child not in dependencies:
                 dependencies[child] = set()
             dependencies[child].add(parent)
@@ -304,6 +331,61 @@ class SQLGenerator:
         # If pk_table depends on fk_table, adding FK would create cycle
         return has_path(pk_table, fk_table)
     
+    def _detect_hierarchical_fks(self, table_name: str, df: pd.DataFrame) -> List[Dict[str, str]]:
+        """
+        DATA QUALITY RULE 2: Hierarchical FK detection
+        
+        Detect self-referencing foreign keys for hierarchical relationships.
+        Pattern: parent_<entity>_id references <entity>_id in the same table.
+        
+        Args:
+            table_name: Name of the table
+            df: DataFrame for the table
+            
+        Returns:
+            List of self-referencing FK dictionaries
+        """
+        hierarchical_fks = []
+        
+        # Get the primary key for this table
+        pk_columns = self.get_primary_key_columns(table_name, df)
+        if not pk_columns or len(pk_columns) != 1:
+            # Only works with single-column PKs
+            return hierarchical_fks
+        
+        pk_column = pk_columns[0]
+        
+        # Extract entity name from PK column (e.g., 'employee_id' -> 'employee')
+        entity_match = re.match(r'(.+)_id$', pk_column, re.IGNORECASE)
+        if not entity_match:
+            return hierarchical_fks
+        
+        entity_name = entity_match.group(1)
+        
+        # Look for parent_<entity>_id pattern
+        parent_col_pattern = f'parent_{entity_name}_id'
+        
+        for col in df.columns:
+            if col.lower() == parent_col_pattern.lower():
+                # Validate: column values must be a subset of PK values
+                # (all parent references must point to existing entities)
+                parent_values = df[col].dropna().unique()
+                pk_values = df[pk_column].dropna().unique()
+                
+                if len(parent_values) > 0:
+                    # Check if all parent values exist in PK values (subset check)
+                    if set(parent_values).issubset(set(pk_values)):
+                        # Valid hierarchical FK
+                        hierarchical_fks.append({
+                            'fk_table': table_name,
+                            'fk_column': col,
+                            'pk_table': table_name,
+                            'pk_column': pk_column
+                        })
+                        print(f"  [+] Hierarchical FK detected: {table_name}.{col} -> {table_name}.{pk_column}")
+        
+        return hierarchical_fks
+    
     def generate_create_table_script(self, table_name: str, df: pd.DataFrame) -> str:
         """
         Generate CREATE TABLE script for a normalized table.
@@ -325,15 +407,16 @@ class SQLGenerator:
         for col in df.columns:
             sanitized_col = self.sanitize_identifier(col)
             
-            # Get datatype from metadata if available
+            # Get datatype from metadata if available, then apply data quality rules
             datatype = None
             for orig_table, meta in self.metadata.items():
                 if col in meta['columns']:
                     datatype = meta['columns'][col]['datatype']
                     break
             
-            if not datatype:
-                datatype = self.infer_oracle_datatype(df, col)
+            # Apply data quality rules through infer_oracle_datatype
+            # This ensures time field sizing rule is applied
+            datatype = self.infer_oracle_datatype(df, col, datatype)
             
             # Determine if NOT NULL
             null_ratio = df[col].isna().sum() / len(df) if len(df) > 0 else 0
@@ -627,12 +710,26 @@ class SQLGenerator:
     
     def generate_all_sql(self, output_dir: str):
         """
-        Generate all SQL scripts and save to files
+        Generate all SQL scripts and save to files.
+        Detects hierarchical self-referencing FKs before generating constraints.
         """
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
         
         all_sql = []
+        
+        # DATA QUALITY RULE 2: Detect hierarchical FKs across all tables
+        print("\n[DATA QUALITY] Detecting hierarchical self-referencing FKs...")
+        hierarchical_fks_found = 0
+        for table_name, df in self.normalized_tables.items():
+            hierarchical_fks = self._detect_hierarchical_fks(table_name, df)
+            if hierarchical_fks:
+                # Add to foreign_keys list for constraint generation
+                self.foreign_keys.extend(hierarchical_fks)
+                hierarchical_fks_found += len(hierarchical_fks)
+        
+        if hierarchical_fks_found > 0:
+            print(f"[DATA QUALITY] Found {hierarchical_fks_found} hierarchical FK(s)")
         
         # Header
         all_sql.append("-- =====================================================")
