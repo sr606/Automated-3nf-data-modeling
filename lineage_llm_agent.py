@@ -181,6 +181,12 @@ class LineageAgent:
         text = state["input_text"]
         stages = parse_stages(text)
         for s in stages:
+            if not hasattr(s, "llm_annotation"):
+                setattr(s, "llm_annotation", "")
+            if not hasattr(s, "llm_rules"):
+                setattr(s, "llm_rules", [])
+            if not hasattr(s, "llm_constraint_labels"):
+                setattr(s, "llm_constraint_labels", {})
             detect_undefined_references(s)
         state["stages"] = stages
         state["links"] = build_global_links(stages)
@@ -228,6 +234,12 @@ class LineageAgent:
         enrich_events: List[Dict[str, Any]] = []
 
         for s in stages:
+            if not hasattr(s, "llm_annotation"):
+                setattr(s, "llm_annotation", "")
+            if not hasattr(s, "llm_rules"):
+                setattr(s, "llm_rules", [])
+            if not hasattr(s, "llm_constraint_labels"):
+                setattr(s, "llm_constraint_labels", {})
             low_conf = conf.get(s.name, 1.0) < threshold
             complex_stage = len(s.join_blocks) > 4 or len(s.constraints) > 0 or len(s.stage_vars_defined) > 5
             if not (low_conf or complex_stage):
