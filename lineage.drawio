@@ -1,0 +1,10 @@
+<mxfile><diagram><mxGraphModel><root>
+<mxCell id="0"/><mxCell id="1" parent="0"/>
+<mxCell id="5e1d76da-67ab-4811-a465-a77e7b32942c" value="Aggregator1" vertex="1" parent="1"><mxGeometry x="100" y="100" width="140" height="60" as="geometry"/></mxCell>
+<mxCell id="2af04adc-b146-4cbd-baef-0dc4736210c8" value="OracleSource" vertex="1" parent="1"><mxGeometry x="100" y="100" width="140" height="60" as="geometry"/></mxCell>
+<mxCell id="df2649c2-a471-47a0-bdf6-93d56224310a" value="TargetTable" vertex="1" parent="1"><mxGeometry x="100" y="100" width="140" height="60" as="geometry"/></mxCell>
+<mxCell id="38e74efe-6554-49ec-82ec-52a67f64a600" value="Transformer1" vertex="1" parent="1"><mxGeometry x="100" y="100" width="140" height="60" as="geometry"/></mxCell>
+<mxCell edge="1" parent="1" source="2af04adc-b146-4cbd-baef-0dc4736210c8" target="38e74efe-6554-49ec-82ec-52a67f64a600"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell edge="1" parent="1" source="38e74efe-6554-49ec-82ec-52a67f64a600" target="5e1d76da-67ab-4811-a465-a77e7b32942c"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell edge="1" parent="1" source="5e1d76da-67ab-4811-a465-a77e7b32942c" target="df2649c2-a471-47a0-bdf6-93d56224310a"><mxGeometry relative="1" as="geometry"/></mxCell>
+</root></mxGraphModel></diagram></mxfile>
