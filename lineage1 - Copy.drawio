@@ -1,0 +1,64 @@
+<mxfile>
+  <diagram name="ETL Lineage">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1">
+      <root>
+
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- SOURCE 1 -->
+        <mxCell id="node1" value="HF_SMR_VEHICLE_DIM&#xa;(Vehicle Lookup)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="40" y="160" width="240" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- SOURCE 2 -->
+        <mxCell id="node2" value="ORA_Ext_Vehicle_Off_Road_Data&#xa;(Oracle Source)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="40" y="300" width="240" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- TRANSFORMER -->
+        <mxCell id="node3" value="Tfm_LoadRecords&#xa;(Transformer Stage)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="360" y="230" width="260" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- HASH FILE -->
+        <mxCell id="node4" value="HF_FACT_VOR_DATA&#xa;(Hash Stage)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="700" y="230" width="240" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- TARGET -->
+        <mxCell id="node5" value="Ora_StgVehicleOffRoad&#xa;(Oracle Target)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="230" width="260" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- EXCEPTION -->
+        <mxCell id="node6" value="Supp_VOR_Exception&#xa;(Exception File)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="700" y="80" width="240" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- EDGES -->
+
+        <mxCell id="e1" edge="1" parent="1" source="node1" target="node3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e2" edge="1" parent="1" source="node2" target="node3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e3" edge="1" parent="1" source="node3" target="node4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e4" edge="1" parent="1" source="node4" target="node5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e5" edge="1" parent="1" source="node3" target="node6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
