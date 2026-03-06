@@ -1,0 +1,73 @@
+<mxfile>
+  <diagram name="ETL Lineage">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10">
+      <root>
+
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- DB LOOKUP -->
+        <mxCell id="n1" value="HF_SMR_VEHICLE_DIM&#xa;Lookup Table" style="shape=cylinder;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="40" y="220" width="220" height="90" as="geometry"/>
+        </mxCell>
+
+        <!-- DB SOURCE -->
+        <mxCell id="n2" value="ORA_Ext_Vehicle_Off_Road_Data&#xa;Oracle Source&#xa;SQL Join + Enrichment" style="shape=cylinder;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="40" y="380" width="240" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- TRANSFORMATION -->
+        <mxCell id="n3" value="Tfm_LoadRecords&#xa;Transformer Stage&#xa;Derived Columns&#xa;Lookup Vehicle_SK" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="380" y="320" width="260" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- HASH STORAGE -->
+        <mxCell id="n4" value="HF_FACT_VOR_DATA&#xa;Hash Storage" style="shape=cylinder;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="720" y="330" width="230" height="90" as="geometry"/>
+        </mxCell>
+
+        <!-- TARGET DATABASE -->
+        <mxCell id="n5" value="Ora_StgVehicleOffRoad&#xa;Oracle Target" style="shape=cylinder;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="330" width="240" height="90" as="geometry"/>
+        </mxCell>
+
+        <!-- DECISION -->
+        <mxCell id="n6" value="SUPP_SK = -99 OR -97 ?" style="shape=rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="380" y="120" width="220" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- FILE OUTPUT -->
+        <mxCell id="n7" value="Supp_VOR_Exception&#xa;Exception File (.csv)" style="shape=document;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="720" y="120" width="230" height="90" as="geometry"/>
+        </mxCell>
+
+        <!-- EDGES -->
+
+        <mxCell id="e1" value="Lookup Join&#xa;Vehicle_SK" edge="1" parent="1" source="n1" target="n3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e2" value="Source Data&#xa;SQL Joins + Enrichment" edge="1" parent="1" source="n2" target="n3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e3" value="Derived Columns&#xa;Field Mapping" edge="1" parent="1" source="n3" target="n4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e4" value="Load to Target Table" edge="1" parent="1" source="n4" target="n5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e5" value="Check Invalid Supplier Key" edge="1" parent="1" source="n3" target="n6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e6" value="If True → Write Exception Record" edge="1" parent="1" source="n6" target="n7">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
