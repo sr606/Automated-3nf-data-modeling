@@ -1,20 +1,156 @@
+1️⃣ Final High-Level Architecture
+User
+ │
+ ▼
+LangGraph Agent
+ │
+ ▼
+Azure OpenAI
+ │
+ ▼
+MCP Client
+ │
+ ▼
+FastMCP Server (streamable HTTP)
+ │
+ ▼
+Lineage Tools
+ ├── read_etl_file
+ ├── smart_stage_splitter
+ ├── extract_stage_metadata   (LLM)
+ ├── lineage_graph_builder
+ └── generate_drawio
+ │
+ ▼
+Draw.io Diagram
+
+Important principle:
+
+LLM → understands structure
+Tools → deterministic lineage
+2️⃣ Project Structure
+etl_lineage_system
+│
+├── main.py
+├── server.py
+├── requirements.txt
+├── .env
+│
+├── agent_template
+│   └── lineage_engine.py
+│
+└── lineage_mcp
+    │
+    ├── tools
+    │   ├── helpers.py
+    │   └── diagram_generator.py
+    │
+    └── data
+        ├── upload
+        └── feature
+
+No routers needed anymore because MCP exposes tools directly.
+
+3️⃣ helpers.py (dynamic + reusable)
+
+lineage_mcp/tools/helpers.py
+
+import re
+
+
+def read_etl_file(path):
+
+    with open(path, "r", encoding="utf-8") as f:
+        return f.read()
+
+
+def smart_stage_splitter(text):
+
+    print("\n[TOOL] smart_stage_splitter running")
+
+    blocks = []
+
+    pattern = r"--- \[.*?\]"
+
+    matches = list(re.finditer(pattern, text))
+
+    for i, m in enumerate(matches):
+
+        start = m.start()
+        end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+
+        block = text[start:end]
+
+        blocks.append(block)
+
+    print(f"[TOOL] Found {len(blocks)} stage blocks")
+
+    return blocks
+
+
+def lineage_graph_builder(metadata):
+
+    print("\n[TOOL] lineage_graph_builder running")
+
+    nodes = []
+    edges = []
+
+    seen_nodes = set()
+
+    for item in metadata:
+
+        stage = item["stage"]
+        inputs = item["inputs"]
+        outputs = item["outputs"]
+
+        if stage not in seen_nodes:
+            nodes.append({"name": stage, "type": "stage"})
+            seen_nodes.add(stage)
+
+        for inp in inputs:
+
+            if inp not in seen_nodes:
+                nodes.append({"name": inp, "type": "dataset"})
+                seen_nodes.add(inp)
+
+            edges.append({
+                "source": inp,
+                "target": stage,
+                "label": "input"
+            })
+
+        for out in outputs:
+
+            if out not in seen_nodes:
+                nodes.append({"name": out, "type": "dataset"})
+                seen_nodes.add(out)
+
+            edges.append({
+                "source": stage,
+                "target": out,
+                "label": "output"
+            })
+
+    print("[TOOL] Graph built")
+    print("Nodes:", nodes)
+    print("Edges:", edges)
+
+    return nodes, edges
+4️⃣ diagram_generator.py (clean layout)
+
+lineage_mcp/tools/diagram_generator.py
+
 import uuid
 import networkx as nx
 
-
-# ------------------------------------------------
-# Layout builder (cycle safe + ETL friendly)
-# ------------------------------------------------
 
 def layered_layout(G):
 
     pos = {}
 
     try:
-        # Works when graph is DAG
         layers = list(nx.topological_generations(G))
     except:
-        # fallback for cyclic graphs
         layers = [list(G.nodes)]
 
     x_gap = 350
@@ -29,34 +165,22 @@ def layered_layout(G):
     return pos
 
 
-# ------------------------------------------------
-# Node styling based on type
-# ------------------------------------------------
+def node_style(node):
 
-def get_node_style(node):
+    t = node.get("type")
 
-    node_type = node.get("type", "stage")
-
-    if node_type == "source":
-        return "rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4"
-
-    if node_type == "dataset":
-        return "rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc"
-
-    if node_type == "stage":
+    if t == "stage":
         return "rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc"
 
-    if node_type == "target":
-        return "rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc"
+    if t == "dataset":
+        return "rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc"
 
     return "rounded=1;whiteSpace=wrap;html=1"
 
 
-# ------------------------------------------------
-# Draw.io generator
-# ------------------------------------------------
-
 def generate_drawio(nodes, edges):
+
+    print("\n[TOOL] generate_drawio running")
 
     G = nx.DiGraph()
 
@@ -75,82 +199,179 @@ def generate_drawio(nodes, edges):
     xml.append("<mxfile><diagram><mxGraphModel><root>")
     xml.append('<mxCell id="0"/><mxCell id="1" parent="0"/>')
 
-    # ----------------------------
-    # create nodes
-    # ----------------------------
-
     for node in nodes:
 
-        node_name = node["name"]
+        nid = str(uuid.uuid4())
+        node_ids[node["name"]] = nid
 
-        node_id = str(uuid.uuid4())
+        x, y = pos[node["name"]]
 
-        node_ids[node_name] = node_id
-
-        x, y = pos.get(node_name, (0, 0))
-
-        style = get_node_style(node)
+        style = node_style(node)
 
         xml.append(
-            f'<mxCell id="{node_id}" value="{node_name}" '
+            f'<mxCell id="{nid}" value="{node["name"]}" '
             f'style="{style}" vertex="1" parent="1">'
             f'<mxGeometry x="{x}" y="{y}" width="220" height="80" as="geometry"/>'
             '</mxCell>'
         )
 
-    # ----------------------------
-    # create edges
-    # ----------------------------
-
     for e in edges:
-
-        source = e["source"]
-        target = e["target"]
-
-        if source not in node_ids or target not in node_ids:
-            continue
-
-        label = e.get("label", "")
 
         xml.append(
             f'<mxCell edge="1" parent="1" '
-            f'source="{node_ids[source]}" '
-            f'target="{node_ids[target]}" '
-            f'value="{label}">'
+            f'source="{node_ids[e["source"]]}" '
+            f'target="{node_ids[e["target"]]}" '
+            f'value="{e["label"]}">'
             '<mxGeometry relative="1" as="geometry"/>'
             '</mxCell>'
         )
 
     xml.append("</root></mxGraphModel></diagram></mxfile>")
 
+    print("[TOOL] Drawio XML generated")
+
     return "\n".join(xml)
+5️⃣ server.py (Streamable HTTP MCP)
+from mcp.server.fastmcp import FastMCP
 
+from lineage_mcp.tools.helpers import (
+    read_etl_file,
+    smart_stage_splitter,
+    lineage_graph_builder
+)
 
+from lineage_mcp.tools.diagram_generator import generate_drawio
 
+import json
 
-
-
-
-
+mcp = FastMCP("etl-lineage-server")
 
 
 @mcp.tool()
-def classify_stage_semantics_tool(stage_type: str):
+def read_etl_file_tool(file_name: str):
 
-    mapping = {
-        "OracleConnector": "source",
-        "CTransformerStage": "stage",
-        "CHashedFileStage": "dataset",
-        "CSeqFileStage": "target"
+    print("\n[TOOL] read_etl_file_tool")
+
+    path = f"./lineage_mcp/data/upload/{file_name}"
+
+    text = read_etl_file(path)
+
+    print(text[:500])
+
+    return text
+
+
+@mcp.tool()
+def smart_stage_splitter_tool(text: str):
+
+    blocks = smart_stage_splitter(text)
+
+    print(blocks)
+
+    return blocks
+
+
+@mcp.tool()
+def lineage_graph_builder_tool(metadata: list):
+
+    nodes, edges = lineage_graph_builder(metadata)
+
+    return {"nodes": nodes, "edges": edges}
+
+
+@mcp.tool()
+def generate_drawio_tool(nodes: list, edges: list):
+
+    xml = generate_drawio(nodes, edges)
+
+    path = "./lineage_mcp/data/feature/lineage.drawio"
+
+    with open(path, "w") as f:
+        f.write(xml)
+
+    print("\n[TOOL] Diagram saved:", path)
+
+    return {"diagram": path}
+
+
+app = mcp.streamable_http_app()
+6️⃣ Strong System Prompt
+
+Inside lineage_engine.py
+
+You are an Enterprise ETL Lineage Extraction Agent.
+
+You are connected to deterministic lineage tools through MCP.
+
+Your responsibility is to extract stage metadata and build a lineage graph.
+
+STRICT RULES:
+
+1. NEVER invent datasets or stages.
+2. ONLY extract information visible in the ETL pseudocode.
+3. Stage metadata must follow this JSON schema:
+
+{
+ "stage": string,
+ "inputs": [string],
+ "outputs": [string],
+ "stage_type": string
+}
+
+4. Inputs are datasets consumed by the stage.
+5. Outputs are datasets produced by the stage.
+
+WORKFLOW:
+
+1. read_etl_file
+2. smart_stage_splitter
+3. For each block:
+   extract stage metadata
+4. Build metadata list
+5. call lineage_graph_builder
+6. call generate_drawio
+
+Return structured metadata only.
+
+Never hallucinate lineage relationships.
+7️⃣ main.py
+import asyncio
+from agent_template.lineage_engine import build_agent
+
+
+async def run():
+
+    graph = await build_agent()
+
+    config = {
+        "configurable": {"thread_id": "etl-session"}
     }
 
-    return {"node_type": mapping.get(stage_type, "stage")}
+    print("ETL Lineage Agent Ready")
+
+    while True:
+
+        user = input("Enter command: ")
+
+        events = graph.astream(
+            {"messages": [("user", user)]},
+            config=config
+        )
+
+        async for event in events:
+
+            for v in event.values():
+
+                if "messages" in v:
+                    print("\nAgent:", v["messages"][-1].content)
 
 
-
-
-
-
-
-4️⃣ classify_stage_semantics
-   - Determine node type
+if __name__ == "__main__":
+    asyncio.run(run())
+8️⃣ How to Run
+Start MCP server
+uvicorn server:app --port 8002
+Run agent
+python main.py
+Example command
+Generate lineage for job1.txt
