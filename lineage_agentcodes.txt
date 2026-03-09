@@ -1,0 +1,669 @@
+below is folder structure
+
+etl_lineage_system
+│
+├── main.py
+├── server.py
+├── requirements.txt
+├── .env
+│
+├── agent_template
+│   └── lineage_engine.py
+│
+└── lineage_mcp
+    │
+    ├── routers
+    │   └── router.py
+    │
+    ├── tools
+    │   ├── helpers.py
+    │   └── diagram_generator.py
+    │
+    └── data
+        ├── upload
+        └── feature
+this is lineage_engine
+
+import os
+from dotenv import load_dotenv
+ 
+from typing import Annotated
+from typing_extensions import TypedDict
+ 
+from langgraph.graph import StateGraph, START, END
+from langgraph.graph.message import add_messages
+from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.prebuilt import ToolNode, tools_condition
+ 
+from langchain_openai import AzureChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.messages import SystemMessage
+ 
+from langchain_mcp_adapters.client import MultiServerMCPClient
+ 
+load_dotenv()
+ 
+ 
+# -----------------------------------
+# Azure OpenAI LLM
+# -----------------------------------
+ 
+llm = AzureChatOpenAI(
+    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+    api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+    azure_deployment=os.getenv("AZURE_DEPLOYMENT"),
+    api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
+    temperature=0
+)
+ 
+ 
+# -----------------------------------
+# LangGraph State
+# -----------------------------------
+ 
+class State(TypedDict):
+    messages: Annotated[list, add_messages]
+ 
+ 
+memory = InMemorySaver()
+ 
+ 
+# -----------------------------------
+# MCP TOOL DISCOVERY
+# -----------------------------------
+ 
+async def get_mcp_tools():
+ 
+    client = MultiServerMCPClient(
+        {
+            "lineage_server": {
+                "transport": "http",
+                "url": "http://localhost:8002/mcp"
+            }
+        }
+    )
+ 
+    tools = await client.get_tools()
+ 
+    return tools
+ 
+ 
+# -----------------------------------
+# SYSTEM PROMPT (UPDATED FOR NEW FLOW)
+# -----------------------------------
+ 
+SYSTEM_PROMPT = """
+You are an Enterprise ETL Lineage Intelligence Agent connected to an MCP tool server.
+ 
+Your task is to analyze ETL pseudocode and generate a complete data lineage diagram.
+ 
+You must follow a STRICT tool workflow.
+ 
+--------------------------------------------------
+REQUIRED TOOL WORKFLOW
+--------------------------------------------------
+ 
+You MUST execute tools in the following order:
+ 
+1️⃣ read_etl_file
+   - Load the ETL pseudocode file.
+ 
+2️⃣ smart_stage_splitter
+   - Split the pseudocode into stage blocks.
+ 
+3️⃣ structure_extractor
+   - Extract structural metadata for each stage:
+     stage name
+     inputs
+     outputs
+ 
+4️⃣ extract_lineage_semantics
+   - Analyze stage logic including:
+     stage variables
+     constraints
+     joins
+     transformations
+ 
+5️⃣ lineage_graph_builder
+   - Construct the deterministic lineage graph.
+ 
+6️⃣ generate_drawio
+   - Generate the final Draw.io lineage diagram.
+ 
+--------------------------------------------------
+IMPORTANT RULES
+--------------------------------------------------
+ 
+• NEVER hallucinate lineage.
+• ALWAYS inspect pseudocode with tools.
+• ALWAYS build the lineage graph before generating the diagram.
+• DO NOT generate diagrams without nodes and edges.
+• ALWAYS pass nodes and edges into generate_drawio.
+ 
+--------------------------------------------------
+ETL STRUCTURE EXAMPLES
+--------------------------------------------------
+ 
+Stage Blocks:
+--- [TRANSFORMERSTAGE : StageName]
+ 
+Inputs:
+Input: ← dataset_1 (StageA)
+ 
+Outputs:
+Output: → dataset_2 (StageB)
+ 
+Stage Variables:
+StageVar variable = expression
+ 
+Constraints:
+Constraint (output_link): condition
+ 
+Transformations:
+COLUMN = expression
+ 
+SQL blocks may contain:
+SELECT
+JOIN
+WHERE
+ 
+--------------------------------------------------
+NODE TYPES
+--------------------------------------------------
+ 
+Source
+Database
+File
+Lookup
+Transformation
+Decision
+Aggregation
+ 
+--------------------------------------------------
+EDGE TYPES
+--------------------------------------------------
+ 
+Input
+Output
+Lookup
+Join
+Constraint
+Transformation
+ 
+--------------------------------------------------
+FINAL OUTPUT
+--------------------------------------------------
+ 
+The final result must include:
+ 
+Nodes:
+stage_name
+node_type
+ 
+Edges:
+source_node
+target_node
+relationship
+ 
+Finally generate a Draw.io diagram showing:
+ 
+sources → transformations → lookups → targets
+"""
+ 
+ 
+# -----------------------------------
+# BUILD AGENT
+# -----------------------------------
+ 
+async def build_agent():
+ 
+    tools = await get_mcp_tools()
+ 
+    model_with_tools = llm.bind_tools(tools)
+ 
+    def chatbot(state: State):
+ 
+        prompt = ChatPromptTemplate.from_messages([
+            SystemMessage(content=SYSTEM_PROMPT),
+            MessagesPlaceholder(variable_name="messages")
+        ])
+ 
+        messages = prompt.format_messages(messages=state["messages"])
+ 
+        response = model_with_tools.invoke(messages)
+ 
+        return {"messages": [response]}
+ 
+    tool_node = ToolNode(tools)
+ 
+    builder = StateGraph(State)
+ 
+    builder.add_node("chatbot", chatbot)
+    builder.add_node("tools", tool_node)
+ 
+    builder.add_edge(START, "chatbot")
+ 
+    builder.add_conditional_edges("chatbot", tools_condition)
+ 
+    builder.add_edge("tools", "chatbot")
+ 
+    builder.add_edge("chatbot", END)
+ 
+    graph = builder.compile(checkpointer=memory)
+ 
+    return graph
+
+
+this is router.py
+
+from fastapi import APIRouter
+from pydantic import BaseModel, Field
+from lineage_mcp.tools import helpers
+from lineage_mcp.tools import diagram_generator
+import os
+ 
+router = APIRouter()
+ 
+ 
+class ReadETLFile(BaseModel):
+ 
+    file_name: str = Field(..., description="ETL pseudocode file name")
+ 
+ 
+@router.post("/read_etl_file")
+ 
+async def read_etl_file(p_body: ReadETLFile):
+ 
+    path = f"./lineage_mcp/data/upload/{p_body.file_name}"
+ 
+    text = helpers.read_etl_file(path)
+ 
+    return {"etl_code": text}
+ 
+ 
+class ExtractSemantics(BaseModel):
+ 
+    block_text: str = Field(..., description="ETL stage block text")
+ 
+ 
+@router.post("/extract_lineage_semantics")
+ 
+async def extract_lineage_semantics(p_body: ExtractSemantics):
+ 
+    semantics = helpers.extract_lineage_semantics(p_body.block_text)
+ 
+    return semantics
+ 
+ 
+class GenerateDiagram(BaseModel):
+ 
+    nodes: list
+    edges: list
+ 
+ 
+@router.post("/generate_drawio")
+ 
+async def generate_drawio(p_body: GenerateDiagram):
+ 
+    xml = diagram_generator.generate_drawio(
+        p_body.nodes,
+        p_body.edges
+    )
+ 
+    output_file = "./lineage_mcp/data/feature/lineage.drawio"
+ 
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write(xml)
+ 
+    return {"diagram_file": output_file}
+
+
+this is diagram_generator
+
+
+import uuid
+import networkx as nx
+ 
+ 
+def layered_layout(G):
+ 
+    layers = list(nx.topological_generations(G))
+ 
+    pos = {}
+ 
+    x_gap = 350
+    y_gap = 140
+ 
+    for i, layer in enumerate(layers):
+ 
+        for j, node in enumerate(layer):
+ 
+            pos[node] = (i * x_gap, j * y_gap)
+ 
+    return pos
+ 
+ 
+def generate_drawio(nodes, edges):
+ 
+    G = nx.DiGraph()
+ 
+    for n in nodes:
+        G.add_node(n["name"])
+ 
+    for e in edges:
+        G.add_edge(e["source"], e["target"])
+ 
+    pos = layered_layout(G)
+ 
+    node_ids = {}
+ 
+    xml = []
+ 
+    xml.append("<mxfile><diagram><mxGraphModel><root>")
+    xml.append('<mxCell id="0"/><mxCell id="1" parent="0"/>')
+ 
+    for node in nodes:
+ 
+        node_id = str(uuid.uuid4())
+ 
+        node_ids[node["name"]] = node_id
+ 
+        x, y = pos[node["name"]]
+ 
+        xml.append(
+            f'<mxCell id="{node_id}" value="{node["name"]}" '
+            f'style="rounded=1;whiteSpace=wrap;html=1;" '
+            f'vertex="1" parent="1">'
+            f'<mxGeometry x="{x}" y="{y}" width="220" height="80" as="geometry"/>'
+            '</mxCell>'
+        )
+ 
+    for e in edges:
+ 
+        xml.append(
+            f'<mxCell edge="1" parent="1" '
+            f'source="{node_ids[e["source"]]}" '
+            f'target="{node_ids[e["target"]]}" '
+            f'value="{e["label"]}">'
+            '<mxGeometry relative="1" as="geometry"/>'
+            '</mxCell>'
+        )
+ 
+    xml.append("</root></mxGraphModel></diagram></mxfile>")
+ 
+    return "\n".join(xml)
+
+
+this is helpers
+
+
+
+import re
+ 
+ 
+# -------------------------------
+# Read ETL file
+# -------------------------------
+ 
+def read_etl_file(file_path):
+ 
+    with open(file_path, "r", encoding="utf-8") as f:
+        return f.read()
+ 
+ 
+# -------------------------------
+# SMART STAGE SPLITTER
+# Works across different ETL formats
+# -------------------------------
+ 
+STAGE_PATTERNS = [
+    r"--- \[.*?: .*?\]",
+    r"Stage\s*:\s*.*",
+    r"Component\s*:\s*.*",
+    r"Node\s*:\s*.*"
+]
+ 
+ 
+def smart_stage_splitter(text):
+ 
+    blocks = []
+ 
+    pattern = "|".join(STAGE_PATTERNS)
+ 
+    matches = list(re.finditer(pattern, text))
+ 
+    for i, m in enumerate(matches):
+ 
+        start = m.start()
+ 
+        end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+ 
+        blocks.append(text[start:end])
+ 
+    return blocks
+ 
+ 
+# -------------------------------
+# STRUCTURE EXTRACTOR
+# Extract basic lineage skeleton
+# -------------------------------
+ 
+INPUT_KEYS = ["Input", "Source", "From"]
+OUTPUT_KEYS = ["Output", "Target", "Write"]
+ 
+ 
+def structure_extractor(block):
+ 
+    stage = None
+    inputs = []
+    outputs = []
+ 
+    stage_match = re.search(r":\s*(.*?)\]", block)
+ 
+    if stage_match:
+        stage = stage_match.group(1).strip()
+ 
+    for key in INPUT_KEYS:
+ 
+        pattern = rf"{key}\s*:\s*.*?\((.*?)\)"
+ 
+        matches = re.findall(pattern, block)
+ 
+        inputs.extend(matches)
+ 
+    for key in OUTPUT_KEYS:
+ 
+        pattern = rf"{key}\s*:\s*.*?\((.*?)\)"
+ 
+        matches = re.findall(pattern, block)
+ 
+        outputs.extend(matches)
+ 
+    return {
+        "stage": stage,
+        "inputs": inputs,
+        "outputs": outputs
+    }
+ 
+ 
+# -------------------------------
+# SEMANTIC EXTRACTION
+# Used by LLM reasoning
+# -------------------------------
+ 
+def extract_lineage_semantics(block):
+ 
+    semantics = {}
+ 
+    stage_vars = re.findall(r"StageVar\s+(\w+)", block)
+ 
+    constraints = re.findall(r"Constraint\s*\((.*?)\)", block)
+ 
+    joins = re.findall(r"JOIN\s+([A-Za-z0-9_.]+)", block, re.IGNORECASE)
+ 
+    transformations = re.findall(r"=\s*(.*)", block)
+ 
+    semantics["stage_variables"] = stage_vars
+    semantics["constraints"] = constraints
+    semantics["joins"] = joins
+    semantics["transformations"] = transformations
+ 
+    return semantics
+ 
+ 
+# -------------------------------
+# LINEAGE GRAPH BUILDER
+# deterministic graph generation
+# -------------------------------
+ 
+def lineage_graph_builder(structure_data):
+ 
+    nodes = []
+    edges = []
+ 
+    seen = set()
+ 
+    for item in structure_data:
+ 
+        stage = item["stage"]
+ 
+        if not stage:
+            continue
+ 
+        if stage not in seen:
+            nodes.append({"name": stage})
+            seen.add(stage)
+ 
+        for inp in item["inputs"]:
+ 
+            if inp not in seen:
+                nodes.append({"name": inp})
+                seen.add(inp)
+ 
+            edges.append({
+                "source": inp,
+                "target": stage,
+                "label": "input"
+            })
+ 
+        for out in item["outputs"]:
+ 
+            if out not in seen:
+                nodes.append({"name": out})
+                seen.add(out)
+ 
+            edges.append({
+                "source": stage,
+                "target": out,
+                "label": "output"
+            })
+ 
+    return nodes, edges
+
+
+this is main.py
+
+import asyncio
+from dotenv import load_dotenv
+from agent_template.lineage_engine import build_agent
+load_dotenv()
+ 
+ 
+async def run_agent():
+    graph = await build_agent()
+    config = {
+
+        "configurable": {"thread_id": "etl-session"},
+        "recursion_limit": 100
+
+    }
+ 
+    print("ETL Lineage Agent Ready")
+ 
+    while True:
+        user_input = input("Enter command: ")
+        if user_input.lower() in ["exit", "quit"]:
+            break
+        events = graph.astream(
+            {"messages": [("user", user_input)]},
+            config=config
+        )
+ 
+        async for event in events:
+            for value in event.values():
+                if "messages" in value:
+                    print("\nAgent:", value["messages"][-1].content)
+ 
+ 
+if __name__ == "__main__":
+ 
+    asyncio.run(run_agent())
+ 
+
+this is server.py
+
+
+
+from mcp.server.fastmcp import FastMCP
+ 
+from lineage_mcp.tools.helpers import (
+    read_etl_file,
+    smart_stage_splitter,
+    structure_extractor,
+    extract_lineage_semantics,
+    lineage_graph_builder
+)
+ 
+from lineage_mcp.tools.diagram_generator import generate_drawio
+ 
+mcp = FastMCP("etl-lineage-server")
+ 
+ 
+@mcp.tool()
+def read_etl_file_tool(file_name: str):
+ 
+    path = f"./lineage_mcp/data/upload/{file_name}"
+ 
+    return read_etl_file(path)
+ 
+ 
+@mcp.tool()
+def smart_stage_splitter_tool(text: str):
+ 
+    return smart_stage_splitter(text)
+ 
+ 
+@mcp.tool()
+def structure_extractor_tool(block: str):
+ 
+    return structure_extractor(block)
+ 
+ 
+@mcp.tool()
+def extract_lineage_semantics_tool(block: str):
+ 
+    return extract_lineage_semantics(block)
+ 
+ 
+@mcp.tool()
+def lineage_graph_builder_tool(structure_data: list):
+ 
+    nodes, edges = lineage_graph_builder(structure_data)
+ 
+    return {"nodes": nodes, "edges": edges}
+ 
+ 
+@mcp.tool()
+def generate_drawio_tool(nodes: list, edges: list):
+ 
+    xml = generate_drawio(nodes, edges)
+ 
+    path = "./lineage_mcp/data/feature/lineage.drawio"
+ 
+    with open(path, "w") as f:
+        f.write(xml)
+ 
+    return {"diagram": path}
+ 
+ 
+app = mcp.streamable_http_app()
