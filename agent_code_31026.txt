@@ -90,11 +90,7 @@ def generate_drawio(nodes, edges):
  
         name = node["name"]
  
-        # show stage label nicely
-        if name.startswith("stage::"):
-            label = name.replace("stage::", "") + "(Stage)"
-        else:
-            label = name + "(table)"
+        label = name
  
         xml.append(
             f'<mxCell id="{nid}" value="{label}" style="{style}" vertex="1" parent="1">'
@@ -130,7 +126,6 @@ def generate_drawio(nodes, edges):
     print("[TOOL] Drawio XML generated")
  
     return "\n".join(xml)
-
 
 helpers.py
 
@@ -230,10 +225,11 @@ def lineage_graph_builder(metadata):
  
     nodes = []
     edges = []
+ 
     seen_nodes = set()
     seen_edges = set()
  
-    def add_node(name, node_type):
+    def add_node(name, node_type="dataset"):
  
         if name not in seen_nodes:
             nodes.append({
@@ -256,38 +252,29 @@ def lineage_graph_builder(metadata):
  
     for item in metadata:
  
-        stage = f"stage::{item.get('stage')}"
- 
-        if not stage:
-            continue
- 
         inputs = item.get("inputs", [])
         lookups = item.get("lookups", [])
         outputs = item.get("outputs", [])
         exceptions = item.get("exceptions", [])
  
-        # stage node
-        add_node(stage, "stage")
+        # register nodes
+        for n in inputs + lookups + outputs + exceptions:
+            add_node(n)
  
-        # inputs
+        # input → output
         for inp in inputs:
-            add_node(inp, "dataset")
-            add_edge(inp, stage, "input")
+            for out in outputs:
+                add_edge(inp, out, "input")
  
-        # lookups
+        # lookup → output
         for lk in lookups:
-            add_node(lk, "dataset")
-            add_edge(lk, stage, "lookup")
+            for out in outputs:
+                add_edge(lk, out, "lookup")
  
-        # outputs
-        for out in outputs:
-            add_node(out, "dataset")
-            add_edge(stage, out, "output")
- 
-        # exceptions
-        for ex in exceptions:
-            add_node(ex, "exception")
-            add_edge(stage, ex, "exception")
+        # input → exception
+        for inp in inputs:
+            for ex in exceptions:
+                add_edge(inp, ex, "exception")
  
     print("[TOOL] Nodes:", nodes)
     print("[TOOL] Edges:", edges)
@@ -355,7 +342,6 @@ def correct_lineage_graph(nodes, edges):
     print("[GRAPH] Graph correction complete")
  
     return corrected_nodes, corrected_edges
-
 
 lineage_template.py
 
@@ -898,76 +884,39 @@ output:
 <root>
 <mxCell id="0"/>
 <mxCell id="1" parent="0"/>
-<mxCell id="410119fa-26af-4ad4-8d61-5c0f21383fe1" value="ORA_Ext_Vehicle_Off_Road_Data(Stage)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;" vertex="1" parent="1">
-<mxGeometry x="0" y="0" width="220" height="80" as="geometry"/>
-</mxCell>
-<mxCell id="f2dc7a4d-3e92-4ffb-932b-0e39d8794e74" value="ORA_Ext_Vehicle_Off_Road_Data(table)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;" vertex="1" parent="1">
-<mxGeometry x="300" y="0" width="220" height="80" as="geometry"/>
-</mxCell>
-<mxCell id="ab55c7fc-eca1-485e-963e-88c4be7fed2e" value="Ora_StgVehicleOffRoad(Stage)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;" vertex="1" parent="1">
-<mxGeometry x="1800" y="0" width="220" height="80" as="geometry"/>
-</mxCell>
-<mxCell id="4d2b4780-1732-4da3-8345-b6326b481520" value="HF_FACT_VOR_DATA(table)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;" vertex="1" parent="1">
-<mxGeometry x="1500" y="0" width="220" height="80" as="geometry"/>
-</mxCell>
-<mxCell id="5ad502d1-5bb5-4651-9b54-e38eb1bdb9a7" value="Ora_StgVehicleOffRoad(table)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;" vertex="1" parent="1">
-<mxGeometry x="2100" y="0" width="220" height="80" as="geometry"/>
-</mxCell>
-<mxCell id="f9bb68e3-36d1-4c24-8004-4659d8961e0c" value="HF_FACT_VOR_DATA(Stage)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;" vertex="1" parent="1">
-<mxGeometry x="1200" y="0" width="220" height="80" as="geometry"/>
-</mxCell>
-<mxCell id="97226ecf-a151-43c0-9671-0e166308c9c0" value="Tfm_LoadRecords(table)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;" vertex="1" parent="1">
-<mxGeometry x="900" y="0" width="220" height="80" as="geometry"/>
-</mxCell>
-<mxCell id="7b76f79b-5d73-4539-813a-d189f6dc928b" value="Tfm_LoadRecords(Stage)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;" vertex="1" parent="1">
-<mxGeometry x="600" y="0" width="220" height="80" as="geometry"/>
-</mxCell>
-<mxCell id="cb64aa82-60c2-43d0-872c-7ef34a5f292c" value="HF_SMR_VEHICLE_DIM(table)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;" vertex="1" parent="1">
+<mxCell id="f1a9591f-64dd-4f57-8f3d-c7f2dd9cb368" value="HF_I247_GARAGE_MAPPING" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;" vertex="1" parent="1">
 <mxGeometry x="300" y="180" width="220" height="80" as="geometry"/>
 </mxCell>
-<mxCell id="aa29b68b-d98f-44ce-b26a-882af9aa0be3" value="HF_SMR_VEHICLE_DIM(Stage)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;" vertex="1" parent="1">
+<mxCell id="5698490d-f250-4bd5-ac7b-5aabc6a05bbd" value="LkpVorExceptionReports" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;" vertex="1" parent="1">
+<mxGeometry x="0" y="0" width="220" height="80" as="geometry"/>
+</mxCell>
+<mxCell id="49a0de66-5c5f-4c61-94a8-107aecb57fb5" value="TrExceptionReport" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;" vertex="1" parent="1">
+<mxGeometry x="600" y="0" width="220" height="80" as="geometry"/>
+</mxCell>
+<mxCell id="8978e09c-2a3a-4601-91b4-8cfeede9a5b7" value="VorExceptionReports" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;" vertex="1" parent="1">
 <mxGeometry x="0" y="180" width="220" height="80" as="geometry"/>
 </mxCell>
-<mxCell id="e9abe00d-612b-4936-8a2a-be11c5161486" value="Supp_VOR_Exception(Stage)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;" vertex="1" parent="1">
-<mxGeometry x="1200" y="180" width="220" height="80" as="geometry"/>
+<mxCell id="a0f28c6b-1f6e-4a42-9d03-b8e4c79406fc" value="VOR_EXCEPTIONS_FILE" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;" vertex="1" parent="1">
+<mxGeometry x="300" y="0" width="220" height="80" as="geometry"/>
 </mxCell>
-<mxCell id="cf5e7ec8-71c5-4e82-8e7e-4202028b2a30" value="Supp_VOR_Exception(table)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;" vertex="1" parent="1">
-<mxGeometry x="1500" y="180" width="220" height="80" as="geometry"/>
+<mxCell id="d5029858-7e27-429d-b34e-68e7719f4bf2" value="Src_VOR_I247_GARAGE_MAPPING" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;" vertex="1" parent="1">
+<mxGeometry x="0" y="360" width="220" height="80" as="geometry"/>
 </mxCell>
-<mxCell edge="1" parent="1" source="410119fa-26af-4ad4-8d61-5c0f21383fe1" target="f2dc7a4d-3e92-4ffb-932b-0e39d8794e74" value="output">
+<mxCell edge="1" parent="1" source="f1a9591f-64dd-4f57-8f3d-c7f2dd9cb368" target="49a0de66-5c5f-4c61-94a8-107aecb57fb5" value="exception">
 <mxGeometry relative="1" as="geometry"/>
 </mxCell>
-<mxCell edge="1" parent="1" source="f2dc7a4d-3e92-4ffb-932b-0e39d8794e74" target="7b76f79b-5d73-4539-813a-d189f6dc928b" value="input">
+<mxCell edge="1" parent="1" source="5698490d-f250-4bd5-ac7b-5aabc6a05bbd" target="49a0de66-5c5f-4c61-94a8-107aecb57fb5" value="exception">
 <mxGeometry relative="1" as="geometry"/>
 </mxCell>
-<mxCell edge="1" parent="1" source="ab55c7fc-eca1-485e-963e-88c4be7fed2e" target="5ad502d1-5bb5-4651-9b54-e38eb1bdb9a7" value="output">
+<mxCell edge="1" parent="1" source="8978e09c-2a3a-4601-91b4-8cfeede9a5b7" target="a0f28c6b-1f6e-4a42-9d03-b8e4c79406fc" value="exception">
 <mxGeometry relative="1" as="geometry"/>
 </mxCell>
-<mxCell edge="1" parent="1" source="4d2b4780-1732-4da3-8345-b6326b481520" target="ab55c7fc-eca1-485e-963e-88c4be7fed2e" value="input">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell edge="1" parent="1" source="f9bb68e3-36d1-4c24-8004-4659d8961e0c" target="4d2b4780-1732-4da3-8345-b6326b481520" value="output">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell edge="1" parent="1" source="97226ecf-a151-43c0-9671-0e166308c9c0" target="f9bb68e3-36d1-4c24-8004-4659d8961e0c" value="input">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell edge="1" parent="1" source="97226ecf-a151-43c0-9671-0e166308c9c0" target="e9abe00d-612b-4936-8a2a-be11c5161486" value="input">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell edge="1" parent="1" source="7b76f79b-5d73-4539-813a-d189f6dc928b" target="97226ecf-a151-43c0-9671-0e166308c9c0" value="output">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell edge="1" parent="1" source="cb64aa82-60c2-43d0-872c-7ef34a5f292c" target="7b76f79b-5d73-4539-813a-d189f6dc928b" value="lookup">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell edge="1" parent="1" source="aa29b68b-d98f-44ce-b26a-882af9aa0be3" target="cb64aa82-60c2-43d0-872c-7ef34a5f292c" value="output">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell edge="1" parent="1" source="e9abe00d-612b-4936-8a2a-be11c5161486" target="cf5e7ec8-71c5-4e82-8e7e-4202028b2a30" value="exception">
+<mxCell edge="1" parent="1" source="d5029858-7e27-429d-b34e-68e7719f4bf2" target="f1a9591f-64dd-4f57-8f3d-c7f2dd9cb368" value="exception">
 <mxGeometry relative="1" as="geometry"/>
 </mxCell>
 </root>
 </mxGraphModel>
 </diagram>
 </mxfile>
+
+
