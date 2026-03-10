@@ -1,0 +1,1058 @@
+ Started server process [1681155]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8075 (Press CTRL+C to quit)
+INFO:     127.0.0.1:42110 - "POST /chat HTTP/1.1" 200 OK
+ERROR:    Exception in ASGI application
+  + Exception Group Traceback (most recent call last):
+  |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/_utils.py", line 81, in collapse_excgroups
+  |     yield
+  |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/responses.py", line 270, in __call__
+  |     async with anyio.create_task_group() as task_group:
+  |                ~~~~~~~~~~~~~~~~~~~~~~~^^
+  |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py", line 783, in __aexit__
+  |     raise BaseExceptionGroup(
+  |         "unhandled errors in a TaskGroup", self._exceptions
+  |     ) from None
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/uvicorn/protocols/http/h11_impl.py", line 410, in run_asgi
+    |     result = await app(  # type: ignore[func-returns-value]
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |         self.scope, self.receive, self.send
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |     )
+    |     ^
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    |     return await self.app(scope, receive, send)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/fastapi/applications.py", line 1160, in __call__
+    |     await super().__call__(scope, receive, send)
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/applications.py", line 107, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    |     raise exc
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 87, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/routing.py", line 716, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/routing.py", line 736, in app
+    |     await route.handle(scope, receive, send)
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/routing.py", line 290, in handle
+    |     await self.app(scope, receive, send)
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/fastapi/routing.py", line 130, in app
+    |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/fastapi/routing.py", line 117, in app
+    |     await response(scope, receive, send)
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/responses.py", line 269, in __call__
+    |     with collapse_excgroups():
+    |          ~~~~~~~~~~~~~~~~~~^^
+    |   File "/usr/lib/python3.13/contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    |     raise exc
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/responses.py", line 273, in wrap
+    |     await func()
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/responses.py", line 253, in stream_response
+    |     async for chunk in self.body_iterator:
+    |     ...<2 lines>...
+    |         await send({"type": "http.response.body", "body": chunk, "more_body": True})
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/lineage_agent/server.py", line 22, in stream
+    |     async for event in graph.astream(
+    |     ...<28 lines>...
+    |                 yield f"data: {json.dumps(data)}\n\n"
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langgraph/pregel/main.py", line 3109, in astream
+    |     async for _ in runner.atick(
+    |     ...<16 lines>...
+    |             yield o
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langgraph/pregel/_runner.py", line 304, in atick
+    |     await arun_with_retry(
+    |     ...<15 lines>...
+    |     )
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langgraph/pregel/_retry.py", line 163, in arun_with_retry
+    |     return await task.proc.ainvoke(task.input, config)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langgraph/_internal/_runnable.py", line 705, in ainvoke
+    |     input = await asyncio.create_task(
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |         step.ainvoke(input, config, **kwargs), context=context
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |     )
+    |     ^
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langgraph/_internal/_runnable.py", line 473, in ainvoke
+    |     ret = await self.afunc(*args, **kwargs)
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langgraph/prebuilt/tool_node.py", line 846, in _afunc
+    |     outputs = await asyncio.gather(*coros)
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langgraph/prebuilt/tool_node.py", line 1177, in _arun_one
+    |     return await self._execute_tool_async(tool_request, input_type, config)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langgraph/prebuilt/tool_node.py", line 1126, in _execute_tool_async
+    |     content = _handle_tool_error(e, flag=self._handle_tool_errors)
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langgraph/prebuilt/tool_node.py", line 430, in _handle_tool_error
+    |     content = flag(e)  # type: ignore [assignment, call-arg]
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langgraph/prebuilt/tool_node.py", line 387, in _default_handle_tool_errors
+    |     raise e
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langgraph/prebuilt/tool_node.py", line 1083, in _execute_tool_async
+    |     response = await tool.ainvoke(call_args, config)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langchain_core/tools/structured.py", line 70, in ainvoke
+    |     return await super().ainvoke(input, config, **kwargs)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langchain_core/tools/base.py", line 652, in ainvoke
+    |     return await self.arun(tool_input, **kwargs)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langchain_core/tools/base.py", line 1131, in arun
+    |     raise error_to_raise
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langchain_core/tools/base.py", line 1097, in arun
+    |     response = await coro_with_context(coro, context)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langchain_core/tools/structured.py", line 124, in _arun
+    |     return await self.coroutine(*args, **kwargs)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langchain_mcp_adapters/tools.py", line 414, in call_tool
+    |     return _convert_call_tool_result(call_tool_result)
+    |   File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langchain_mcp_adapters/tools.py", line 189, in _convert_call_tool_result
+    |     raise ToolException(error_msg)
+    | langchain_core.tools.base.ToolException: Error calling available_lineage_sources. Status code: 500. Response: Internal Server Error
+    | During task with name 'tools' and id 'b8d5c3e8-cfdf-352f-e2a1-af0937dcd484'
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/uvicorn/protocols/http/h11_impl.py", line 410, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/fastapi/applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 87, in __call__
+    await self.app(scope, receive, send)
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/fastapi/routing.py", line 130, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/fastapi/routing.py", line 117, in app
+    await response(scope, receive, send)
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/responses.py", line 269, in __call__
+    with collapse_excgroups():
+         ~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/responses.py", line 273, in wrap
+    await func()
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/starlette/responses.py", line 253, in stream_response
+    async for chunk in self.body_iterator:
+    ...<2 lines>...
+        await send({"type": "http.response.body", "body": chunk, "more_body": True})
+  File "/home/admin/shraddha_code_repo/lineage_agent/lineage_agent/server.py", line 22, in stream
+    async for event in graph.astream(
+    ...<28 lines>...
+                yield f"data: {json.dumps(data)}\n\n"
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langgraph/pregel/main.py", line 3109, in astream
+    async for _ in runner.atick(
+    ...<16 lines>...
+            yield o
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langgraph/pregel/_runner.py", line 304, in atick
+    await arun_with_retry(
+    ...<15 lines>...
+    )
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langgraph/pregel/_retry.py", line 163, in arun_with_retry
+    return await task.proc.ainvoke(task.input, config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langgraph/_internal/_runnable.py", line 705, in ainvoke
+    input = await asyncio.create_task(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+        step.ainvoke(input, config, **kwargs), context=context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langgraph/_internal/_runnable.py", line 473, in ainvoke
+    ret = await self.afunc(*args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langgraph/prebuilt/tool_node.py", line 846, in _afunc
+    outputs = await asyncio.gather(*coros)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langgraph/prebuilt/tool_node.py", line 1177, in _arun_one
+    return await self._execute_tool_async(tool_request, input_type, config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langgraph/prebuilt/tool_node.py", line 1126, in _execute_tool_async
+    content = _handle_tool_error(e, flag=self._handle_tool_errors)
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langgraph/prebuilt/tool_node.py", line 430, in _handle_tool_error
+    content = flag(e)  # type: ignore [assignment, call-arg]
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langgraph/prebuilt/tool_node.py", line 387, in _default_handle_tool_errors
+    raise e
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langgraph/prebuilt/tool_node.py", line 1083, in _execute_tool_async
+    response = await tool.ainvoke(call_args, config)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langchain_core/tools/structured.py", line 70, in ainvoke
+    return await super().ainvoke(input, config, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langchain_core/tools/base.py", line 652, in ainvoke
+    return await self.arun(tool_input, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langchain_core/tools/base.py", line 1131, in arun
+    raise error_to_raise
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langchain_core/tools/base.py", line 1097, in arun
+    response = await coro_with_context(coro, context)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langchain_core/tools/structured.py", line 124, in _arun
+    return await self.coroutine(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langchain_mcp_adapters/tools.py", line 414, in call_tool
+    return _convert_call_tool_result(call_tool_result)
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/langchain_mcp_adapters/tools.py", line 189, in _convert_call_tool_result
+    raise ToolException(error_msg)
+langchain_core.tools.base.ToolException: Error calling available_lineage_sources. Status code: 500. Response: Internal Server Error
+During task with name 'tools' and id 'b8d5c3e8-cfdf-352f-e2a1-af0937dcd484'
+
+
+
+Lineage Agent Client Started
+Session ID: 705d16f2-e2a6-4bfd-b4ee-e1e73fbefd42
+Type 'exit' to quit
+
+ask : generate lineage for sample etl pipelines
+
+Calling: http://127.0.0.1:8075/chat
+State: 
+--------------------------------------------------
+{
+  "message": {
+    "content": "",
+    "additional_kwargs": {},
+    "response_metadata": {
+      "finish_reason": "tool_calls",
+      "model_name": "gpt-4o-2024-08-06",
+      "system_fingerprint": "fp_e9b9b028d7",
+      "model_provider": "openai"
+    },
+    "type": "ai",
+    "name": null,
+    "id": "lc_run--019cd972-b366-7d40-8149-2dc5e73227b3",
+    "tool_calls": [
+      {
+        "name": "available_lineage_sources",
+        "args": {
+          "user_id": "user2"
+        },
+        "id": "call_EEt5qvv7MVZRSjb97nLUdaDz",
+        "type": "tool_call"
+      }
+    ],
+    "invalid_tool_calls": [],
+    "usage_metadata": {
+      "input_tokens": 2182,
+      "output_tokens": 19,
+      "total_tokens": 2201,
+      "input_token_details": {
+        "audio": 0,
+        "cache_read": 2048
+      },
+      "output_token_details": {
+        "audio": 0,
+        "reasoning": 0
+      }
+    }
+  }
+}
+Traceback (most recent call last):
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/httpx/_transports/default.py", line 271, in __aiter__
+    async for part in self._httpcore_stream:
+        yield part
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/httpcore/_async/connection_pool.py", line 407, in __aiter__
+    raise exc from None
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/httpcore/_async/connection_pool.py", line 403, in __aiter__
+    async for part in self._stream:
+        yield part
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/httpcore/_async/http11.py", line 342, in __aiter__
+    raise exc
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/httpcore/_async/http11.py", line 334, in __aiter__
+    async for chunk in self._connection._receive_response_body(**kwargs):
+        yield chunk
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/httpcore/_async/http11.py", line 203, in _receive_response_body
+    event = await self._receive_event(timeout=timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/httpcore/_async/http11.py", line 213, in _receive_event
+    with map_exceptions({h11.RemoteProtocolError: RemoteProtocolError}):
+         ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/httpcore/_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.RemoteProtocolError: peer closed connection without sending complete message body (incomplete chunked read)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/admin/shraddha_code_repo/lineage_agent/lineage_agent/client.py", line 92, in <module>
+    asyncio.run(main())
+    ~~~~~~~~~~~^^^^^^^^
+  File "/usr/lib/python3.13/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.13/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.13/asyncio/base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/admin/shraddha_code_repo/lineage_agent/lineage_agent/client.py", line 79, in main
+    async for resp in stream_chat(user_query, session_ID, url):
+    ...<5 lines>...
+            state = resp
+  File "/home/admin/shraddha_code_repo/lineage_agent/lineage_agent/client.py", line 19, in stream_chat
+    async for line in response.aiter_lines():
+    ...<22 lines>...
+                    yield message
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/httpx/_models.py", line 1031, in aiter_lines
+    async for text in self.aiter_text():
+        for line in decoder.decode(text):
+            yield line
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/httpx/_models.py", line 1018, in aiter_text
+    async for byte_content in self.aiter_bytes():
+    ...<2 lines>...
+            yield chunk
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/httpx/_models.py", line 997, in aiter_bytes
+    async for raw_bytes in self.aiter_raw():
+    ...<2 lines>...
+            yield chunk
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/httpx/_models.py", line 1055, in aiter_raw
+    async for raw_stream_bytes in self.stream:
+    ...<2 lines>...
+            yield chunk
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/httpx/_client.py", line 176, in __aiter__
+    async for chunk in self._stream:
+        yield chunk
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/httpx/_transports/default.py", line 270, in __aiter__
+    with map_httpcore_exceptions():
+         ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/home/admin/shraddha_code_repo/lineage_agent/venv/lib/python3.13/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.RemoteProtocolError: peer closed connection without sending complete message body (incomplete chunked read)
+
+
+
+this is lneae.py
+
+from fastapi import APIRouter
+from pydantic import BaseModel, Field
+from toolbox import methods
+from dotenv import load_dotenv
+import os
+from typing import List
+from datetime import datetime
+import traceback
+# from debug2 import debug2 as dbg
+
+load_dotenv()
+
+script_name = os.path.basename(__file__)
+router = APIRouter()
+
+# ==========================================================
+# Request Models
+# ==========================================================
+
+
+class AvailableLineageSources(BaseModel):
+    """Represents functionality for retrieving ETL pseudocode files available for lineage generation."""
+    user_id: str = Field("user2", description="The unique user id of a specific user (default: 'user2').")
+
+
+class ReadLineageSources(BaseModel):
+    """Represents functionality for reading ETL pseudocode files used as lineage sources."""
+    user_id: str = Field("user2", description="The unique user id of a specific user (default: 'user2').")
+    job_files: List[str] = Field(..., description="List of pseudocode ETL job files to be used as lineage input.")
+
+
+class DetectJobBoundaries(BaseModel):
+    """Represents functionality for detecting independent ETL pipelines inside pseudocode."""
+    user_id: str = Field("user2", description="The unique user id of a specific user (default: 'user2').")
+    lineage_source_file: str = Field(None, description="Lineage source file generated by 'read_lineage_sources' tool.")
+
+
+class ParseETLStages(BaseModel):
+    """Represents functionality for parsing ETL pseudocode and extracting stage metadata."""
+    user_id: str = Field("user2", description="The unique user id of a specific user (default: 'user2').")
+    job_boundaries_file: str = Field(None, description="Job boundary file generated by 'detect_job_boundaries' tool.")
+
+
+class ExtractDatasetLinks(BaseModel):
+    """Represents functionality for extracting dataset relationships between ETL stages."""
+    user_id: str = Field("user2", description="The unique user id of a specific user (default: 'user2').")
+    parsed_stage_file: str = Field(None, description="Parsed stage metadata file generated by 'parse_etl_stages' tool.")
+
+
+class ExtractSQLMetadata(BaseModel):
+    """Represents functionality for extracting SQL tables referenced inside ETL transformations."""
+    user_id: str = Field("user2", description="The unique user id of a specific user (default: 'user2').")
+    parsed_stage_file: str = Field(None, description="Parsed stage metadata file generated by 'parse_etl_stages' tool.")
+
+
+class NormalizeLineageGraph(BaseModel):
+    """Represents functionality for normalizing lineage graph nodes into logical layers."""
+    user_id: str = Field("user2", description="The unique user id of a specific user (default: 'user2').")
+    dataset_links_file: str = Field(None, description="Dataset relationship file generated by 'extract_dataset_links' tool.")
+    sql_metadata_file: str = Field(None, description="SQL metadata file generated by 'extract_sql_metadata' tool.")
+
+
+class BuildLineageGraph(BaseModel):
+    """Represents functionality for building the lineage graph structure."""
+    user_id: str = Field("user2", description="The unique user id of a specific user (default: 'user2').")
+    normalized_graph_file: str = Field(None, description="Normalized lineage graph file generated by 'normalize_lineage_graph' tool.")
+
+
+class GenerateLayout(BaseModel):
+    """Represents functionality for generating diagram layout coordinates."""
+    user_id: str = Field("user2", description="The unique user id of a specific user (default: 'user2').")
+    lineage_graph_file: str = Field(None, description="Lineage graph JSON file generated by 'build_lineage_graph' tool.")
+
+
+class GenerateDrawioXML(BaseModel):
+    """Represents functionality for generating draw.io XML diagram for lineage visualization."""
+    user_id: str = Field("user2", description="The unique user id of a specific user (default: 'user2').")
+    layout_file: str = Field(None, description="Layout JSON file generated by 'generate_layout' tool.")
+
+
+class StoreLineageDiagram(BaseModel):
+    """Represents functionality for storing generated lineage diagram."""
+    user_id: str = Field("user2", description="The unique user id of a specific user (default: 'user2').")
+    drawio_xml: str = Field(..., description="Generated draw.io XML diagram.")
+    diagram_filename: str = Field(None, description="Optional filename used for storing lineage diagram.")
+
+
+# ==========================================================
+# Tools
+# ==========================================================
+
+
+@router.post(
+    "/available_lineage_sources",
+    operation_id="available_lineage_sources",
+    summary="Returns ETL pseudocode files available for lineage generation",
+    description="Scans lineage source directory and returns ETL pseudocode files available for lineage analysis."
+)
+async def available_lineage_sources(p_body: AvailableLineageSources):
+    """
+    Retrieve ETL pseudocode files available for lineage processing.
+
+    This endpoint scans the lineage source directory associated with the user
+    and returns pseudocode files that can be used as input for lineage extraction.
+
+    These files typically contain ETL job pseudocode exported from ETL tools
+    such as DataStage or similar systems.
+
+    NOTE: Steps to follow:
+        1. Call this endpoint first to identify available lineage input files.
+        2. Select the required pseudocode files.
+        3. Pass selected files to 'read_lineage_sources' tool.
+
+    Args:
+        p_body (AvailableLineageSources):
+            user_id (str): Unique identifier for the user.
+
+    Returns:
+        dict:
+            Available_Lineage_Sources (List[str]): List of available ETL pseudocode files.
+            error (str, optional): Error message if retrieval fails.
+    """
+
+    try:
+
+        log_file = methods.get_or_create_file(
+            agent_name="lineage_agent",
+            tool_name="available_lineage_sources"
+        )
+
+        execution_id = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+
+        lineage_dir = os.path.join(
+            os.getenv("UPLOAD_BASE_PATH"),
+            f"lineage/{p_body.user_id}/sources/"
+        )
+
+        files = methods.list_files_in_directory(lineage_dir)
+
+        dbg.dprint2(script_name, execution_id, "status", "Lineage sources fetched", log_file)
+
+        return {"Available_Lineage_Sources": files}
+
+    except Exception as e:
+        tb = traceback.format_exc()
+        dbg.dprint2(script_name, execution_id, "exception", tb, log_file)
+        return {"error": str(e)}
+
+
+# ----------------------------------------------------------
+
+
+@router.post(
+    "/read_lineage_sources",
+    operation_id="read_lineage_sources",
+    summary="Read ETL pseudocode files",
+    description="Reads ETL pseudocode files and consolidates them into a lineage source JSON artifact."
+)
+async def read_lineage_sources(p_body: ReadLineageSources):
+    """
+    Load pseudocode ETL job files.
+
+    This endpoint reads one or more pseudocode ETL job files and consolidates them
+    into a structured lineage source JSON file used by downstream lineage tools.
+
+    NOTE: Steps to follow:
+        1. Use 'available_lineage_sources' tool to identify available pseudocode files.
+        2. Select required ETL pseudocode files.
+        3. Call this endpoint to generate a lineage source JSON file.
+
+    Returns:
+        dict:
+            Lineage_Source_File (str): Generated lineage source file.
+    """
+
+    try:
+
+        execution_id = datetime.now().strftime('%Y%m%d%H%M%S')
+
+        filename = f"{execution_id}_lineage_sources.json"
+
+        source_dir = os.path.join(
+            os.getenv("UPLOAD_BASE_PATH"),
+            f"lineage/{p_body.user_id}/sources/"
+        )
+
+        os.makedirs(source_dir, exist_ok=True)
+
+        file_path = os.path.join(source_dir, filename)
+
+        job_paths = [
+            os.path.join(source_dir, f)
+            for f in p_body.job_files
+        ]
+
+        methods.read_etl_sources(job_paths, file_path)
+
+        methods.save_lineage_state(
+            execution_id,
+            {"source_file": filename, "source_files": p_body.job_files}
+        )
+
+        return {"Lineage_Source_File": filename}
+
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# ----------------------------------------------------------
+
+
+@router.post(
+    "/detect_job_boundaries",
+    operation_id="detect_job_boundaries",
+    summary="Detect ETL pipeline boundaries",
+    description="Identifies independent ETL pipelines within pseudocode files."
+)
+async def detect_job_boundaries(p_body: DetectJobBoundaries):
+    """
+    Detect job boundaries within pseudocode.
+
+    ETL pseudocode files may contain multiple independent ETL pipelines.
+    This tool detects boundaries separating each pipeline to ensure lineage
+    graphs are constructed accurately.
+
+    If a lineage source file is not explicitly provided,
+    the tool automatically retrieves the most recent source file from lineage state.
+
+    NOTE: Steps to follow:
+        1. Generate lineage source using 'read_lineage_sources'.
+        2. Call this endpoint to detect independent ETL pipelines.
+
+    Returns:
+        dict:
+            Job_Boundaries_File (str): JSON file containing detected job boundaries.
+    """
+
+    try:
+
+        execution_id = datetime.now().strftime('%Y%m%d%H%M%S')
+
+        input_file = p_body.lineage_source_file or methods.get_previous_state("source_file")
+
+        filename = f"{execution_id}_job_boundaries.json"
+
+        job_dir = os.path.join(
+            os.getenv("UPLOAD_BASE_PATH"),
+            f"lineage/{p_body.user_id}/jobs/"
+        )
+
+        os.makedirs(job_dir, exist_ok=True)
+
+        file_path = os.path.join(job_dir, filename)
+
+        methods.detect_job_boundaries(input_file, file_path)
+
+        methods.save_lineage_state(
+            execution_id,
+            {"job_boundaries_file": filename}
+        )
+
+        return {"Job_Boundaries_File": filename}
+
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# ----------------------------------------------------------
+
+
+@router.post(
+    "/parse_etl_stages",
+    operation_id="parse_etl_stages",
+    summary="Parse ETL stages from pseudocode",
+    description="Extracts stage metadata from ETL pseudocode."
+)
+async def parse_etl_stages(p_body: ParseETLStages):
+    """
+    Parse ETL stages.
+
+    This endpoint parses ETL pseudocode and extracts stage-level metadata
+    including stage names, types, input links, output links, and SQL logic.
+
+    NOTE: Steps to follow:
+        1. Detect pipeline boundaries using 'detect_job_boundaries'.
+        2. Call this endpoint to extract stage metadata.
+
+    Returns:
+        dict:
+            Parsed_Stage_File (str): JSON file containing parsed stage metadata.
+    """
+
+    try:
+
+        execution_id = datetime.now().strftime('%Y%m%d%H%M%S')
+
+        input_file = p_body.job_boundaries_file or methods.get_previous_state("job_boundaries_file")
+
+        filename = f"{execution_id}_parsed_stages.json"
+
+        parse_dir = os.path.join(
+            os.getenv("UPLOAD_BASE_PATH"),
+            f"lineage/{p_body.user_id}/parsed/"
+        )
+
+        os.makedirs(parse_dir, exist_ok=True)
+
+        file_path = os.path.join(parse_dir, filename)
+
+        methods.parse_stages_chunked(input_file, file_path)
+
+        methods.save_lineage_state(
+            execution_id,
+            {"parsed_stage_file": filename}
+        )
+
+        return {"Parsed_Stage_File": filename}
+
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# ----------------------------------------------------------
+
+
+@router.post(
+    "/extract_dataset_links",
+    operation_id="extract_dataset_links",
+    summary="Extract dataset relationships",
+    description="Identifies dataset flows between ETL stages."
+)
+async def extract_dataset_links(p_body: ExtractDatasetLinks):
+    """
+    Extract dataset relationships.
+
+    This endpoint analyzes parsed ETL stages and identifies relationships
+    between datasets flowing through transformations.
+
+    Example relationship:
+
+        dataset_A → Transformer → dataset_B
+
+    Returns:
+        dict:
+            Dataset_Links_File (str): JSON file containing dataset relationships.
+    """
+
+    try:
+
+        execution_id = datetime.now().strftime('%Y%m%d%H%M%S')
+
+        input_file = p_body.parsed_stage_file or methods.get_previous_state("parsed_stage_file")
+
+        filename = f"{execution_id}_dataset_links.json"
+
+        dataset_dir = os.path.join(
+            os.getenv("UPLOAD_BASE_PATH"),
+            f"lineage/{p_body.user_id}/datasets/"
+        )
+
+        os.makedirs(dataset_dir, exist_ok=True)
+
+        path = os.path.join(dataset_dir, filename)
+
+        methods.extract_dataset_links(input_file, path)
+
+        methods.save_lineage_state(
+            execution_id,
+            {"dataset_links_file": filename}
+        )
+
+        return {"Dataset_Links_File": filename}
+
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# ----------------------------------------------------------
+
+
+@router.post(
+    "/extract_sql_metadata",
+    operation_id="extract_sql_metadata",
+    summary="Extract SQL metadata",
+    description="Extract database tables referenced inside SQL transformations."
+)
+async def extract_sql_metadata(p_body: ExtractSQLMetadata):
+    """
+    Extract SQL metadata.
+
+    This endpoint scans SQL blocks embedded inside ETL transformation stages
+    and extracts database tables referenced in the SQL logic.
+
+    Returns:
+        dict:
+            SQL_Metadata_File (str): JSON file containing extracted SQL metadata.
+    """
+
+    try:
+
+        execution_id = datetime.now().strftime('%Y%m%d%H%M%S')
+
+        input_file = p_body.parsed_stage_file or methods.get_previous_state("parsed_stage_file")
+
+        filename = f"{execution_id}_sql_metadata.json"
+
+        sql_dir = os.path.join(
+            os.getenv("UPLOAD_BASE_PATH"),
+            f"lineage/{p_body.user_id}/sql/"
+        )
+
+        os.makedirs(sql_dir, exist_ok=True)
+
+        path = os.path.join(sql_dir, filename)
+
+        methods.extract_sql_metadata(input_file, path)
+
+        methods.save_lineage_state(
+            execution_id,
+            {"sql_metadata_file": filename}
+        )
+
+        return {"SQL_Metadata_File": filename}
+
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# ----------------------------------------------------------
+
+
+@router.post(
+    "/normalize_lineage_graph",
+    operation_id="normalize_lineage_graph",
+    summary="Normalize lineage graph",
+    description="Convert raw lineage relationships into structured graph nodes."
+)
+async def normalize_lineage_graph(p_body: NormalizeLineageGraph):
+    """
+    Normalize lineage graph.
+
+    Converts extracted dataset links and SQL metadata into structured lineage nodes.
+
+    Node categories include:
+
+        SOURCE
+        TRANSFORM
+        DATASET
+        TARGET
+        LOOKUP
+
+    Returns:
+        dict:
+            Normalized_Graph_File (str): JSON file containing normalized graph.
+    """
+
+    try:
+
+        execution_id = datetime.now().strftime('%Y%m%d%H%M%S')
+
+        dataset_file = p_body.dataset_links_file or methods.get_previous_state("dataset_links_file")
+        sql_file = p_body.sql_metadata_file or methods.get_previous_state("sql_metadata_file")
+
+        filename = f"{execution_id}_normalized_graph.json"
+
+        graph_dir = os.path.join(
+            os.getenv("UPLOAD_BASE_PATH"),
+            f"lineage/{p_body.user_id}/normalized/"
+        )
+
+        os.makedirs(graph_dir, exist_ok=True)
+
+        path = os.path.join(graph_dir, filename)
+
+        methods.normalize_lineage_graph(dataset_file, sql_file, path)
+
+        methods.save_lineage_state(
+            execution_id,
+            {"normalized_graph_file": filename}
+        )
+
+        return {"Normalized_Graph_File": filename}
+
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# ----------------------------------------------------------
+
+
+@router.post(
+    "/build_lineage_graph",
+    operation_id="build_lineage_graph",
+    summary="Build lineage graph",
+    description="Construct lineage graph using bottom-up traversal."
+)
+async def build_lineage_graph(p_body: BuildLineageGraph):
+    """
+    Build lineage graph.
+
+    Constructs lineage graph using leaf-first traversal.
+
+    Returns:
+        dict:
+            Lineage_Graph_File (str): JSON file containing final lineage graph.
+    """
+
+    try:
+
+        execution_id = datetime.now().strftime('%Y%m%d%H%M%S')
+
+        input_file = p_body.normalized_graph_file or methods.get_previous_state("normalized_graph_file")
+
+        filename = f"{execution_id}_lineage_graph.json"
+
+        graph_dir = os.path.join(
+            os.getenv("UPLOAD_BASE_PATH"),
+            f"lineage/{p_body.user_id}/graph/"
+        )
+
+        os.makedirs(graph_dir, exist_ok=True)
+
+        path = os.path.join(graph_dir, filename)
+
+        methods.build_lineage_graph_bottom_up(input_file, path)
+
+        methods.save_lineage_state(
+            execution_id,
+            {"lineage_graph_file": filename}
+        )
+
+        return {"Lineage_Graph_File": filename}
+
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# ----------------------------------------------------------
+
+
+@router.post(
+    "/generate_layout",
+    operation_id="generate_layout",
+    summary="Generate diagram layout",
+    description="Assign spatial coordinates to lineage graph nodes."
+)
+async def generate_layout(p_body: GenerateLayout):
+    """
+    Generate diagram layout.
+
+    Assigns spatial coordinates to lineage nodes for visualization.
+
+    Returns:
+        dict:
+            Layout_File (str): JSON file containing node coordinates.
+    """
+
+    try:
+
+        execution_id = datetime.now().strftime('%Y%m%d%H%M%S')
+
+        input_file = p_body.lineage_graph_file or methods.get_previous_state("lineage_graph_file")
+
+        filename = f"{execution_id}_layout.json"
+
+        layout_dir = os.path.join(
+            os.getenv("UPLOAD_BASE_PATH"),
+            f"lineage/{p_body.user_id}/layout/"
+        )
+
+        os.makedirs(layout_dir, exist_ok=True)
+
+        path = os.path.join(layout_dir, filename)
+
+        methods.generate_layout(input_file, path)
+
+        methods.save_lineage_state(
+            execution_id,
+            {"layout_file": filename}
+        )
+
+        return {"Layout_File": filename}
+
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# ----------------------------------------------------------
+
+
+@router.post(
+    "/generate_drawio_xml",
+    operation_id="generate_drawio_xml",
+    summary="Generate draw.io XML diagram",
+    description="Convert lineage layout into draw.io XML format."
+)
+async def generate_drawio_xml(p_body: GenerateDrawioXML):
+    """
+    Generate draw.io XML diagram.
+
+    Converts lineage graph layout into draw.io compatible XML
+    so lineage diagrams can be visualized.
+
+    Returns:
+        dict:
+            Drawio_XML (str): Generated XML diagram.
+    """
+
+    try:
+
+        input_file = p_body.layout_file or methods.get_previous_state("layout_file")
+
+        xml = methods.generate_drawio_xml(input_file)
+
+        return {"Drawio_XML": xml}
+
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# ----------------------------------------------------------
+
+
+@router.post(
+    "/store_lineage_diagram",
+    operation_id="store_lineage_diagram",
+    summary="Store lineage diagram",
+    description="Store generated draw.io XML lineage diagram."
+)
+async def store_lineage_diagram(p_body: StoreLineageDiagram):
+    """
+    Store lineage diagram.
+
+    Saves generated draw.io XML diagram into lineage output directory.
+
+    Returns:
+        dict:
+            diagram_filename (str): Stored lineage diagram filename.
+    """
+
+    try:
+
+        execution_id = datetime.now().strftime('%Y%m%d%H%M%S')
+
+        if not p_body.diagram_filename:
+            p_body.diagram_filename = f"{execution_id}_lineage.drawio"
+
+        output_dir = os.path.join(
+            os.getenv("OUTPUT_BASE_PATH"),
+            f"lineage/{p_body.user_id}/diagrams/"
+        )
+
+        os.makedirs(output_dir, exist_ok=True)
+
+        methods.store_lineage_xml(
+            p_body.drawio_xml,
+            output_dir,
+            p_body.diagram_filename
+        )
+
+        return {"diagram_filename": p_body.diagram_filename}
+
+    except Exception as e:
+        return {"error": str(e)}
+
+i have created the folders lso still getting this error i have kept input sample file Sample_Job1 1 2_detailed_pseudocode.txt in uploads also and in sources also
