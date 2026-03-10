@@ -1,350 +1,3 @@
-diagram_generator.py
-
-import uuid
-import networkx as nx
- 
- 
-# ------------------------------------------------
-# Layout
-# ------------------------------------------------
- 
-def layered_layout(G):
- 
-    pos = {}
- 
-    try:
-        layers = list(nx.topological_generations(G))
-    except:
-        layers = [list(G.nodes)]
- 
-    x_gap = 300
-    y_gap = 180
- 
-    for i, layer in enumerate(layers):
-        for j, node in enumerate(layer):
-            pos[node] = (i * x_gap, j * y_gap)
- 
-    return pos
- 
- 
-# ------------------------------------------------
-# Node styling
-# ------------------------------------------------
- 
-def node_style(node):
- 
-    t = node.get("type")
- 
-    if t == "stage":
-        return "rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;"
- 
-    if t == "dataset":
-        return "rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;"
- 
-    if t == "exception":
-        return "rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;"
- 
-    return "rounded=1;whiteSpace=wrap;html=1;"
- 
- 
-# ------------------------------------------------
-# Draw.io generator
-# ------------------------------------------------
- 
-def generate_drawio(nodes, edges):
- 
-    print("\n[TOOL] generate_drawio running")
- 
-    G = nx.DiGraph()
- 
-    for n in nodes:
-        G.add_node(n["name"])
- 
-    for e in edges:
-        G.add_edge(e["source"], e["target"])
- 
-    pos = layered_layout(G)
- 
-    node_ids = {}
-    xml = []
- 
-    xml.append("<mxfile>")
-    xml.append("<diagram>")
-    xml.append("<mxGraphModel>")
-    xml.append("<root>")
-    xml.append('<mxCell id="0"/>')
-    xml.append('<mxCell id="1" parent="0"/>')
- 
-    # -------------------------
-    # Nodes
-    # -------------------------
- 
-    for node in nodes:
- 
-        nid = str(uuid.uuid4())
-        node_ids[node["name"]] = nid
- 
-        x, y = pos[node["name"]]
- 
-        style = node_style(node)
- 
-        name = node["name"]
- 
-        label = name
- 
-        xml.append(
-            f'<mxCell id="{nid}" value="{label}" style="{style}" vertex="1" parent="1">'
-        )
- 
-        xml.append(
-            f'<mxGeometry x="{x}" y="{y}" width="220" height="80" as="geometry"/>'
-        )
- 
-        xml.append('</mxCell>')
- 
-    # -------------------------
-    # Edges
-    # -------------------------
- 
-    for e in edges:
- 
-        xml.append(
-            f'<mxCell edge="1" parent="1" '
-            f'source="{node_ids[e["source"]]}" '
-            f'target="{node_ids[e["target"]]}" '
-            f'value="{e["label"]}">'
-        )
- 
-        xml.append('<mxGeometry relative="1" as="geometry"/>')
-        xml.append('</mxCell>')
- 
-    xml.append("</root>")
-    xml.append("</mxGraphModel>")
-    xml.append("</diagram>")
-    xml.append("</mxfile>")
- 
-    print("[TOOL] Drawio XML generated")
- 
-    return "\n".join(xml)
-
-helpers.py
-
-import os
-import re
-import networkx as nx
- 
- 
-# ------------------------------------------------
-# Read ETL file
-# ------------------------------------------------
- 
-def read_etl_file(path):
- 
-    with open(path, "r", encoding="utf-8") as f:
-        return f.read()
- 
- 
-# ------------------------------------------------
-# List upload files
-# ------------------------------------------------
- 
-def list_upload_files():
- 
-    folder = "./lineage_mcp/data/upload"
- 
-    if not os.path.exists(folder):
-        return []
- 
-    files = [
-        f for f in os.listdir(folder)
-        if f.endswith(".txt")
-    ]
- 
-    return files
- 
- 
-# ------------------------------------------------
-# Stage splitter
-# ------------------------------------------------
- 
-def smart_stage_splitter(text):
- 
-    print("\n[TOOL] smart_stage_splitter")
- 
-    pattern = r"---\s*\[[^\]]+\]"
- 
-    matches = list(re.finditer(pattern, text))
- 
-    blocks = []
- 
-    for i, m in enumerate(matches):
- 
-        start = m.start()
- 
-        end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
- 
-        blocks.append(text[start:end])
- 
-    print(f"[TOOL] Total stage blocks detected: {len(blocks)}")
- 
-    return blocks
- 
- 
-# ------------------------------------------------
-# Logical chunking (LLM safe)
-# ------------------------------------------------
- 
-def logical_chunk_stage(block, max_chars=3000):
- 
-    sections = re.split(
-        r"(SQL:|Stage Variables:|Transformations:|Constraint)",
-        block
-    )
- 
-    chunks = []
- 
-    current = ""
- 
-    for part in sections:
- 
-        if len(current) + len(part) < max_chars:
-            current += part
-        else:
-            chunks.append(current)
-            current = part
- 
-    if current:
-        chunks.append(current)
- 
-    return chunks
- 
-
-def lineage_graph_builder(metadata):
- 
-    print("\n[TOOL] lineage_graph_builder")
- 
-    nodes = []
-    edges = []
- 
-    seen_nodes = set()
-    seen_edges = set()
- 
-    def add_node(name, node_type="dataset"):
- 
-        if name not in seen_nodes:
-            nodes.append({
-                "name": name,
-                "type": node_type
-            })
-            seen_nodes.add(name)
- 
-    def add_edge(src, tgt, label):
- 
-        key = (src, tgt, label)
- 
-        if key not in seen_edges:
-            edges.append({
-                "source": src,
-                "target": tgt,
-                "label": label
-            })
-            seen_edges.add(key)
- 
-    for item in metadata:
- 
-        inputs = item.get("inputs", [])
-        lookups = item.get("lookups", [])
-        outputs = item.get("outputs", [])
-        exceptions = item.get("exceptions", [])
- 
-        # register nodes
-        for n in inputs + lookups + outputs + exceptions:
-            add_node(n)
- 
-        # input → output
-        for inp in inputs:
-            for out in outputs:
-                add_edge(inp, out, "input")
- 
-        # lookup → output
-        for lk in lookups:
-            for out in outputs:
-                add_edge(lk, out, "lookup")
- 
-        # input → exception
-        for inp in inputs:
-            for ex in exceptions:
-                add_edge(inp, ex, "exception")
- 
-    print("[TOOL] Nodes:", nodes)
-    print("[TOOL] Edges:", edges)
- 
-    return nodes, edges
- 
- 
-# ------------------------------------------------
-# Graph correction layer
-# ------------------------------------------------
- 
-def correct_lineage_graph(nodes, edges):
- 
-    print("\n[GRAPH] Running graph correction layer")
- 
-    G = nx.DiGraph()
- 
-    for n in nodes:
-        G.add_node(n["name"], type=n.get("type", "dataset"))
- 
-    for e in edges:
- 
-        src = e["source"]
-        tgt = e["target"]
-        label = e.get("label", "flow")
- 
-        if src == tgt:
-            continue
- 
-        G.add_edge(src, tgt, label=label)
- 
-    # Remove cycles
-    try:
- 
-        cycles = list(nx.simple_cycles(G))
- 
-        for cycle in cycles:
- 
-            print("[GRAPH] Cycle detected:", cycle)
- 
-            G.remove_edge(cycle[-1], cycle[0])
- 
-    except Exception:
-        pass
- 
-    corrected_edges = []
- 
-    for u, v, data in G.edges(data=True):
- 
-        corrected_edges.append({
-            "source": u,
-            "target": v,
-            "label": data.get("label", "flow")
-        })
- 
-    corrected_nodes = []
- 
-    for n, data in G.nodes(data=True):
- 
-        corrected_nodes.append({
-            "name": n,
-            "type": data.get("type", "dataset")
-        })
- 
-    print("[GRAPH] Graph correction complete")
- 
-    return corrected_nodes, corrected_edges
-
-lineage_template.py
-
 import os
 import re
 import json
@@ -363,7 +16,8 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
  
 from lineage_mcp.tools.helpers import (
     logical_chunk_stage,
-    list_upload_files
+    list_upload_files,
+    normalize_metadata
 )
  
 load_dotenv()
@@ -677,6 +331,8 @@ Important Rules
 3. Do not include link names.
 4. Do not duplicate dataset names.
 5. If a category has no datasets return an empty list.
+6. If a stage has an output dataset but no input dataset, treat it as a source stage.
+7. If a stage has an input dataset but no output dataset and stage type is CSeqFileStage, treat the dataset as an exception output.
  
  
 --------------------------------------------------
@@ -812,12 +468,26 @@ async def build_agent():
                         continue
  
                     if not combined:
-                        combined = data
+                        combined ={ 
+                            "stage": data["stage"],
+                            "stage_type": data["stage_type"],
+                            "inputs": list(data["inputs"]),
+                            "lookups": list(data["lookups"]),
+                            "outputs": list(data["outputs"]),
+                            "exceptions": list(data["exceptions"])
+                            }
                     else:
-                        combined["inputs"].extend(data["inputs"])
-                        combined["outputs"].extend(data["outputs"])
+                        combined.setdefault("inputs", []).extend(data.get("inputs", []))
+                        combined.setdefault("outputs", []).extend(data.get("outputs", []))
+                        combined.setdefault("lookups", []).extend(data.get("lookups", []))
+                        combined.setdefault("exceptions", []).extend(data.get("exceptions", []))
+
  
                 if combined:
+                    combined["inputs"] = list(set(combined["inputs"]))
+                    combined["outputs"] = list(set(combined["outputs"]))
+                    combined["lookups"] = list(set(combined["lookups"]))
+                    combined["exceptions"] = list(set(combined["exceptions"]))
                     metadata.append(combined)
  
             # ------------------------------------------------
@@ -827,18 +497,34 @@ async def build_agent():
             print("\n[DEBUG] Final merged metadat:")
             for m in metadata:
                 print(m)
+
+            metadata = normalize_metadata(metadata)
+
+            print("\n[DEBUG] Metadat after normalization:")
+            for m in metadata:
+                print(m)
  
             graph_resp = await graph_tool.ainvoke({
                 "metadata": metadata
             })
- 
+
             graph = normalize_mcp_output(graph_resp)
  
+            # MCP may return JSON string
             if isinstance(graph, str):
-                graph = json.loads(graph)
+                try:
+                    graph = json.loads(graph)
+                except Exception:
+                    print("[WARN] Graph returned as string but not valid JSON")
+                    print(graph)
+                    raise
  
+            # Validate graph structure
             if not isinstance(graph, dict):
-                raise ValueError(f"Unexpected graph output: {type(graph)}")
+                raise ValueError(f"[ERROR] Graph output not dict: {type(graph)}")
+ 
+            if "nodes" not in graph or "edges" not in graph:
+                raise ValueError(f"[ERROR] Graph missing keys: {graph}")
  
             nodes = graph["nodes"]
             edges = graph["edges"]
@@ -876,47 +562,495 @@ async def build_agent():
  
     return graph
 
-output:
-
-<mxfile>
-<diagram>
-<mxGraphModel>
-<root>
-<mxCell id="0"/>
-<mxCell id="1" parent="0"/>
-<mxCell id="f1a9591f-64dd-4f57-8f3d-c7f2dd9cb368" value="HF_I247_GARAGE_MAPPING" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;" vertex="1" parent="1">
-<mxGeometry x="300" y="180" width="220" height="80" as="geometry"/>
-</mxCell>
-<mxCell id="5698490d-f250-4bd5-ac7b-5aabc6a05bbd" value="LkpVorExceptionReports" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;" vertex="1" parent="1">
-<mxGeometry x="0" y="0" width="220" height="80" as="geometry"/>
-</mxCell>
-<mxCell id="49a0de66-5c5f-4c61-94a8-107aecb57fb5" value="TrExceptionReport" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;" vertex="1" parent="1">
-<mxGeometry x="600" y="0" width="220" height="80" as="geometry"/>
-</mxCell>
-<mxCell id="8978e09c-2a3a-4601-91b4-8cfeede9a5b7" value="VorExceptionReports" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;" vertex="1" parent="1">
-<mxGeometry x="0" y="180" width="220" height="80" as="geometry"/>
-</mxCell>
-<mxCell id="a0f28c6b-1f6e-4a42-9d03-b8e4c79406fc" value="VOR_EXCEPTIONS_FILE" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;" vertex="1" parent="1">
-<mxGeometry x="300" y="0" width="220" height="80" as="geometry"/>
-</mxCell>
-<mxCell id="d5029858-7e27-429d-b34e-68e7719f4bf2" value="Src_VOR_I247_GARAGE_MAPPING" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;" vertex="1" parent="1">
-<mxGeometry x="0" y="360" width="220" height="80" as="geometry"/>
-</mxCell>
-<mxCell edge="1" parent="1" source="f1a9591f-64dd-4f57-8f3d-c7f2dd9cb368" target="49a0de66-5c5f-4c61-94a8-107aecb57fb5" value="exception">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell edge="1" parent="1" source="5698490d-f250-4bd5-ac7b-5aabc6a05bbd" target="49a0de66-5c5f-4c61-94a8-107aecb57fb5" value="exception">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell edge="1" parent="1" source="8978e09c-2a3a-4601-91b4-8cfeede9a5b7" target="a0f28c6b-1f6e-4a42-9d03-b8e4c79406fc" value="exception">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell edge="1" parent="1" source="d5029858-7e27-429d-b34e-68e7719f4bf2" target="f1a9591f-64dd-4f57-8f3d-c7f2dd9cb368" value="exception">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-</root>
-</mxGraphModel>
-</diagram>
-</mxfile>
 
 
+helpers.py
+
+import os
+import re
+import networkx as nx
+ 
+ 
+# ------------------------------------------------
+# Read ETL file
+# ------------------------------------------------
+ 
+def read_etl_file(path):
+ 
+    with open(path, "r", encoding="utf-8") as f:
+        return f.read()
+ 
+ 
+# ------------------------------------------------
+# List upload files
+# ------------------------------------------------
+ 
+def list_upload_files():
+ 
+    folder = "./lineage_mcp/data/upload"
+ 
+    if not os.path.exists(folder):
+        return []
+ 
+    files = [
+        f for f in os.listdir(folder)
+        if f.endswith(".txt")
+    ]
+ 
+    return files
+ 
+ 
+# ------------------------------------------------
+# Stage splitter
+# ------------------------------------------------
+ 
+def smart_stage_splitter(text):
+ 
+    print("\n[TOOL] smart_stage_splitter")
+ 
+    pattern = r"---\s*\[[^\]]+\]"
+ 
+    matches = list(re.finditer(pattern, text))
+ 
+    blocks = []
+ 
+    for i, m in enumerate(matches):
+ 
+        start = m.start()
+ 
+        end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+ 
+        blocks.append(text[start:end])
+ 
+    print(f"[TOOL] Total stage blocks detected: {len(blocks)}")
+ 
+    return blocks
+ 
+ 
+# ------------------------------------------------
+# Logical chunking (LLM safe)
+# ------------------------------------------------
+ 
+def logical_chunk_stage(block, max_chars=3000):
+ 
+    sections = re.split(
+        r"(SQL:|Stage Variables:|Transformations:|Constraint)",
+        block
+    )
+ 
+    chunks = []
+ 
+    current = ""
+ 
+    for part in sections:
+ 
+        if len(current) + len(part) < max_chars:
+            current += part
+        else:
+            chunks.append(current)
+            current = part
+ 
+    if current:
+        chunks.append(current)
+ 
+    return chunks
+ 
+def normalize_metadata(metadata):
+ 
+    print("\n[NORMALIZER] Fixing metadata")
+ 
+    normalized = []
+ 
+    for item in metadata:
+
+        if not isinstance(item, dict):
+            print("[WARN] Skipping invalid metadata:", item)
+            continue
+ 
+        stage = item.get("stage")
+        inputs = list(set(item.get("inputs", [])))
+        lookups = list(set(item.get("lookups", [])))
+        outputs = list(set(item.get("outputs", [])))
+        exceptions = list(set(item.get("exceptions", [])))
+ 
+        # if a stage has no outputs but has exceptions
+        if not outputs and exceptions:
+            outputs = []
+ 
+        # if no inputs and no lookups
+        # assume stage is a source
+        if not inputs and not lookups:
+            print(f"[NORMALIZER] Source detected: {stage}")
+ 
+        normalized.append({
+            "stage": stage,
+            "inputs": inputs,
+            "lookups": lookups,
+            "outputs": outputs,
+            "exceptions": exceptions
+        })
+ 
+    return normalized
+
+
+
+def lineage_graph_builder(metadata):
+ 
+    nodes = []
+    edges = []
+ 
+    seen_nodes = set()
+    seen_edges = set()
+ 
+    def add_node(n):
+        if n not in seen_nodes:
+            nodes.append({"name": n, "type": "dataset"})
+            seen_nodes.add(n)
+ 
+    def add_edge(s, t, label):
+        key = (s, t, label)
+        if key not in seen_edges:
+            edges.append({
+                "source": s,
+                "target": t,
+                "label": label
+            })
+            seen_edges.add(key)
+ 
+    for stage in metadata:
+ 
+        inputs = stage["inputs"]
+        lookups = stage["lookups"]
+        outputs = stage["outputs"]
+        exceptions = stage["exceptions"]
+ 
+        for n in inputs + lookups + outputs + exceptions:
+            add_node(n)
+ 
+        # input → output
+        for i in inputs:
+            for o in outputs:
+                add_edge(i, o, "input")
+ 
+        # lookup → output
+        for l in lookups:
+            for o in outputs:
+                add_edge(l, o, "lookup")
+ 
+        # input → exception
+        for i in inputs:
+            for ex in exceptions:
+                add_edge(i, ex, "exception")
+ 
+    return {"nodes": nodes, "edges": edges}
+
+
+    
+ 
+# ------------------------------------------------
+# Graph correction layer
+# ------------------------------------------------
+ 
+def correct_lineage_graph(nodes, edges):
+ 
+    print("\n[GRAPH] Running graph correction layer")
+ 
+    G = nx.DiGraph()
+ 
+    for n in nodes:
+        G.add_node(n["name"], type=n.get("type", "dataset"))
+ 
+    for e in edges:
+ 
+        src = e["source"]
+        tgt = e["target"]
+        label = e.get("label", "flow")
+ 
+        if src == tgt:
+            continue
+ 
+        G.add_edge(src, tgt, label=label)
+ 
+    # Remove cycles
+    try:
+ 
+        cycles = list(nx.simple_cycles(G))
+ 
+        for cycle in cycles:
+ 
+            print("[GRAPH] Cycle detected:", cycle)
+ 
+            G.remove_edge(cycle[-1], cycle[0])
+ 
+    except Exception:
+        pass
+ 
+    corrected_edges = []
+ 
+    for u, v, data in G.edges(data=True):
+ 
+        corrected_edges.append({
+            "source": u,
+            "target": v,
+            "label": data.get("label", "flow")
+        })
+ 
+    corrected_nodes = []
+ 
+    for n, data in G.nodes(data=True):
+ 
+        corrected_nodes.append({
+            "name": n,
+            "type": data.get("type", "dataset")
+        })
+ 
+    print("[GRAPH] Graph correction complete")
+ 
+    return corrected_nodes, corrected_edges
+
+
+
+import uuid
+import networkx as nx
+ 
+ 
+# ------------------------------------------------
+# Layout
+# ------------------------------------------------
+ 
+def layered_layout(G):
+ 
+    pos = {}
+ 
+    layers = []
+ 
+    try:
+        layers = list(nx.topological_generations(G))
+    except:
+        layers = [list(G.nodes)]
+ 
+    x_gap = 260
+    y_gap = 150
+ 
+    for layer_idx, layer in enumerate(layers):
+ 
+        for node_idx, node in enumerate(layer):
+ 
+            pos[node] = (
+                layer_idx * x_gap,
+                node_idx * y_gap
+            )
+ 
+    return pos
+ 
+ 
+# ------------------------------------------------
+# Node styling
+# ------------------------------------------------
+ 
+def node_style(node):
+ 
+    t = node.get("type")
+ 
+    if t == "stage":
+        return "rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;"
+ 
+    if t == "dataset":
+        return "rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;"
+ 
+    if t == "exception":
+        return "rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;"
+ 
+    return "rounded=1;whiteSpace=wrap;html=1;"
+ 
+ 
+# ------------------------------------------------
+# Draw.io generator
+# ------------------------------------------------
+ 
+def generate_drawio(nodes, edges):
+ 
+    print("\n[TOOL] generate_drawio running")
+ 
+    G = nx.DiGraph()
+ 
+    for n in nodes:
+        G.add_node(n["name"])
+ 
+    for e in edges:
+        G.add_edge(e["source"], e["target"])
+ 
+    pos = layered_layout(G)
+ 
+    node_ids = {}
+    xml = []
+ 
+    xml.append("<mxfile>")
+    xml.append("<diagram>")
+    xml.append("<mxGraphModel>")
+    xml.append("<root>")
+    xml.append('<mxCell id="0"/>')
+    xml.append('<mxCell id="1" parent="0"/>')
+ 
+    # -------------------------
+    # Nodes
+    # -------------------------
+ 
+    for node in nodes:
+ 
+        nid = str(uuid.uuid4())
+        node_ids[node["name"]] = nid
+ 
+        x, y = pos[node["name"]]
+ 
+        style = node_style(node)
+ 
+        name = node["name"]
+ 
+        label = name
+ 
+        xml.append(
+            f'<mxCell id="{nid}" value="{label}" style="{style}" vertex="1" parent="1">'
+        )
+ 
+        xml.append(
+            f'<mxGeometry x="{x}" y="{y}" width="220" height="80" as="geometry"/>'
+        )
+ 
+        xml.append('</mxCell>')
+ 
+    # -------------------------
+    # Edges
+    # -------------------------
+ 
+    for e in edges:
+ 
+        xml.append(
+            f'<mxCell edge="1" parent="1" '
+            f'source="{node_ids[e["source"]]}" '
+            f'target="{node_ids[e["target"]]}" '
+            f'value="{e["label"]}">'
+        )
+ 
+        xml.append('<mxGeometry relative="1" as="geometry"/>')
+        xml.append('</mxCell>')
+ 
+    xml.append("</root>")
+    xml.append("</mxGraphModel>")
+    xml.append("</diagram>")
+    xml.append("</mxfile>")
+ 
+    print("[TOOL] Drawio XML generated")
+ 
+    return "\n".join(xml)
+
+
+server.py
+
+from mcp.server.fastmcp import FastMCP
+ 
+from lineage_mcp.tools.helpers import (
+    read_etl_file,
+    smart_stage_splitter,
+    lineage_graph_builder,
+    correct_lineage_graph
+)
+ 
+from lineage_mcp.tools.diagram_generator import generate_drawio
+ 
+ 
+mcp = FastMCP("etl-lineage-server")
+ 
+ 
+# ------------------------------------------------
+# Read ETL file
+# ------------------------------------------------
+ 
+@mcp.tool()
+def read_etl_file_tool(file_name: str):
+ 
+    print("\n[TOOL] read_etl_file_tool:", file_name)
+ 
+    path = f"./lineage_mcp/data/upload/{file_name}"
+ 
+    text = read_etl_file(path)
+ 
+    print("[TOOL] File loaded")
+ 
+    return text
+ 
+ 
+# ------------------------------------------------
+# Split stages
+# ------------------------------------------------
+ 
+@mcp.tool()
+def smart_stage_splitter_tool(text: str):
+ 
+    blocks = smart_stage_splitter(text)
+ 
+    return blocks
+
+@mcp.tool()
+def normalize_metadata_tool(metadata: list):
+ 
+    from lineage_mcp.tools.helpers import normalize_metadata
+ 
+    normalized = normalize_metadata(metadata)
+ 
+    return normalized
+ 
+ 
+# ------------------------------------------------
+# Build graph
+# ------------------------------------------------
+ 
+import json
+ 
+@mcp.tool()
+def lineage_graph_builder_tool(metadata):
+ 
+    print("\n[SERVER] Raw metadata type:", type(metadata))
+ 
+    # MCP sometimes sends JSON string
+    if isinstance(metadata, str):
+        print("[SERVER] Parsing metadata JSON string")
+        metadata = json.loads(metadata)
+ 
+    # Validate metadata structure
+    if not isinstance(metadata, list):
+        raise ValueError(f"Metadata must be list, got {type(metadata)}")
+ 
+    nodes, edges = lineage_graph_builder(metadata)
+ 
+    nodes, edges = correct_lineage_graph(nodes, edges)
+ 
+    return {
+        "nodes": nodes,
+        "edges": edges
+    }
+ 
+# ------------------------------------------------
+# Generate drawio
+# ------------------------------------------------
+ 
+@mcp.tool()
+def generate_drawio_tool(nodes: list, edges: list, file_name: str):
+ 
+    xml = generate_drawio(nodes, edges)
+ 
+    path = f"./lineage_mcp/data/feature/{file_name}.drawio"
+ 
+    with open(path, "w") as f:
+        f.write(xml)
+ 
+    print("[TOOL] Diagram saved:", path)
+ 
+    return {"diagram": path}
+ 
+ 
+# ------------------------------------------------
+# Streamable HTTP MCP
+# ------------------------------------------------
+ 
+app = mcp.streamable_http_app()
