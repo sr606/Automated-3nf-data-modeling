@@ -163,10 +163,11 @@ def _canonical_stage_block(block):
 def _extract_stage_header(block):
     """
     Parse stage header metadata from a pseudocode block.
+    Accepts headers both with and without line numbers.
     """
 
     match = re.search(
-        r'// --- \[(.*?)\s*:\s*(.*?)\]\s*\[Lines\s*(\d+)-(\d+)\]\s*---',
+        r'//\s*---\s*\[(.*?)\s*:\s*(.*?)\](?:\s*\[Lines\s*(\d+)-(\d+)\])?',
         block
     )
 
@@ -176,10 +177,9 @@ def _extract_stage_header(block):
     return {
         "kind": match.group(1).strip(),
         "stage": match.group(2).strip(),
-        "line_start": int(match.group(3)),
-        "line_end": int(match.group(4)),
+        "line_start": int(match.group(3)) if match.group(3) else 0,
+        "line_end": int(match.group(4)) if match.group(4) else 0,
     }
-
 
 def _extract_link_entries(block, direction):
     """
@@ -250,19 +250,23 @@ def _deduplicate_edges(edges):
     return deduped
 
 
+    
 def _stage_lookup_hint(stage_name, stage_type, stage_kind, edge_kind):
-    """
+    
+     """
     Detect lookup-style stages.
     """
+
+    stage_type = (stage_type or "").lower()
+    stage_kind = (stage_kind or "").lower()
+
+    if "hashedfile" in stage_type or "hashedfile" in stage_kind:
+        return True
 
     if edge_kind == "lookup":
         return True
 
-    stage_name = (stage_name or "").lower()
-    stage_type = (stage_type or "").lower()
-    stage_kind = (stage_kind or "").lower()
-
-    return "lookup" in stage_name or "hashedfile" in stage_type or "hashedfile" in stage_kind
+    return False
 
 
 def _is_lookup_stage(stage_meta):
@@ -926,7 +930,12 @@ def _derive_logical_lineage(nodes, edges, options):
     complexity = _lineage_complexity(len(nodes), len(edges))
     non_lookup_edges = [edge for edge in edges if edge.get("kind") not in {"lookup", "sql_source"}]
     main_path = _longest_path(node_ids, non_lookup_edges)
-
+    if len(main_path) < 2:
+        main_path = _longest_path(node_ids, edges)
+    if len(main_path) < 2:
+        main_path = node_ids[:]
+        
+        
     if not main_path:
         main_path = _longest_path(node_ids, edges)
 
@@ -1269,10 +1278,10 @@ def detect_job_boundaries(source_file, output_path):
 # -----------------------------------------------------
 # Parse ETL Stages
 # -----------------------------------------------------
-
 def parse_stages_chunked(job_file, output_path):
     """
     Extract stage metadata from pseudocode jobs.
+    Robust parser tolerant to formatting differences.
     """
 
     job_file = require_existing_file(job_file, "job boundaries file")
@@ -1283,29 +1292,30 @@ def parse_stages_chunked(job_file, output_path):
     for job in jobs:
 
         job = _normalize_arrow_text(job)
-        stage_blocks = re.split(r'// --- \[', job)
+
+        # detect stage blocks safely
+        stage_blocks = re.findall(
+            r'(//\s*---\s*\[.*?\](?:.*?))(?=//\s*---\s*\[|\Z)',
+            job,
+            re.S
+        )
 
         for block in stage_blocks:
 
-            normalized_block = _canonical_stage_block(block)
-
-            if not normalized_block:
-                continue
-
-            header = _extract_stage_header(normalized_block)
+            header = _extract_stage_header(block)
 
             if not header:
                 continue
 
-            inputs = _extract_link_entries(normalized_block, "Input")
-            outputs = _extract_link_entries(normalized_block, "Output")
-            sql = _extract_sql_block(normalized_block)
+            inputs = _extract_link_entries(block, "Input")
+            outputs = _extract_link_entries(block, "Output")
+            sql = _extract_sql_block(block)
 
             stages.append({
                 "stage": header["stage"],
                 "type": "TRANSFORM",
                 "stage_kind": header["kind"],
-                "stage_type": _extract_stage_type(normalized_block),
+                "stage_type": _extract_stage_type(block),
                 "line_start": header["line_start"],
                 "line_end": header["line_end"],
                 "inputs": inputs,
@@ -1325,6 +1335,7 @@ def parse_stages_chunked(job_file, output_path):
 def extract_dataset_links(parsed_stage_file, output_path):
     """
     Build dataset flow relationships between ETL stages.
+    Supports multiple dataset producers.
     """
 
     parsed_stage_file = require_existing_file(parsed_stage_file, "parsed stage file")
@@ -1334,46 +1345,48 @@ def extract_dataset_links(parsed_stage_file, output_path):
     producers = {}
     stage_map = {stage["stage"]: stage for stage in stages}
 
+    # collect producers
     for stage in stages:
 
         for output in stage.get("outputs", []):
+
             dataset_id = output.get("dataset_id")
 
             if not dataset_id:
                 continue
 
-            producers[dataset_id] = {
+            producers.setdefault(dataset_id, []).append({
                 "stage": stage["stage"],
                 "alias": output.get("alias") or stage["stage"],
-            }
+            })
 
+    # connect consumers
     for stage in stages:
 
         for inp in stage.get("inputs", []):
+
             dataset_id = inp.get("dataset_id")
-            producer = producers.get(dataset_id)
-            source_stage = stage_map.get(producer.get("stage")) if producer else None
 
-            source_name = (
-                producer.get("alias")
-                if producer
-                else inp.get("alias")
-            )
-
-            if not source_name:
+            if not dataset_id:
                 continue
 
-            edges.append({
-                "source": source_name,
-                "target": stage["stage"],
-                "kind": _edge_kind_from_input(
-                    inp,
-                    stage_map.get(stage["stage"]),
-                    source_stage
-                ),
-                "dataset_id": dataset_id,
-                "link_name": inp.get("link_name", "")
-            })
+            producer_list = producers.get(dataset_id, [])
+
+            for producer in producer_list:
+
+                source_stage = stage_map.get(producer["stage"])
+
+                edges.append({
+                    "source": producer["stage"],   # use stage name instead of alias
+                    "target": stage["stage"],
+                    "kind": _edge_kind_from_input(
+                        inp,
+                        stage_map.get(stage["stage"]),
+                        source_stage
+                    ),
+                    "dataset_id": dataset_id,
+                    "link_name": inp.get("link_name", "")
+                })
 
     payload = {
         "edges": _deduplicate_edges(edges),
@@ -1391,7 +1404,7 @@ def extract_dataset_links(parsed_stage_file, output_path):
 
 def extract_sql_metadata(parsed_stage_file, output_path):
     """
-    Extract SQL tables using sql-metadata parser.
+    Extract SQL tables using sql-metadata parser with fallback.
     """
 
     parsed_stage_file = require_existing_file(parsed_stage_file, "parsed stage file")
@@ -1400,33 +1413,41 @@ def extract_sql_metadata(parsed_stage_file, output_path):
     tables = []
     seen = set()
 
-    if Parser is None:
-        write_json(output_path, tables)
-        return output_path
-
     for stage in stages:
 
         for sql in stage.get("sql", []):
 
-            try:
+            extracted = []
 
-                parser = Parser(sql)
+            if Parser is not None:
 
-                for table in parser.tables:
-                    key = (table.lower(), stage["stage"])
+                try:
+                    parser = Parser(sql)
+                    extracted = parser.tables
+                except Exception:
+                    extracted = []
 
-                    if key in seen:
-                        continue
+            # fallback regex
+            if not extracted:
+                extracted = re.findall(
+                    r'(?:FROM|JOIN)\s+([A-Za-z0-9_.]+)',
+                    sql,
+                    re.I
+                )
 
-                    seen.add(key)
+            for table in extracted:
 
-                    tables.append({
-                        "table": table,
-                        "stage": stage["stage"]
-                    })
+                key = (table.lower(), stage["stage"])
 
-            except Exception:
-                continue
+                if key in seen:
+                    continue
+
+                seen.add(key)
+
+                tables.append({
+                    "table": table,
+                    "stage": stage["stage"]
+                })
 
     write_json(output_path, tables)
 
@@ -1569,7 +1590,7 @@ def generate_layout(graph_file, output_path):
         lane = annotation.get("lane", "support")
         anchor = annotation.get("anchor")
         distance = max(annotation.get("distance", 1), 1)
-        anchor_x = positions.get(anchor, {"x": base_x}).get("x", base_x)
+        anchor_x = positions.get(anchor, {}).get("x", base_x + x_gap)
         width, height = _node_box_size(node_id)
         sizes[node_id] = {"width": width, "height": height}
 
