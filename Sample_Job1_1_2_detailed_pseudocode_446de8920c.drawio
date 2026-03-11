@@ -1,0 +1,47 @@
+<mxfile host="app.diagrams.net" version="29.6.1">
+  <diagram name="Logical ETL Lineage" id="0">
+    <mxGraphModel dx="1895" dy="958" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Nodes -->
+        <mxCell id="n1" value="HF_FACT_VOR_DATA" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#dae8fc;" vertex="1" parent="1">
+          <mxGeometry x="560" y="280" width="224" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="n2" value="Ora_StgVehicleOffRoad" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#d5e8d4;" vertex="1" parent="1">
+          <mxGeometry x="820" y="560" width="244" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="n3" value="Tfm_LoadRecords" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="300" y="280" width="220" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="n4" value="ORA_Ext_Vehicle_Off_Road_Data" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#fff2cc;" vertex="1" parent="1">
+          <mxGeometry x="40" y="280" width="276" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="n5" value="HF_SMR_VEHICLE_DIM" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#dae8fc;" vertex="1" parent="1">
+          <mxGeometry x="300" y="80" width="232" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="n6" value="Supp_VOR_Exception" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#ffe6cc;" vertex="1" parent="1">
+          <mxGeometry x="560" y="560" width="232" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Edges -->
+        <mxCell id="e1" edge="1" parent="1" source="n1" target="n2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;elbow=vertical;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="n3" target="n1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="n4" target="n3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="n5" target="n3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;elbow=vertical;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="n3" target="n6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;elbow=vertical;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
