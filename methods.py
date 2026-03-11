@@ -250,10 +250,8 @@ def _deduplicate_edges(edges):
     return deduped
 
 
-    
 def _stage_lookup_hint(stage_name, stage_type, stage_kind, edge_kind):
-    
-     """
+    """
     Detect lookup-style stages.
     """
 
@@ -356,7 +354,7 @@ def _edge_kind_from_input(entry, target_stage=None, source_stage=None):
     target_stage_kind = (target_stage.get("stage_kind") or "").lower() if target_stage else ""
     source_is_lookup = _is_lookup_stage(source_stage)
 
-    if "exception" in alias or "exception" in link_name:
+    if any(token in alias or token in link_name for token in ("reject", "error", "err_", "rej_")):
         return "exception"
 
     if "hashedfile" in target_stage_type or "hashedfile" in target_stage_kind:
@@ -365,7 +363,7 @@ def _edge_kind_from_input(entry, target_stage=None, source_stage=None):
     if source_is_lookup:
         return "lookup"
 
-    if link_name.startswith("lk") or "lookup" in alias or "lookup" in link_name:
+    if "lookup" in alias or "lookup" in link_name:
         return "lookup"
 
     return "input"
@@ -741,6 +739,80 @@ def _longest_path(node_ids, edges):
     return path
 
 
+def _dag_layers(node_ids, edges):
+    """
+    Assign a left-to-right layer to each node using longest-path ranking.
+    """
+
+    order = _topological_sort(node_ids, edges)
+    _, children, parents = _build_edge_maps(edges)
+    rank = {node_id: 0 for node_id in node_ids}
+
+    for node_id in order:
+        parent_ranks = [rank[parent] for parent in parents.get(node_id, [])]
+        if parent_ranks:
+            rank[node_id] = max(parent_ranks) + 1
+
+    return rank, children, parents
+
+
+def _node_sort_weight(node):
+    """
+    Stable tie-breaker for deterministic layer ordering.
+    """
+
+    priority = {
+        "SOURCE": 0,
+        "EXTRACT": 1,
+        "LOOKUP": 2,
+        "STORE": 3,
+        "TRANSFORM": 4,
+        "TARGET": 5,
+        "EXCEPTION": 6,
+        "DATASET": 7,
+    }
+
+    return (priority.get(node.get("type", ""), 99), node["id"].lower())
+
+
+def _desired_y_from_neighbors(node_id, neighbor_map, placed_positions, default_y):
+    """
+    Use average neighbor position as the preferred row.
+    """
+
+    candidates = [
+        placed_positions[neighbor]["y"]
+        for neighbor in neighbor_map.get(node_id, [])
+        if neighbor in placed_positions
+    ]
+
+    if not candidates:
+        return default_y
+
+    return sum(candidates) / len(candidates)
+
+
+def _spread_vertical_positions(ordered_nodes, desired_map, row_gap):
+    """
+    Assign non-overlapping vertical slots close to desired y positions.
+    """
+
+    positions = {}
+    previous_y = None
+
+    for node_id in ordered_nodes:
+        desired_y = desired_map.get(node_id, 0)
+        y_value = desired_y
+
+        if previous_y is not None:
+            y_value = max(y_value, previous_y + row_gap)
+
+        positions[node_id] = int(round(y_value))
+        previous_y = positions[node_id]
+
+    return positions
+
+
 def _shortest_distance(start_nodes, children):
     """
     Compute shortest distance from a set of start nodes.
@@ -823,10 +895,21 @@ def _node_box_size(label):
     return width, height
 
 
-def _edge_style(kind, route=""):
+def _edge_style(kind, route="", complexity="medium"):
     """
     Return draw.io edge style tuned for logical lineage.
     """
+
+    if complexity == "small":
+        base = "edgeStyle=none;rounded=1;html=1;"
+
+        if kind == "lookup":
+            return base + "dashed=1;dashPattern=6 4;"
+
+        if kind == "sql_source":
+            return base + "dashed=1;dashPattern=2 4;"
+
+        return base
 
     base = "edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;"
 
@@ -872,10 +955,13 @@ def _ordered_nodes_for_render(nodes, positions, annotations):
     )
 
 
-def _edge_waypoints(edge, positions, sizes, annotations):
+def _edge_waypoints(edge, positions, sizes, annotations, complexity="medium"):
     """
     Create explicit waypoints for support and branch edges so they avoid node boxes.
     """
+
+    if complexity == "small" and edge.get("kind") != "exception":
+        return []
 
     source_pos = positions.get(edge["source"])
     target_pos = positions.get(edge["target"])
@@ -1551,98 +1637,73 @@ def generate_layout(graph_file, output_path):
     edges = graph.get("edges", [])
     options = normalize_lineage_options(graph.get("options", {}))
     annotations = graph.get("annotations", {})
-    main_path = graph.get("paths", [[]])[0] if graph.get("paths") else []
-    main_rank = {node_id: index for index, node_id in enumerate(main_path)}
     complexity = graph.get("complexity") or _lineage_complexity(len(nodes), len(edges))
     positions = {}
     sizes = {}
+    node_map = {node["id"]: node for node in nodes}
+    node_ids = [node["id"] for node in nodes]
 
-    source_rows = defaultdict(int)
-    lookup_rows = defaultdict(int)
-    support_rows = defaultdict(int)
-    branch_rows = defaultdict(int)
-    global_lane_rows = defaultdict(int)
+    for node_id in node_ids:
+        width, height = _node_box_size(node_id)
+        sizes[node_id] = {"width": width, "height": height}
 
     base_x = 40
-    x_gap = 300 if complexity == "small" else 320
-    row_gap = 180 if complexity == "small" else 240
-    main_y = 140 if complexity == "small" else 320
-    branch_y = 520 if complexity == "small" else 700
-    source_y = 0 if complexity == "small" else 80
-    lookup_y = 280 if complexity == "small" else 80
-    support_y = 280 if complexity == "small" else 80
-
-    for node_id in main_path:
-        width, height = _node_box_size(node_id)
-        sizes[node_id] = {"width": width, "height": height}
-        positions[node_id] = {
-            "x": base_x + (main_rank[node_id] * x_gap),
-            "y": main_y
-        }
+    x_gap = 300 if complexity == "small" else 340
+    row_gap = 180 if complexity == "small" else 150
+    base_y = 0 if complexity == "small" else 80
+    layer_rank, children, parents = _dag_layers(node_ids, edges)
+    layers = defaultdict(list)
 
     for node in nodes:
-        node_id = node["id"]
+        layers[layer_rank.get(node["id"], 0)].append(node)
 
-        if node_id in positions:
-            continue
+    max_layer = max(layers.keys(), default=0)
 
-        annotation = annotations.get(node_id, {})
-        lane = annotation.get("lane", "support")
-        anchor = annotation.get("anchor")
-        distance = max(annotation.get("distance", 1), 1)
-        anchor_x = positions.get(anchor, {}).get("x", base_x + x_gap)
-        width, height = _node_box_size(node_id)
-        sizes[node_id] = {"width": width, "height": height}
+    for layer_index in range(max_layer + 1):
+        layer_nodes = sorted(layers.get(layer_index, []), key=_node_sort_weight)
+        desired_y = {}
 
-        if complexity == "small":
-            lane_base_y = {
-                "source": source_y,
-                "lookup": lookup_y,
-                "support": support_y,
-                "branch": branch_y,
-                "main": main_y,
-            }
-
-            row_index = global_lane_rows[lane]
-            global_lane_rows[lane] += 1
-
-            if lane == "branch":
-                x_value = anchor_x + (distance * x_gap)
-            else:
-                x_value = max(base_x, anchor_x - (distance * x_gap))
-
-            positions[node_id] = {
-                "x": x_value,
-                "y": lane_base_y.get(lane, support_y) + (row_index * row_gap)
-            }
-        elif lane == "source":
-            row_index = source_rows[anchor]
-            source_rows[anchor] += 1
-            positions[node_id] = {
-                "x": max(base_x, anchor_x - (distance * x_gap)),
-                "y": source_y + (row_index * row_gap)
-            }
-        elif lane == "lookup":
-            row_index = lookup_rows[anchor]
-            lookup_rows[anchor] += 1
-            positions[node_id] = {
-                "x": max(base_x, anchor_x - (distance * x_gap)),
-                "y": lookup_y + (row_index * row_gap)
-            }
-        elif lane == "branch":
-            row_index = branch_rows[anchor]
-            branch_rows[anchor] += 1
-            positions[node_id] = {
-                "x": anchor_x + (distance * x_gap),
-                "y": branch_y + (row_index * row_gap)
-            }
+        if layer_index == 0:
+            current_y = base_y
+            for node in layer_nodes:
+                desired_y[node["id"]] = current_y
+                current_y += row_gap
         else:
-            row_index = support_rows[anchor]
-            support_rows[anchor] += 1
+            default_y = base_y
+            for node in layer_nodes:
+                node_id = node["id"]
+                parent_y = _desired_y_from_neighbors(node_id, parents, positions, default_y)
+                child_y = _desired_y_from_neighbors(node_id, children, positions, parent_y)
+                desired_y[node_id] = (parent_y + child_y) / 2 if node_id in positions else parent_y
+
+            layer_nodes = sorted(
+                layer_nodes,
+                key=lambda node: (
+                    desired_y.get(node["id"], 0),
+                    _node_sort_weight(node),
+                )
+            )
+
+        assigned_y = _spread_vertical_positions(
+            [node["id"] for node in layer_nodes],
+            desired_y,
+            row_gap,
+        )
+
+        for node in layer_nodes:
+            node_id = node["id"]
             positions[node_id] = {
-                "x": max(base_x, anchor_x - (distance * x_gap)),
-                "y": support_y + (row_index * row_gap)
+                "x": base_x + (layer_index * x_gap),
+                "y": assigned_y[node_id],
             }
+
+    if complexity != "small":
+        branch_nodes = [
+            node_id for node_id, annotation in annotations.items()
+            if annotation.get("lane") == "branch" and node_id in positions
+        ]
+        for index, node_id in enumerate(sorted(branch_nodes)):
+            positions[node_id]["y"] = max(positions[node_id]["y"], base_y + ((index + 1) * row_gap))
 
     layout = {
         "nodes": nodes,
@@ -1676,6 +1737,7 @@ def generate_drawio_xml(layout_file):
     sizes = layout.get("sizes", {})
     edges = layout.get("edges")
     annotations = layout.get("annotations", {})
+    complexity = layout.get("complexity", "medium")
 
     if nodes is None or pos is None or edges is None:
         raise ValueError(f"Invalid layout file format: {layout_file}")
@@ -1726,8 +1788,8 @@ def generate_drawio_xml(layout_file):
         target_id = id_map.get(edge["target"], "")
         value = ""
         route = edge.get("route", "")
-        style = _edge_style(edge.get("kind", ""), route)
-        waypoints = _edge_waypoints(edge, pos, sizes, annotations)
+        style = _edge_style(edge.get("kind", ""), route, complexity)
+        waypoints = _edge_waypoints(edge, pos, sizes, annotations, complexity)
 
         xml.append(
             f'        <mxCell id="e{index}" edge="1" parent="1" '
