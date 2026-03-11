@@ -888,6 +888,8 @@ def _edge_waypoints(edge, positions, sizes, annotations):
     route = edge.get("route", "")
 
     if route == "vertical":
+        if abs(source_center_y - target_center_y) < 20:
+            return []
         mid_x = source_center_x if source_center_x < target_center_x else target_center_x
         bend_x = mid_x + 30
         return [
@@ -896,6 +898,8 @@ def _edge_waypoints(edge, positions, sizes, annotations):
         ]
 
     if route == "side":
+        if abs(source_center_x - target_center_x) < 20:
+            return []
         bend_y = source_center_y - 40 if source_center_y <= target_center_y else source_center_y + 40
         return [
             {"x": source_center_x, "y": bend_y},
@@ -1536,15 +1540,16 @@ def generate_layout(graph_file, output_path):
     lookup_rows = defaultdict(int)
     support_rows = defaultdict(int)
     branch_rows = defaultdict(int)
+    global_lane_rows = defaultdict(int)
 
     base_x = 40
     x_gap = 300 if complexity == "small" else 320
     row_gap = 180 if complexity == "small" else 240
-    main_y = 100 if complexity == "small" else 320
-    branch_y = 360 if complexity == "small" else 700
+    main_y = 140 if complexity == "small" else 320
+    branch_y = 520 if complexity == "small" else 700
     source_y = 0 if complexity == "small" else 80
-    lookup_y = 200 if complexity == "small" else 80
-    support_y = 200 if complexity == "small" else 80
+    lookup_y = 280 if complexity == "small" else 80
+    support_y = 280 if complexity == "small" else 80
 
     for node_id in main_path:
         width, height = _node_box_size(node_id)
@@ -1568,7 +1573,28 @@ def generate_layout(graph_file, output_path):
         width, height = _node_box_size(node_id)
         sizes[node_id] = {"width": width, "height": height}
 
-        if lane == "source":
+        if complexity == "small":
+            lane_base_y = {
+                "source": source_y,
+                "lookup": lookup_y,
+                "support": support_y,
+                "branch": branch_y,
+                "main": main_y,
+            }
+
+            row_index = global_lane_rows[lane]
+            global_lane_rows[lane] += 1
+
+            if lane == "branch":
+                x_value = anchor_x + (distance * x_gap)
+            else:
+                x_value = max(base_x, anchor_x - (distance * x_gap))
+
+            positions[node_id] = {
+                "x": x_value,
+                "y": lane_base_y.get(lane, support_y) + (row_index * row_gap)
+            }
+        elif lane == "source":
             row_index = source_rows[anchor]
             source_rows[anchor] += 1
             positions[node_id] = {
