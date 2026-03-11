@@ -1,0 +1,94 @@
+<mxfile host="app.diagrams.net" version="29.6.1">
+  <diagram name="Logical ETL Lineage" id="0">
+    <mxGraphModel dx="1895" dy="958" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Nodes -->
+        <mxCell id="n1" value="Src_VOR_I247_GARAGE_MAPPING" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="40" y="0" width="268" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="n2" value="Supplierdata_ext.VOR_EXCEPTIONS" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#fff2cc;" vertex="1" parent="1">
+          <mxGeometry x="40" y="0" width="284" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="n3" value="SUPPLIERDATA_EXT.VOR_I247_GARAGE_MAPPING" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#fff2cc;" vertex="1" parent="1">
+          <mxGeometry x="40" y="180" width="320" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="n4" value="HF_I247_GARAGE_MAPPING" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#dae8fc;" vertex="1" parent="1">
+          <mxGeometry x="40" y="200" width="248" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="n5" value="LkpVorExceptionReports" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="248" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="n6" value="TrExceptionReport" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="340" y="100" width="228" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="n7" value="VorExceptionReports" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="640" y="100" width="236" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="n8" value="VOR_EXCEPTIONS_FILE" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#d5e8d4;" vertex="1" parent="1">
+          <mxGeometry x="940" y="100" width="236" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Edges -->
+        <mxCell id="e1" edge="1" parent="1" source="n4" target="n6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;elbow=vertical;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="194.0" y="235.0"/>
+              <mxPoint x="194.0" y="135.0"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="n5" target="n6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;elbow=vertical;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="164.0" y="175.0"/>
+              <mxPoint x="454.0" y="175.0"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="n6" target="n7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;elbow=vertical;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="454.0" y="175.0"/>
+              <mxPoint x="758.0" y="175.0"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="n7" target="n8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;elbow=vertical;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="758.0" y="175.0"/>
+              <mxPoint x="1058.0" y="175.0"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="n1" target="n4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;elbow=horizontal;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="174.0" y="-5.0"/>
+              <mxPoint x="164.0" y="-5.0"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="n2" target="n5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;elbow=vertical;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="194.0" y="40.0"/>
+              <mxPoint x="194.0" y="135.0"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="n3" target="n1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;elbow=vertical;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="204.0" y="220.0"/>
+              <mxPoint x="204.0" y="35.0"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
