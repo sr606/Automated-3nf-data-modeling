@@ -13,6 +13,11 @@ try:
 except ImportError:
     Parser = None
 
+try:
+    import graphviz
+except ImportError:
+    graphviz = None
+
 load_dotenv()
 
 SERVICE_ROOT = Path(__file__).resolve().parents[1]
@@ -92,6 +97,49 @@ def normalize_lineage_options(options=None):
     normalized["diagram_mode"] = str(normalized["diagram_mode"]).lower()
 
     return normalized
+
+
+def _safe_source_key(value):
+    """
+    Normalize a source file identifier for grouping.
+    """
+
+    return os.path.basename(value or "lineage")
+
+
+def _graphs_payload(entries):
+    """
+    Wrap a list of per-source graph entries in a stable envelope.
+    """
+
+    return {"graphs": entries}
+
+
+def _is_graphs_payload(payload):
+    """
+    Return True when payload already contains per-source graph entries.
+    """
+
+    return isinstance(payload, dict) and isinstance(payload.get("graphs"), list)
+
+
+def _payload_graphs(payload):
+    """
+    Read a per-source graph envelope and return its entries.
+    """
+
+    if _is_graphs_payload(payload):
+        return payload.get("graphs", [])
+
+    return []
+
+
+def _json_string(data):
+    """
+    Serialize structured data consistently for tool outputs that expect strings.
+    """
+
+    return json.dumps(data, indent=2)
 
 
 def _lineage_complexity(node_count, edge_count):
@@ -323,9 +371,10 @@ def _classify_semantic_stage(stage_meta, inbound_count, outbound_count, used_as_
     stage_name = stage_meta.get("stage", "")
     stage_type = (stage_meta.get("stage_type") or "").lower()
     stage_kind = (stage_meta.get("stage_kind") or "").lower()
+    output_count = len(stage_meta.get("outputs", []))
 
     if "seqfile" in stage_type or "seqfile" in stage_kind:
-        return "TARGET"
+        return "FILE_TARGET"
 
     if "hashedfile" in stage_type or "hashedfile" in stage_kind:
         return "LOOKUP" if used_as_lookup else "STORE"
@@ -334,11 +383,14 @@ def _classify_semantic_stage(stage_meta, inbound_count, outbound_count, used_as_
         if inbound_count == 0:
             return "EXTRACT"
         if outbound_count == 0:
-            return "TARGET"
+            return "DB_TARGET"
         return "TRANSFORM"
 
     if "exception" in stage_name.lower() and outbound_count == 0:
-        return "TARGET"
+        return "FILE_TARGET"
+
+    if ("transformer" in stage_type or "transformer" in stage_kind) and output_count > 1:
+        return "DECISION"
 
     return "TRANSFORM"
 
@@ -775,42 +827,151 @@ def _node_sort_weight(node):
     return (priority.get(node.get("type", ""), 99), node["id"].lower())
 
 
-def _desired_y_from_neighbors(node_id, neighbor_map, placed_positions, default_y):
+def _graphviz_plain_layout(nodes, edges, sizes):
     """
-    Use average neighbor position as the preferred row.
+    Ask Graphviz for node positions and return draw.io-friendly coordinates.
     """
 
-    candidates = [
-        placed_positions[neighbor]["y"]
-        for neighbor in neighbor_map.get(node_id, [])
-        if neighbor in placed_positions
-    ]
+    if graphviz is None:
+        raise RuntimeError("Graphviz Python package is not installed.")
 
-    if not candidates:
-        return default_y
+    dot = graphviz.Digraph(engine="dot")
+    dot.attr(rankdir="LR", nodesep="0.6", ranksep="1.1", splines="line")
 
-    return sum(candidates) / len(candidates)
+    for node in nodes:
+        node_id = node["id"]
+        node_size = sizes.get(node_id, {"width": 220, "height": 70})
+        dot.node(
+            node_id,
+            label=node_id,
+            width=f"{node_size['width'] / 72:.3f}",
+            height=f"{node_size['height'] / 72:.3f}",
+            shape="box",
+            fixedsize="false",
+        )
 
+    for edge in edges:
+        dot.edge(edge["source"], edge["target"])
 
-def _spread_vertical_positions(ordered_nodes, desired_map, row_gap):
-    """
-    Assign non-overlapping vertical slots close to desired y positions.
-    """
+    try:
+        plain = dot.pipe(format="plain").decode("utf-8")
+    except Exception as exc:
+        raise RuntimeError(
+            "Graphviz layout failed. Ensure the `dot` executable is installed and available on PATH."
+        ) from exc
 
     positions = {}
-    previous_y = None
+    graph_height = 0.0
 
-    for node_id in ordered_nodes:
-        desired_y = desired_map.get(node_id, 0)
-        y_value = desired_y
+    for line in plain.splitlines():
+        parts = line.split()
+        if not parts:
+            continue
 
-        if previous_y is not None:
-            y_value = max(y_value, previous_y + row_gap)
+        if parts[0] == "graph" and len(parts) >= 4:
+            graph_height = float(parts[3])
+        elif parts[0] == "node" and len(parts) >= 6:
+            node_id = parts[1]
+            x_center = float(parts[2]) * 72
+            y_center = float(parts[3]) * 72
+            width = float(parts[4]) * 72
+            height = float(parts[5]) * 72
+            positions[node_id] = {
+                "x": int(round(x_center - (width / 2))),
+                "y": int(round((graph_height * 72) - y_center - (height / 2))),
+            }
 
-        positions[node_id] = int(round(y_value))
-        previous_y = positions[node_id]
+    if not positions:
+        raise RuntimeError("Graphviz returned no node positions.")
 
     return positions
+
+
+def _spread_missing_or_colliding_positions(nodes, edges, sizes, positions):
+    """
+    Distribute nodes that Graphviz left unplaced or placed on identical coordinates.
+    """
+
+    node_ids = [node["id"] for node in nodes]
+    layer_rank, _, _ = _dag_layers(node_ids, edges)
+    by_layer = defaultdict(list)
+
+    for node in nodes:
+        by_layer[layer_rank.get(node["id"], 0)].append(node["id"])
+
+    x_gap = 340
+    base_x = 40
+    base_y = 40
+    row_gap = 130
+
+    for layer_index, layer_nodes in by_layer.items():
+        layer_x = base_x + (layer_index * x_gap)
+        placed = [positions[node_id] for node_id in layer_nodes if node_id in positions]
+
+        if not placed:
+            current_y = base_y
+            for node_id in sorted(layer_nodes):
+                positions[node_id] = {"x": layer_x, "y": current_y}
+                current_y += row_gap
+            continue
+
+        collision_groups = defaultdict(list)
+        for node_id in layer_nodes:
+            if node_id not in positions:
+                continue
+            key = (positions[node_id]["x"], positions[node_id]["y"])
+            collision_groups[key].append(node_id)
+
+        for (x_value, y_value), node_group in collision_groups.items():
+            if len(node_group) <= 1:
+                continue
+            for offset, node_id in enumerate(sorted(node_group)):
+                positions[node_id] = {
+                    "x": x_value,
+                    "y": y_value + (offset * row_gap),
+                }
+
+        max_y = max(item["y"] for item in positions.values()) if positions else base_y
+        for node_id in sorted(layer_nodes):
+            if node_id in positions:
+                continue
+            max_y += row_gap
+            positions[node_id] = {"x": layer_x, "y": max_y}
+
+    return positions
+
+
+def _generate_layout_single(graph_entry):
+    """
+    Generate layout for one lineage graph using Graphviz.
+    """
+
+    nodes = graph_entry.get("nodes", [])
+    edges = graph_entry.get("edges", [])
+    options = normalize_lineage_options(graph_entry.get("options", {}))
+    annotations = graph_entry.get("annotations", {})
+    complexity = graph_entry.get("complexity") or _lineage_complexity(len(nodes), len(edges))
+    positions = {}
+    sizes = {}
+    node_ids = [node["id"] for node in nodes]
+
+    for node_id in node_ids:
+        width, height = _node_box_size(node_id)
+        sizes[node_id] = {"width": width, "height": height}
+
+    positions = _graphviz_plain_layout(nodes, edges, sizes)
+    positions = _spread_missing_or_colliding_positions(nodes, edges, sizes, positions)
+
+    return {
+        "source_file": _safe_source_key(graph_entry.get("source_file")),
+        "nodes": nodes,
+        "positions": positions,
+        "sizes": sizes,
+        "edges": edges,
+        "options": options,
+        "annotations": annotations,
+        "complexity": complexity,
+    }
 
 
 def _shortest_distance(start_nodes, children):
@@ -900,7 +1061,7 @@ def _edge_style(kind, route="", complexity="medium"):
     Return draw.io edge style tuned for logical lineage.
     """
 
-    if complexity == "small":
+    if complexity in {"small", "medium"}:
         base = "edgeStyle=none;rounded=1;html=1;"
 
         if kind == "lookup":
@@ -960,7 +1121,7 @@ def _edge_waypoints(edge, positions, sizes, annotations, complexity="medium"):
     Create explicit waypoints for support and branch edges so they avoid node boxes.
     """
 
-    if complexity == "small" and edge.get("kind") != "exception":
+    if complexity in {"small", "medium"} and edge.get("kind") != "exception":
         return []
 
     source_pos = positions.get(edge["source"])
@@ -1120,20 +1281,23 @@ def _style_for_node_type(node_type):
     Return draw.io style per node category.
     """
 
-    base = "rounded=1;whiteSpace=wrap;html=1;strokeColor=#666666;"
+    base = "whiteSpace=wrap;html=1;strokeColor=#666666;"
 
     styles = {
-        "SOURCE": base + "fillColor=#fff2cc;",
-        "EXTRACT": base + "fillColor=#f8cecc;",
-        "TRANSFORM": base + "fillColor=#f8cecc;",
-        "DATASET": base + "fillColor=#dae8fc;",
-        "LOOKUP": base + "fillColor=#dae8fc;",
-        "STORE": base + "fillColor=#dae8fc;",
-        "TARGET": base + "fillColor=#d5e8d4;",
-        "EXCEPTION": base + "fillColor=#ffe6cc;",
+        "SOURCE": base + "shape=cylinder3;boundedLbl=1;size=15;fillColor=#fff2cc;",
+        "EXTRACT": base + "rounded=1;fillColor=#f8cecc;",
+        "TRANSFORM": base + "rounded=1;fillColor=#f8cecc;",
+        "DECISION": base + "shape=rhombus;perimeter=rhombusPerimeter;fillColor=#f8cecc;",
+        "DATASET": base + "shape=document;boundedLbl=1;fillColor=#dae8fc;",
+        "LOOKUP": base + "shape=document;boundedLbl=1;fillColor=#dae8fc;",
+        "STORE": base + "shape=document;boundedLbl=1;fillColor=#dae8fc;",
+        "DB_TARGET": base + "shape=cylinder3;boundedLbl=1;size=15;fillColor=#d5e8d4;",
+        "FILE_TARGET": base + "shape=document;boundedLbl=1;fillColor=#d5e8d4;",
+        "TARGET": base + "shape=document;boundedLbl=1;fillColor=#d5e8d4;",
+        "EXCEPTION": base + "shape=document;boundedLbl=1;fillColor=#ffe6cc;",
     }
 
-    return styles.get(node_type, base + "fillColor=#f5f5f5;")
+    return styles.get(node_type, base + "rounded=1;fillColor=#f5f5f5;")
 
 
 # -----------------------------------------------------
@@ -1345,16 +1509,21 @@ def detect_job_boundaries(source_file, output_path):
     jobs = []
 
     for entry in data:
+        source_name = _safe_source_key(entry.get("file"))
 
         text = entry.get("content", "")
         text = _normalize_arrow_text(text)
 
         segments = re.split(r'//\s*=+', text)
 
-        for seg in segments:
+        for index, seg in enumerate(segments, start=1):
 
             if len(seg.strip()) > 50:
-                jobs.append(seg.strip())
+                jobs.append({
+                    "source_file": source_name,
+                    "job_index": index,
+                    "content": seg.strip(),
+                })
 
     write_json(output_path, jobs)
 
@@ -1376,13 +1545,19 @@ def parse_stages_chunked(job_file, output_path):
     stages = []
 
     for job in jobs:
+        if isinstance(job, dict):
+            source_file = _safe_source_key(job.get("source_file"))
+            job_text = job.get("content", "")
+        else:
+            source_file = "lineage"
+            job_text = job
 
-        job = _normalize_arrow_text(job)
+        job_text = _normalize_arrow_text(job_text)
 
         # detect stage blocks safely
         stage_blocks = re.findall(
             r'(//\s*---\s*\[.*?\](?:.*?))(?=//\s*---\s*\[|\Z)',
-            job,
+            job_text,
             re.S
         )
 
@@ -1398,6 +1573,7 @@ def parse_stages_chunked(job_file, output_path):
             sql = _extract_sql_block(block)
 
             stages.append({
+                "source_file": source_file,
                 "stage": header["stage"],
                 "type": "TRANSFORM",
                 "stage_kind": header["kind"],
@@ -1427,57 +1603,61 @@ def extract_dataset_links(parsed_stage_file, output_path):
     parsed_stage_file = require_existing_file(parsed_stage_file, "parsed stage file")
     stages = read_json(parsed_stage_file)
 
-    edges = []
-    producers = {}
-    stage_map = {stage["stage"]: stage for stage in stages}
+    stages_by_source = defaultdict(list)
 
-    # collect producers
     for stage in stages:
+        stages_by_source[_safe_source_key(stage.get("source_file"))].append(stage)
 
-        for output in stage.get("outputs", []):
+    graph_entries = []
 
-            dataset_id = output.get("dataset_id")
+    for source_file, source_stages in sorted(stages_by_source.items()):
+        edges = []
+        producers = {}
+        stage_map = {stage["stage"]: stage for stage in source_stages}
 
-            if not dataset_id:
-                continue
+        for stage in source_stages:
+            for output in stage.get("outputs", []):
+                dataset_id = output.get("dataset_id")
 
-            producers.setdefault(dataset_id, []).append({
-                "stage": stage["stage"],
-                "alias": output.get("alias") or stage["stage"],
-            })
+                if not dataset_id:
+                    continue
 
-    # connect consumers
-    for stage in stages:
-
-        for inp in stage.get("inputs", []):
-
-            dataset_id = inp.get("dataset_id")
-
-            if not dataset_id:
-                continue
-
-            producer_list = producers.get(dataset_id, [])
-
-            for producer in producer_list:
-
-                source_stage = stage_map.get(producer["stage"])
-
-                edges.append({
-                    "source": producer["stage"],   # use stage name instead of alias
-                    "target": stage["stage"],
-                    "kind": _edge_kind_from_input(
-                        inp,
-                        stage_map.get(stage["stage"]),
-                        source_stage
-                    ),
-                    "dataset_id": dataset_id,
-                    "link_name": inp.get("link_name", "")
+                producers.setdefault(dataset_id, []).append({
+                    "stage": stage["stage"],
+                    "alias": output.get("alias") or stage["stage"],
                 })
 
-    payload = {
-        "edges": _deduplicate_edges(edges),
-        "stages": stages
-    }
+        for stage in source_stages:
+            for inp in stage.get("inputs", []):
+                dataset_id = inp.get("dataset_id")
+
+                if not dataset_id:
+                    continue
+
+                producer_list = producers.get(dataset_id, [])
+
+                for producer in producer_list:
+                    source_stage = stage_map.get(producer["stage"])
+
+                    edges.append({
+                        "source": producer["stage"],
+                        "target": stage["stage"],
+                        "kind": _edge_kind_from_input(
+                            inp,
+                            stage_map.get(stage["stage"]),
+                            source_stage
+                        ),
+                        "dataset_id": dataset_id,
+                        "link_name": inp.get("link_name", "")
+                    })
+
+        graph_entries.append({
+            "source_file": source_file,
+            "edges": _deduplicate_edges(edges),
+            "stages": source_stages,
+        })
+
+    payload = _graphs_payload(graph_entries)
 
     write_json(output_path, payload)
 
@@ -1500,6 +1680,7 @@ def extract_sql_metadata(parsed_stage_file, output_path):
     seen = set()
 
     for stage in stages:
+        source_file = _safe_source_key(stage.get("source_file"))
 
         for sql in stage.get("sql", []):
 
@@ -1523,7 +1704,7 @@ def extract_sql_metadata(parsed_stage_file, output_path):
 
             for table in extracted:
 
-                key = (table.lower(), stage["stage"])
+                key = (source_file, table.lower(), stage["stage"])
 
                 if key in seen:
                     continue
@@ -1531,6 +1712,7 @@ def extract_sql_metadata(parsed_stage_file, output_path):
                 seen.add(key)
 
                 tables.append({
+                    "source_file": source_file,
                     "table": table,
                     "stage": stage["stage"]
                 })
@@ -1556,32 +1738,55 @@ def normalize_lineage_graph(dataset_file, sql_file, output_path, options=None):
     dataset_payload = read_json(dataset_file)
     tables = read_json(sql_file)
 
-    if isinstance(dataset_payload, dict):
-        edges = dataset_payload.get("edges", [])
-        stages = dataset_payload.get("stages", [])
+    if _is_graphs_payload(dataset_payload):
+        dataset_graphs = _payload_graphs(dataset_payload)
+    elif isinstance(dataset_payload, dict):
+        dataset_graphs = [{
+            "source_file": "lineage",
+            "edges": dataset_payload.get("edges", []),
+            "stages": dataset_payload.get("stages", []),
+        }]
     else:
-        edges = dataset_payload
-        stages = []
+        dataset_graphs = [{
+            "source_file": "lineage",
+            "edges": dataset_payload,
+            "stages": [],
+        }]
 
-    if options.get("diagram_mode") == "technical" and not options.get("collapse_intermediate_datasets"):
-        graph_payload = _build_dataset_graph(stages, tables, options)
-        complexity = _lineage_complexity(
-            len(graph_payload.get("nodes", [])),
-            len(graph_payload.get("edges", [])),
-        )
-        sql_sources = [table.get("table") for table in tables]
-    else:
-        graph_payload = _build_semantic_graph(stages, edges, tables, options)
-        complexity = graph_payload.get("complexity", _lineage_complexity(len(stages), len(edges)))
-        sql_sources = graph_payload.get("sql_sources", [])
+    tables_by_source = defaultdict(list)
+    for table in tables:
+        tables_by_source[_safe_source_key(table.get("source_file"))].append(table)
 
-    normalized = {
-        "nodes": graph_payload.get("nodes", []),
-        "edges": graph_payload.get("edges", []),
-        "sql_sources": sql_sources,
-        "options": options,
-        "complexity": complexity,
-    }
+    normalized_graphs = []
+
+    for graph_entry in dataset_graphs:
+        source_file = _safe_source_key(graph_entry.get("source_file"))
+        edges = graph_entry.get("edges", [])
+        stages = graph_entry.get("stages", [])
+        source_tables = tables_by_source.get(source_file, [])
+
+        if options.get("diagram_mode") == "technical" and not options.get("collapse_intermediate_datasets"):
+            graph_payload = _build_dataset_graph(stages, source_tables, options)
+            complexity = _lineage_complexity(
+                len(graph_payload.get("nodes", [])),
+                len(graph_payload.get("edges", [])),
+            )
+            sql_sources = [table.get("table") for table in source_tables]
+        else:
+            graph_payload = _build_semantic_graph(stages, edges, source_tables, options)
+            complexity = graph_payload.get("complexity", _lineage_complexity(len(stages), len(edges)))
+            sql_sources = graph_payload.get("sql_sources", [])
+
+        normalized_graphs.append({
+            "source_file": source_file,
+            "nodes": graph_payload.get("nodes", []),
+            "edges": graph_payload.get("edges", []),
+            "sql_sources": sql_sources,
+            "options": options,
+            "complexity": complexity,
+        })
+
+    normalized = _graphs_payload(normalized_graphs)
 
     write_json(output_path, normalized)
 
@@ -1600,21 +1805,28 @@ def build_lineage_graph_bottom_up(graph_file, output_path):
     graph_file = require_existing_file(graph_file, "normalized graph file")
     graph = read_json(graph_file)
 
-    logical_graph = _derive_logical_lineage(
-        graph.get("nodes", []),
-        graph.get("edges", []),
-        normalize_lineage_options(graph.get("options", {}))
-    )
+    graph_entries = _payload_graphs(graph) if _is_graphs_payload(graph) else [graph]
+    lineage_entries = []
 
-    lineage = {
-        "paths": [logical_graph.get("main_path", [])] if logical_graph.get("main_path") else [],
-        "edges": logical_graph.get("edges", []),
-        "nodes": logical_graph.get("nodes", []),
-        "annotations": logical_graph.get("annotations", {}),
-        "sql_sources": graph.get("sql_sources", []),
-        "options": graph.get("options", {}),
-        "complexity": logical_graph.get("complexity", graph.get("complexity")),
-    }
+    for graph_entry in graph_entries:
+        logical_graph = _derive_logical_lineage(
+            graph_entry.get("nodes", []),
+            graph_entry.get("edges", []),
+            normalize_lineage_options(graph_entry.get("options", {}))
+        )
+
+        lineage_entries.append({
+            "source_file": _safe_source_key(graph_entry.get("source_file")),
+            "paths": [logical_graph.get("main_path", [])] if logical_graph.get("main_path") else [],
+            "edges": logical_graph.get("edges", []),
+            "nodes": logical_graph.get("nodes", []),
+            "annotations": logical_graph.get("annotations", {}),
+            "sql_sources": graph_entry.get("sql_sources", []),
+            "options": graph_entry.get("options", {}),
+            "complexity": logical_graph.get("complexity", graph_entry.get("complexity")),
+        })
+
+    lineage = _graphs_payload(lineage_entries)
 
     write_json(output_path, lineage)
 
@@ -1633,87 +1845,11 @@ def generate_layout(graph_file, output_path):
     graph_file = require_existing_file(graph_file, "lineage graph file")
     graph = read_json(graph_file)
 
-    nodes = graph.get("nodes", [])
-    edges = graph.get("edges", [])
-    options = normalize_lineage_options(graph.get("options", {}))
-    annotations = graph.get("annotations", {})
-    complexity = graph.get("complexity") or _lineage_complexity(len(nodes), len(edges))
-    positions = {}
-    sizes = {}
-    node_map = {node["id"]: node for node in nodes}
-    node_ids = [node["id"] for node in nodes]
-
-    for node_id in node_ids:
-        width, height = _node_box_size(node_id)
-        sizes[node_id] = {"width": width, "height": height}
-
-    base_x = 40
-    x_gap = 300 if complexity == "small" else 340
-    row_gap = 180 if complexity == "small" else 150
-    base_y = 0 if complexity == "small" else 80
-    layer_rank, children, parents = _dag_layers(node_ids, edges)
-    layers = defaultdict(list)
-
-    for node in nodes:
-        layers[layer_rank.get(node["id"], 0)].append(node)
-
-    max_layer = max(layers.keys(), default=0)
-
-    for layer_index in range(max_layer + 1):
-        layer_nodes = sorted(layers.get(layer_index, []), key=_node_sort_weight)
-        desired_y = {}
-
-        if layer_index == 0:
-            current_y = base_y
-            for node in layer_nodes:
-                desired_y[node["id"]] = current_y
-                current_y += row_gap
-        else:
-            default_y = base_y
-            for node in layer_nodes:
-                node_id = node["id"]
-                parent_y = _desired_y_from_neighbors(node_id, parents, positions, default_y)
-                child_y = _desired_y_from_neighbors(node_id, children, positions, parent_y)
-                desired_y[node_id] = (parent_y + child_y) / 2 if node_id in positions else parent_y
-
-            layer_nodes = sorted(
-                layer_nodes,
-                key=lambda node: (
-                    desired_y.get(node["id"], 0),
-                    _node_sort_weight(node),
-                )
-            )
-
-        assigned_y = _spread_vertical_positions(
-            [node["id"] for node in layer_nodes],
-            desired_y,
-            row_gap,
-        )
-
-        for node in layer_nodes:
-            node_id = node["id"]
-            positions[node_id] = {
-                "x": base_x + (layer_index * x_gap),
-                "y": assigned_y[node_id],
-            }
-
-    if complexity != "small":
-        branch_nodes = [
-            node_id for node_id, annotation in annotations.items()
-            if annotation.get("lane") == "branch" and node_id in positions
-        ]
-        for index, node_id in enumerate(sorted(branch_nodes)):
-            positions[node_id]["y"] = max(positions[node_id]["y"], base_y + ((index + 1) * row_gap))
-
-    layout = {
-        "nodes": nodes,
-        "positions": positions,
-        "sizes": sizes,
-        "edges": edges,
-        "options": options,
-        "annotations": annotations,
-        "complexity": complexity,
-    }
+    graph_entries = _payload_graphs(graph) if _is_graphs_payload(graph) else [graph]
+    layout = _graphs_payload([
+        _generate_layout_single(graph_entry)
+        for graph_entry in graph_entries
+    ])
 
     write_json(output_path, layout)
 
@@ -1732,88 +1868,99 @@ def generate_drawio_xml(layout_file):
     layout_file = require_existing_file(layout_file, "layout file")
     layout = read_json(layout_file)
 
-    nodes = layout.get("nodes")
-    pos = layout.get("positions")
-    sizes = layout.get("sizes", {})
-    edges = layout.get("edges")
-    annotations = layout.get("annotations", {})
-    complexity = layout.get("complexity", "medium")
+    layout_entries = _payload_graphs(layout) if _is_graphs_payload(layout) else [layout]
+    diagrams = []
 
-    if nodes is None or pos is None or edges is None:
-        raise ValueError(f"Invalid layout file format: {layout_file}")
+    for layout_entry in layout_entries:
+        nodes = layout_entry.get("nodes")
+        pos = layout_entry.get("positions")
+        sizes = layout_entry.get("sizes", {})
+        edges = layout_entry.get("edges")
+        annotations = layout_entry.get("annotations", {})
+        complexity = layout_entry.get("complexity", "medium")
 
-    xml = []
+        if nodes is None or pos is None or edges is None:
+            raise ValueError(f"Invalid layout file format: {layout_file}")
 
-    xml.append('<mxfile host="app.diagrams.net" version="29.6.1">')
-    xml.append('  <diagram name="Logical ETL Lineage" id="0">')
-    xml.append('    <mxGraphModel dx="1895" dy="958" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">')
-    xml.append("      <root>")
-    xml.append('        <mxCell id="0"/>')
-    xml.append('        <mxCell id="1" parent="0"/>')
-    xml.append("")
-    xml.append("        <!-- Nodes -->")
+        xml = []
 
-    id_map = {}
-    ordered_nodes = _ordered_nodes_for_render(nodes, pos, annotations)
+        xml.append('<mxfile host="app.diagrams.net" version="29.6.1">')
+        xml.append('  <diagram name="Logical ETL Lineage" id="0">')
+        xml.append('    <mxGraphModel dx="1895" dy="958" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">')
+        xml.append("      <root>")
+        xml.append('        <mxCell id="0"/>')
+        xml.append('        <mxCell id="1" parent="0"/>')
+        xml.append("")
+        xml.append("        <!-- Nodes -->")
 
-    for index, node in enumerate(ordered_nodes, start=1):
+        id_map = {}
+        ordered_nodes = _ordered_nodes_for_render(nodes, pos, annotations)
 
-        node_id = f"n{index}"
-        id_map[node["id"]] = node_id
+        for index, node in enumerate(ordered_nodes, start=1):
+            node_id = f"n{index}"
+            id_map[node["id"]] = node_id
 
-        geometry = pos.get(node["id"], {"x": 0, "y": 0})
-        label = escape(node["id"])
-        style = _style_for_node_type(node.get("type")).replace(
-            "whiteSpace=wrap;html=1;",
-            "whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;"
-        )
-        node_size = sizes.get(node["id"], {})
-        width = node_size.get("width") or _node_box_size(node["id"])[0]
-        height = node_size.get("height") or _node_box_size(node["id"])[1]
+            geometry = pos.get(node["id"], {"x": 0, "y": 0})
+            label = escape(node["id"])
+            style = _style_for_node_type(node.get("type")).replace(
+                "whiteSpace=wrap;html=1;",
+                "whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;"
+            )
+            node_size = sizes.get(node["id"], {})
+            width = node_size.get("width") or _node_box_size(node["id"])[0]
+            height = node_size.get("height") or _node_box_size(node["id"])[1]
 
-        xml.append(
-            f'        <mxCell id="{node_id}" value="{label}" '
-            f'style="{style}" vertex="1" parent="1">'
-        )
-        xml.append(
-            f'          <mxGeometry x="{geometry["x"]}" y="{geometry["y"]}" width="{width}" height="{height}" as="geometry"/>'
-        )
-        xml.append("        </mxCell>")
+            xml.append(
+                f'        <mxCell id="{node_id}" value="{label}" '
+                f'style="{style}" vertex="1" parent="1">'
+            )
+            xml.append(
+                f'          <mxGeometry x="{geometry["x"]}" y="{geometry["y"]}" width="{width}" height="{height}" as="geometry"/>'
+            )
+            xml.append("        </mxCell>")
 
-    xml.append("")
-    xml.append("        <!-- Edges -->")
+        xml.append("")
+        xml.append("        <!-- Edges -->")
 
-    for index, edge in enumerate(edges, start=1):
-        source_id = id_map.get(edge["source"], "")
-        target_id = id_map.get(edge["target"], "")
-        value = ""
-        route = edge.get("route", "")
-        style = _edge_style(edge.get("kind", ""), route, complexity)
-        waypoints = _edge_waypoints(edge, pos, sizes, annotations, complexity)
+        for index, edge in enumerate(edges, start=1):
+            source_id = id_map.get(edge["source"], "")
+            target_id = id_map.get(edge["target"], "")
+            value = ""
+            route = edge.get("route", "")
+            style = _edge_style(edge.get("kind", ""), route, complexity)
+            waypoints = _edge_waypoints(edge, pos, sizes, annotations, complexity)
 
-        xml.append(
-            f'        <mxCell id="e{index}" edge="1" parent="1" '
-            f'source="{source_id}" target="{target_id}" value="{value}" style="{style}">'
-        )
-        if waypoints:
-            xml.append('          <mxGeometry relative="1" as="geometry">')
-            xml.append('            <Array as="points">')
-            for point in waypoints:
-                xml.append(
-                    f'              <mxPoint x="{point["x"]}" y="{point["y"]}"/>'
-                )
-            xml.append('            </Array>')
-            xml.append('          </mxGeometry>')
-        else:
-            xml.append('          <mxGeometry relative="1" as="geometry"/>')
-        xml.append("        </mxCell>")
+            xml.append(
+                f'        <mxCell id="e{index}" edge="1" parent="1" '
+                f'source="{source_id}" target="{target_id}" value="{value}" style="{style}">'
+            )
+            if waypoints:
+                xml.append('          <mxGeometry relative="1" as="geometry">')
+                xml.append('            <Array as="points">')
+                for point in waypoints:
+                    xml.append(
+                        f'              <mxPoint x="{point["x"]}" y="{point["y"]}"/>'
+                    )
+                xml.append('            </Array>')
+                xml.append('          </mxGeometry>')
+            else:
+                xml.append('          <mxGeometry relative="1" as="geometry"/>')
+            xml.append("        </mxCell>")
 
-    xml.append("      </root>")
-    xml.append("    </mxGraphModel>")
-    xml.append("  </diagram>")
-    xml.append("</mxfile>")
+        xml.append("      </root>")
+        xml.append("    </mxGraphModel>")
+        xml.append("  </diagram>")
+        xml.append("</mxfile>")
 
-    return "\n".join(xml)
+        diagrams.append({
+            "source_file": _safe_source_key(layout_entry.get("source_file")),
+            "drawio_xml": "\n".join(xml),
+        })
+
+    if len(diagrams) == 1:
+        return diagrams[0]["drawio_xml"]
+
+    return _json_string({"diagrams": diagrams})
 
 
 # -----------------------------------------------------
