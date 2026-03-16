@@ -6,72 +6,130 @@
         <mxCell id="1" parent="0"/>
 
         <!-- Nodes -->
-        <mxCell id="n1" value="ora_STG_F_BARCLAYS_MIDTERM_HIST" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#f8cecc;" vertex="1" parent="1">
-          <mxGeometry x="0" y="179" width="284" height="80" as="geometry"/>
+        <mxCell id="n1" value="OraD_BARCLAYS_EMPLOYEE_ACTION
+Source table
+Lines 5525-5642
+Business: Employee Action Source" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=cylinder3;boundedLbl=1;size=15;fillColor=#fff2cc;" vertex="1" parent="1">
+          <mxGeometry x="0" y="151" width="320" height="128" as="geometry"/>
         </mxCell>
-        <mxCell id="n2" value="OraD_BARCLAYS_EMPLOYEE_ACTION" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#f8cecc;" vertex="1" parent="1">
-          <mxGeometry x="4" y="56" width="276" height="80" as="geometry"/>
+        <mxCell id="n2" value="ora_STG_F_BARCLAYS_MIDTERM_HIST
+Source table
+Lines 5754-5896
+Business: Midterm Hist Source" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=cylinder3;boundedLbl=1;size=15;fillColor=#fff2cc;" vertex="1" parent="1">
+          <mxGeometry x="2" y="322" width="315" height="128" as="geometry"/>
         </mxCell>
-        <mxCell id="n3" value="ora_NOLSData" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#f8cecc;" vertex="1" parent="1">
-          <mxGeometry x="429" y="300" width="220" height="70" as="geometry"/>
+        <mxCell id="n3" value="ora_NOLSData
+Source table
+Lines 5043-5228
+Business: NOLS Data Source" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=cylinder3;boundedLbl=1;size=15;fillColor=#fff2cc;" vertex="1" parent="1">
+          <mxGeometry x="416" y="493" width="290" height="128" as="geometry"/>
         </mxCell>
-        <mxCell id="n4" value="Ora_EMPLOYEE_ACTION_CHANGES_RULES" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#f8cecc;" vertex="1" parent="1">
-          <mxGeometry x="775" y="0" width="292" height="80" as="geometry"/>
+        <mxCell id="n4" value="Ora_EMPLOYEE_ACTION_CHANGES_RULES
+Source table
+Lines 6425-6555
+Business: Action Changes Rules Source" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=cylinder3;boundedLbl=1;size=15;fillColor=#fff2cc;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="33" width="345" height="128" as="geometry"/>
         </mxCell>
-        <mxCell id="n5" value="HSH_STG_F_BARCLAYS_MIDTERM_HIST" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#dae8fc;" vertex="1" parent="1">
-          <mxGeometry x="382" y="177" width="284" height="80" as="geometry"/>
+        <mxCell id="n5" value="HSH_BARCLAYS_EMPLOYEE_ACTION
+Persistent store
+Lines 608-615
+Business: Employee Action Storage" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=document;boundedLbl=1;fillColor=#dae8fc;" vertex="1" parent="1">
+          <mxGeometry x="399" y="151" width="325" height="128" as="geometry"/>
         </mxCell>
-        <mxCell id="n6" value="HSH_BARCLAYS_EMPLOYEE_ACTION" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#dae8fc;" vertex="1" parent="1">
-          <mxGeometry x="393" y="62" width="272" height="70" as="geometry"/>
+        <mxCell id="n6" value="HSH_STG_F_BARCLAYS_MIDTERM_HIST
+Persistent store
+Lines 694-701
+Business: Midterm Hist Storage" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=document;boundedLbl=1;fillColor=#dae8fc;" vertex="1" parent="1">
+          <mxGeometry x="404" y="322" width="315" height="128" as="geometry"/>
         </mxCell>
-        <mxCell id="n7" value="HSH_MIDTERM_HIST" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#dae8fc;" vertex="1" parent="1">
-          <mxGeometry x="1222" y="241" width="224" height="70" as="geometry"/>
+        <mxCell id="n7" value="HSH_MIDTERM_HIST
+Persistent store
+Lines 137-144
+Business: Midterm History Storage" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=document;boundedLbl=1;fillColor=#dae8fc;" vertex="1" parent="1">
+          <mxGeometry x="1940" y="408" width="325" height="128" as="geometry"/>
         </mxCell>
-        <mxCell id="n8" value="Rule_Lkps" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#dae8fc;" vertex="1" parent="1">
-          <mxGeometry x="1618" y="5" width="220" height="70" as="geometry"/>
+        <mxCell id="n8" value="Rule_Lkps
+Lookup store
+Lines 3534-3541
+Business: Rule Lookups" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=document;boundedLbl=1;fillColor=#dae8fc;" vertex="1" parent="1">
+          <mxGeometry x="2604" y="42" width="270" height="128" as="geometry"/>
         </mxCell>
-        <mxCell id="n9" value="HSH_TEMP_STGVAR_EMPLOYEE_CODE_CHNG" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#dae8fc;" vertex="1" parent="1">
-          <mxGeometry x="2325" y="118" width="296" height="80" as="geometry"/>
+        <mxCell id="n9" value="HSH_TEMP_STGVAR_EMPLOYEE_CODE_CHNG
+Persistent store
+Lines 5025-5031
+Business: Temp Employee Code Change" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=document;boundedLbl=1;fillColor=#dae8fc;" vertex="1" parent="1">
+          <mxGeometry x="3382" y="227" width="335" height="128" as="geometry"/>
         </mxCell>
-        <mxCell id="n10" value="tfmLookupSubmittedCount" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#f8cecc;" vertex="1" parent="1">
-          <mxGeometry x="819" y="182" width="252" height="70" as="geometry"/>
+        <mxCell id="n10" value="EMP_ACT_CHG_REP_FLAG_HSH
+Persistent store
+Lines 3516-3522
+Business: Action Change Flag Storage" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=document;boundedLbl=1;fillColor=#dae8fc;" vertex="1" parent="1">
+          <mxGeometry x="3392" y="56" width="340" height="128" as="geometry"/>
         </mxCell>
-        <mxCell id="n11" value="xfm_RuleLkps" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#f8cecc;" vertex="1" parent="1">
-          <mxGeometry x="1224" y="5" width="220" height="70" as="geometry"/>
+        <mxCell id="n11" value="tfmLookupSubmittedCount
+Transformation
+Lines 6960-6993
+Condition: lnkTfmEmpMidTermHistInfo1.CHANGE&lt;&gt; 'NNNNNNNNNNNNNNNNNN'  AND svAllEmplNewRec='N'
+Business: Lookup Submitted Count
+Rule: CHANGE&lt;&gt;'NNNNNNNNNNNNNNNNNN' AND NewRec='N'" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="803" y="300" width="420" height="172" as="geometry"/>
         </mxCell>
-        <mxCell id="n12" value="Xfm_UpdStgbarclayMidterm" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#f8cecc;" vertex="1" parent="1">
-          <mxGeometry x="1600" y="241" width="256" height="70" as="geometry"/>
+        <mxCell id="n12" value="xfm_RuleLkps
+Transformation
+Lines 3869-3879
+Condition: lk_xfm_RuleLkps.FIELD_NAME='SCHEME' or lk_xfm_RuleLkps.FIELD_NAME='GRADE'
+Condition: lk_xfm_RuleLkps.FIELD_NAME&lt;&gt;'SCHEME'  and lk_xfm_RuleLkps.FIELD_NAME&lt;&gt;'GRADE'
+Business: Rule Lookups Transform
+Rule: FIELD_NAME='SCHEME' or 'GRADE'" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="1721" y="0" width="420" height="194" as="geometry"/>
         </mxCell>
-        <mxCell id="n13" value="Ora_STG_F_BARCLAYS_MIDTERM" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#d5e8d4;" vertex="1" parent="1">
-          <mxGeometry x="1982" y="241" width="264" height="70" as="geometry"/>
+        <mxCell id="n13" value="Xfm_UpdStgbarclayMidterm
+Transformation
+Lines 1203-1213
+Business: Update Midterm" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="2599" y="408" width="280" height="128" as="geometry"/>
         </mxCell>
-        <mxCell id="n14" value="xfm_Employee_Changes_reporting" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#f8cecc;" vertex="1" parent="1">
-          <mxGeometry x="1194" y="118" width="280" height="80" as="geometry"/>
+        <mxCell id="n14" value="xfm_Employee_Changes_reporting
+Transformation
+Lines 1385-1395
+Business: Employee Changes Report" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="1940" y="237" width="325" height="128" as="geometry"/>
         </mxCell>
-        <mxCell id="n15" value="Ora_STG_EMPLOYEE_CHANGES_REPORTING" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#f8cecc;" vertex="1" parent="1">
-          <mxGeometry x="1553" y="118" width="296" height="80" as="geometry"/>
+        <mxCell id="n15" value="Ora_STG_EMPLOYEE_CHANGES_REPORTING
+Final target
+Lines 4380-4503
+Business: Employee Changes DB Target" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=cylinder3;boundedLbl=1;size=15;fillColor=#d5e8d4;" vertex="1" parent="1">
+          <mxGeometry x="2564" y="221" width="340" height="128" as="geometry"/>
         </mxCell>
-        <mxCell id="n16" value="xfm_Reporting_flag" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#f8cecc;" vertex="1" parent="1">
-          <mxGeometry x="1998" y="64" width="232" height="70" as="geometry"/>
+        <mxCell id="n16" value="xfm_Reporting_flag
+Transformation
+Lines 2171-2394
+Condition: svReportingFlag='Y'
+Business: Reporting Flag
+Rule: ReportingFlag='Y'" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="2993" y="119" width="310" height="172" as="geometry"/>
         </mxCell>
-        <mxCell id="n17" value="EMP_ACT_CHG_REP_FLAG_HSH" style="rounded=1;whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;fillColor=#dae8fc;" vertex="1" parent="1">
-          <mxGeometry x="2378" y="5" width="256" height="70" as="geometry"/>
+        <mxCell id="n17" value="Ora_STG_F_BARCLAYS_MIDTERM
+Final target
+Lines 4206-4321
+Business: Midterm DB Target" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=cylinder3;boundedLbl=1;size=15;fillColor=#d5e8d4;" vertex="1" parent="1">
+          <mxGeometry x="3000" y="408" width="295" height="128" as="geometry"/>
         </mxCell>
 
         <!-- Edges -->
-        <mxCell id="e1" edge="1" parent="1" source="n10" target="n7" value="" style="edgeStyle=none;rounded=1;html=1;">
+        <mxCell id="e1" edge="1" parent="1" source="n11" target="n7" value="" style="edgeStyle=none;rounded=1;html=1;">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-        <mxCell id="e2" edge="1" parent="1" source="n2" target="n6" value="" style="edgeStyle=none;rounded=1;html=1;">
+        <mxCell id="e2" edge="1" parent="1" source="n1" target="n5" value="" style="edgeStyle=none;rounded=1;html=1;">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-        <mxCell id="e3" edge="1" parent="1" source="n1" target="n5" value="" style="edgeStyle=none;rounded=1;html=1;">
+        <mxCell id="e3" edge="1" parent="1" source="n2" target="n6" value="" style="edgeStyle=none;rounded=1;html=1;">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-        <mxCell id="e4" edge="1" parent="1" source="n7" target="n12" value="" style="edgeStyle=none;rounded=1;html=1;dashed=1;dashPattern=6 4;">
+        <mxCell id="e4" edge="1" parent="1" source="n7" target="n13" value="" style="edgeStyle=none;rounded=1;html=1;dashed=1;dashPattern=6 4;">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-        <mxCell id="e5" edge="1" parent="1" source="n10" target="n14" value="" style="edgeStyle=none;rounded=1;html=1;dashed=1;dashPattern=6 4;">
+        <mxCell id="e5" edge="1" parent="1" source="n11" target="n14" value="" style="edgeStyle=none;rounded=1;html=1;dashed=1;dashPattern=6 4;">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
         <mxCell id="e6" edge="1" parent="1" source="n15" target="n16" value="" style="edgeStyle=none;rounded=1;html=1;">
@@ -80,16 +138,16 @@
         <mxCell id="e7" edge="1" parent="1" source="n8" target="n16" value="" style="edgeStyle=none;rounded=1;html=1;dashed=1;dashPattern=6 4;">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-        <mxCell id="e8" edge="1" parent="1" source="n16" target="n17" value="" style="edgeStyle=none;rounded=1;html=1;">
+        <mxCell id="e8" edge="1" parent="1" source="n16" target="n10" value="" style="edgeStyle=none;rounded=1;html=1;">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-        <mxCell id="e9" edge="1" parent="1" source="n11" target="n8" value="" style="edgeStyle=none;rounded=1;html=1;">
+        <mxCell id="e9" edge="1" parent="1" source="n12" target="n8" value="" style="edgeStyle=none;rounded=1;html=1;">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-        <mxCell id="e10" edge="1" parent="1" source="n4" target="n11" value="" style="edgeStyle=none;rounded=1;html=1;">
+        <mxCell id="e10" edge="1" parent="1" source="n4" target="n12" value="" style="edgeStyle=none;rounded=1;html=1;">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-        <mxCell id="e11" edge="1" parent="1" source="n12" target="n13" value="" style="edgeStyle=none;rounded=1;html=1;">
+        <mxCell id="e11" edge="1" parent="1" source="n13" target="n17" value="" style="edgeStyle=none;rounded=1;html=1;">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
         <mxCell id="e12" edge="1" parent="1" source="n14" target="n15" value="" style="edgeStyle=none;rounded=1;html=1;">
@@ -98,13 +156,13 @@
         <mxCell id="e13" edge="1" parent="1" source="n16" target="n9" value="" style="edgeStyle=none;rounded=1;html=1;">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-        <mxCell id="e14" edge="1" parent="1" source="n3" target="n10" value="" style="edgeStyle=none;rounded=1;html=1;">
+        <mxCell id="e14" edge="1" parent="1" source="n3" target="n11" value="" style="edgeStyle=none;rounded=1;html=1;">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-        <mxCell id="e15" edge="1" parent="1" source="n6" target="n10" value="" style="edgeStyle=none;rounded=1;html=1;dashed=1;dashPattern=6 4;">
+        <mxCell id="e15" edge="1" parent="1" source="n5" target="n11" value="" style="edgeStyle=none;rounded=1;html=1;dashed=1;dashPattern=6 4;">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-        <mxCell id="e16" edge="1" parent="1" source="n5" target="n10" value="" style="edgeStyle=none;rounded=1;html=1;dashed=1;dashPattern=6 4;">
+        <mxCell id="e16" edge="1" parent="1" source="n6" target="n11" value="" style="edgeStyle=none;rounded=1;html=1;dashed=1;dashPattern=6 4;">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
       </root>
