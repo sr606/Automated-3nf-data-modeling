@@ -1,0 +1,2033 @@
+{
+    "graphs": [
+        {
+            "source_file": "LS_Sample_job1 1 2_detailed_pseudocode.txt",
+            "paths": [
+                [
+                    "xfm_Employee_Changes_reporting",
+                    "Ora_STG_EMPLOYEE_CHANGES_REPORTING",
+                    "xfm_Reporting_flag",
+                    "EMP_ACT_CHG_REP_FLAG_HSH"
+                ]
+            ],
+            "edges": [
+                {
+                    "source": "tfmLookupSubmittedCount",
+                    "target": "HSH_MIDTERM_HIST",
+                    "kind": "input"
+                },
+                {
+                    "source": "OraD_BARCLAYS_EMPLOYEE_ACTION",
+                    "target": "HSH_BARCLAYS_EMPLOYEE_ACTION",
+                    "kind": "input"
+                },
+                {
+                    "source": "ora_STG_F_BARCLAYS_MIDTERM_HIST",
+                    "target": "HSH_STG_F_BARCLAYS_MIDTERM_HIST",
+                    "kind": "input"
+                },
+                {
+                    "source": "HSH_MIDTERM_HIST",
+                    "target": "Xfm_UpdStgbarclayMidterm",
+                    "kind": "lookup"
+                },
+                {
+                    "source": "tfmLookupSubmittedCount",
+                    "target": "xfm_Employee_Changes_reporting",
+                    "kind": "lookup"
+                },
+                {
+                    "source": "Ora_STG_EMPLOYEE_CHANGES_REPORTING",
+                    "target": "xfm_Reporting_flag",
+                    "kind": "input"
+                },
+                {
+                    "source": "Rule_Lkps",
+                    "target": "xfm_Reporting_flag",
+                    "kind": "lookup"
+                },
+                {
+                    "source": "xfm_Reporting_flag",
+                    "target": "EMP_ACT_CHG_REP_FLAG_HSH",
+                    "kind": "input"
+                },
+                {
+                    "source": "xfm_RuleLkps",
+                    "target": "Rule_Lkps",
+                    "kind": "input"
+                },
+                {
+                    "source": "Ora_EMPLOYEE_ACTION_CHANGES_RULES",
+                    "target": "xfm_RuleLkps",
+                    "kind": "input"
+                },
+                {
+                    "source": "Xfm_UpdStgbarclayMidterm",
+                    "target": "Ora_STG_F_BARCLAYS_MIDTERM",
+                    "kind": "input"
+                },
+                {
+                    "source": "xfm_Employee_Changes_reporting",
+                    "target": "Ora_STG_EMPLOYEE_CHANGES_REPORTING",
+                    "kind": "input"
+                },
+                {
+                    "source": "xfm_Reporting_flag",
+                    "target": "HSH_TEMP_STGVAR_EMPLOYEE_CODE_CHNG",
+                    "kind": "input"
+                },
+                {
+                    "source": "ora_NOLSData",
+                    "target": "tfmLookupSubmittedCount",
+                    "kind": "input"
+                },
+                {
+                    "source": "HSH_BARCLAYS_EMPLOYEE_ACTION",
+                    "target": "tfmLookupSubmittedCount",
+                    "kind": "lookup"
+                },
+                {
+                    "source": "HSH_STG_F_BARCLAYS_MIDTERM_HIST",
+                    "target": "tfmLookupSubmittedCount",
+                    "kind": "lookup"
+                }
+            ],
+            "nodes": [
+                {
+                    "id": "tfmLookupSubmittedCount",
+                    "type": "TRANSFORM",
+                    "label": "tfmLookupSubmittedCount",
+                    "details": [
+                        "Transformation",
+                        "Condition: lnkTfmEmpMidTermHistInfo1.CHANGE<> 'NNNNNNNNNNNNNNNNNN'  AND svAllEmplNewRec='N'"
+                    ]
+                },
+                {
+                    "id": "HSH_MIDTERM_HIST",
+                    "type": "LOOKUP",
+                    "label": "HSH_MIDTERM_HIST",
+                    "details": [
+                        "Lookup store"
+                    ]
+                },
+                {
+                    "id": "OraD_BARCLAYS_EMPLOYEE_ACTION",
+                    "type": "EXTRACT",
+                    "label": "OraD_BARCLAYS_EMPLOYEE_ACTION",
+                    "details": [
+                        "Source extract"
+                    ]
+                },
+                {
+                    "id": "HSH_BARCLAYS_EMPLOYEE_ACTION",
+                    "type": "LOOKUP",
+                    "label": "HSH_BARCLAYS_EMPLOYEE_ACTION",
+                    "details": [
+                        "Lookup store"
+                    ]
+                },
+                {
+                    "id": "ora_STG_F_BARCLAYS_MIDTERM_HIST",
+                    "type": "EXTRACT",
+                    "label": "ora_STG_F_BARCLAYS_MIDTERM_HIST",
+                    "details": [
+                        "Source extract"
+                    ]
+                },
+                {
+                    "id": "HSH_STG_F_BARCLAYS_MIDTERM_HIST",
+                    "type": "LOOKUP",
+                    "label": "HSH_STG_F_BARCLAYS_MIDTERM_HIST",
+                    "details": [
+                        "Lookup store"
+                    ]
+                },
+                {
+                    "id": "Xfm_UpdStgbarclayMidterm",
+                    "type": "TRANSFORM",
+                    "label": "Xfm_UpdStgbarclayMidterm",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "xfm_Employee_Changes_reporting",
+                    "type": "TRANSFORM",
+                    "label": "xfm_Employee_Changes_reporting",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Ora_STG_EMPLOYEE_CHANGES_REPORTING",
+                    "type": "TRANSFORM",
+                    "label": "Ora_STG_EMPLOYEE_CHANGES_REPORTING",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "xfm_Reporting_flag",
+                    "type": "TRANSFORM",
+                    "label": "xfm_Reporting_flag",
+                    "details": [
+                        "Transformation",
+                        "Condition: svReportingFlag='Y'"
+                    ]
+                },
+                {
+                    "id": "Rule_Lkps",
+                    "type": "LOOKUP",
+                    "label": "Rule_Lkps",
+                    "details": [
+                        "Lookup store"
+                    ]
+                },
+                {
+                    "id": "EMP_ACT_CHG_REP_FLAG_HSH",
+                    "type": "STORE",
+                    "label": "EMP_ACT_CHG_REP_FLAG_HSH",
+                    "details": [
+                        "Persistent store"
+                    ]
+                },
+                {
+                    "id": "xfm_RuleLkps",
+                    "type": "TRANSFORM",
+                    "label": "xfm_RuleLkps",
+                    "details": [
+                        "Transformation",
+                        "Condition: lk_xfm_RuleLkps.FIELD_NAME='SCHEME' or lk_xfm_RuleLkps.FIELD_NAME='GRADE'",
+                        "Condition: lk_xfm_RuleLkps.FIELD_NAME<>'SCHEME'  and lk_xfm_RuleLkps.FIELD_NAME<>'GRADE'"
+                    ]
+                },
+                {
+                    "id": "Ora_EMPLOYEE_ACTION_CHANGES_RULES",
+                    "type": "EXTRACT",
+                    "label": "Ora_EMPLOYEE_ACTION_CHANGES_RULES",
+                    "details": [
+                        "Source extract"
+                    ]
+                },
+                {
+                    "id": "Ora_STG_F_BARCLAYS_MIDTERM",
+                    "type": "DB_TARGET",
+                    "label": "Ora_STG_F_BARCLAYS_MIDTERM",
+                    "details": [
+                        "Final target"
+                    ]
+                },
+                {
+                    "id": "HSH_TEMP_STGVAR_EMPLOYEE_CODE_CHNG",
+                    "type": "STORE",
+                    "label": "HSH_TEMP_STGVAR_EMPLOYEE_CODE_CHNG",
+                    "details": [
+                        "Persistent store"
+                    ]
+                },
+                {
+                    "id": "ora_NOLSData",
+                    "type": "EXTRACT",
+                    "label": "ora_NOLSData",
+                    "details": [
+                        "Source extract"
+                    ]
+                }
+            ],
+            "annotations": {
+                "tfmLookupSubmittedCount": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "HSH_MIDTERM_HIST": {
+                    "role": "support",
+                    "lane": "lookup"
+                },
+                "OraD_BARCLAYS_EMPLOYEE_ACTION": {
+                    "role": "support",
+                    "lane": "source"
+                },
+                "HSH_BARCLAYS_EMPLOYEE_ACTION": {
+                    "role": "support",
+                    "lane": "lookup"
+                },
+                "ora_STG_F_BARCLAYS_MIDTERM_HIST": {
+                    "role": "support",
+                    "lane": "source"
+                },
+                "HSH_STG_F_BARCLAYS_MIDTERM_HIST": {
+                    "role": "support",
+                    "lane": "lookup"
+                },
+                "Xfm_UpdStgbarclayMidterm": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "xfm_Employee_Changes_reporting": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "Ora_STG_EMPLOYEE_CHANGES_REPORTING": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "xfm_Reporting_flag": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "Rule_Lkps": {
+                    "role": "support",
+                    "lane": "lookup"
+                },
+                "EMP_ACT_CHG_REP_FLAG_HSH": {
+                    "role": "main",
+                    "lane": "lookup"
+                },
+                "xfm_RuleLkps": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "Ora_EMPLOYEE_ACTION_CHANGES_RULES": {
+                    "role": "support",
+                    "lane": "source"
+                },
+                "Ora_STG_F_BARCLAYS_MIDTERM": {
+                    "role": "branch",
+                    "lane": "branch"
+                },
+                "HSH_TEMP_STGVAR_EMPLOYEE_CODE_CHNG": {
+                    "role": "support",
+                    "lane": "lookup"
+                },
+                "ora_NOLSData": {
+                    "role": "support",
+                    "lane": "source"
+                }
+            },
+            "sql_sources": [],
+            "options": {
+                "diagram_mode": "logical",
+                "include_sql_sources": false,
+                "collapse_intermediate_datasets": true,
+                "include_lookup_nodes": true,
+                "llm_role_classification": false,
+                "llm_business_labels": false,
+                "llm_sql_grouping": false
+            },
+            "complexity": "medium",
+            "semantic_hints_applied": false
+        },
+        {
+            "source_file": "Samle_Job2 1 2_detailed_pseudocode.txt",
+            "paths": [
+                [
+                    "LkpVorExceptionReports",
+                    "TrExceptionReport",
+                    "VorExceptionReports",
+                    "VOR_EXCEPTIONS_FILE"
+                ]
+            ],
+            "edges": [
+                {
+                    "source": "HF_I247_GARAGE_MAPPING",
+                    "target": "TrExceptionReport",
+                    "kind": "lookup"
+                },
+                {
+                    "source": "LkpVorExceptionReports",
+                    "target": "TrExceptionReport",
+                    "kind": "input"
+                },
+                {
+                    "source": "TrExceptionReport",
+                    "target": "VorExceptionReports",
+                    "kind": "input"
+                },
+                {
+                    "source": "VorExceptionReports",
+                    "target": "VOR_EXCEPTIONS_FILE",
+                    "kind": "input"
+                },
+                {
+                    "source": "Src_VOR_I247_GARAGE_MAPPING",
+                    "target": "HF_I247_GARAGE_MAPPING",
+                    "kind": "input"
+                }
+            ],
+            "nodes": [
+                {
+                    "id": "HF_I247_GARAGE_MAPPING",
+                    "type": "LOOKUP",
+                    "label": "HF_I247_GARAGE_MAPPING",
+                    "details": [
+                        "Lookup store"
+                    ]
+                },
+                {
+                    "id": "TrExceptionReport",
+                    "type": "TRANSFORM",
+                    "label": "TrExceptionReport",
+                    "details": [
+                        "Transformation",
+                        "Condition: svInsUpd='U'"
+                    ]
+                },
+                {
+                    "id": "LkpVorExceptionReports",
+                    "type": "EXTRACT",
+                    "label": "LkpVorExceptionReports",
+                    "details": [
+                        "Source extract"
+                    ]
+                },
+                {
+                    "id": "VorExceptionReports",
+                    "type": "TRANSFORM",
+                    "label": "VorExceptionReports",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "VOR_EXCEPTIONS_FILE",
+                    "type": "FILE_TARGET",
+                    "label": "VOR_EXCEPTIONS_FILE",
+                    "details": [
+                        "File target"
+                    ]
+                },
+                {
+                    "id": "Src_VOR_I247_GARAGE_MAPPING",
+                    "type": "EXTRACT",
+                    "label": "Src_VOR_I247_GARAGE_MAPPING",
+                    "details": [
+                        "Source extract"
+                    ]
+                }
+            ],
+            "annotations": {
+                "HF_I247_GARAGE_MAPPING": {
+                    "role": "support",
+                    "lane": "lookup"
+                },
+                "TrExceptionReport": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "LkpVorExceptionReports": {
+                    "role": "main",
+                    "lane": "source"
+                },
+                "VorExceptionReports": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "VOR_EXCEPTIONS_FILE": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "Src_VOR_I247_GARAGE_MAPPING": {
+                    "role": "support",
+                    "lane": "source"
+                }
+            },
+            "sql_sources": [],
+            "options": {
+                "diagram_mode": "logical",
+                "include_sql_sources": false,
+                "collapse_intermediate_datasets": true,
+                "include_lookup_nodes": true,
+                "llm_role_classification": false,
+                "llm_business_labels": false,
+                "llm_sql_grouping": false
+            },
+            "complexity": "small",
+            "semantic_hints_applied": false
+        },
+        {
+            "source_file": "Sample_Job1 1 2_detailed_pseudocode.txt",
+            "paths": [
+                [
+                    "ORA_Ext_Vehicle_Off_Road_Data",
+                    "Tfm_LoadRecords",
+                    "HF_FACT_VOR_DATA"
+                ]
+            ],
+            "edges": [
+                {
+                    "source": "HF_FACT_VOR_DATA",
+                    "target": "Ora_StgVehicleOffRoad",
+                    "kind": "lookup"
+                },
+                {
+                    "source": "Tfm_LoadRecords",
+                    "target": "HF_FACT_VOR_DATA",
+                    "kind": "input"
+                },
+                {
+                    "source": "ORA_Ext_Vehicle_Off_Road_Data",
+                    "target": "Tfm_LoadRecords",
+                    "kind": "input"
+                },
+                {
+                    "source": "HF_SMR_VEHICLE_DIM",
+                    "target": "Tfm_LoadRecords",
+                    "kind": "lookup"
+                },
+                {
+                    "source": "Tfm_LoadRecords",
+                    "target": "Supp_VOR_Exception",
+                    "kind": "input"
+                }
+            ],
+            "nodes": [
+                {
+                    "id": "HF_FACT_VOR_DATA",
+                    "type": "LOOKUP",
+                    "label": "HF_FACT_VOR_DATA",
+                    "details": [
+                        "Lookup store"
+                    ]
+                },
+                {
+                    "id": "Ora_StgVehicleOffRoad",
+                    "type": "DB_TARGET",
+                    "label": "Ora_StgVehicleOffRoad",
+                    "details": [
+                        "Final target"
+                    ]
+                },
+                {
+                    "id": "Tfm_LoadRecords",
+                    "type": "TRANSFORM",
+                    "label": "Tfm_LoadRecords",
+                    "details": [
+                        "Transformation",
+                        "Condition: svException=-1"
+                    ]
+                },
+                {
+                    "id": "ORA_Ext_Vehicle_Off_Road_Data",
+                    "type": "EXTRACT",
+                    "label": "ORA_Ext_Vehicle_Off_Road_Data",
+                    "details": [
+                        "Source extract"
+                    ]
+                },
+                {
+                    "id": "HF_SMR_VEHICLE_DIM",
+                    "type": "LOOKUP",
+                    "label": "HF_SMR_VEHICLE_DIM",
+                    "details": [
+                        "Lookup store"
+                    ]
+                },
+                {
+                    "id": "Supp_VOR_Exception",
+                    "type": "FILE_TARGET",
+                    "label": "Supp_VOR_Exception",
+                    "details": [
+                        "File target"
+                    ]
+                }
+            ],
+            "annotations": {
+                "HF_FACT_VOR_DATA": {
+                    "role": "main",
+                    "lane": "lookup"
+                },
+                "Ora_StgVehicleOffRoad": {
+                    "role": "branch",
+                    "lane": "branch"
+                },
+                "Tfm_LoadRecords": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "ORA_Ext_Vehicle_Off_Road_Data": {
+                    "role": "main",
+                    "lane": "source"
+                },
+                "HF_SMR_VEHICLE_DIM": {
+                    "role": "support",
+                    "lane": "lookup"
+                },
+                "Supp_VOR_Exception": {
+                    "role": "branch",
+                    "lane": "branch"
+                }
+            },
+            "sql_sources": [],
+            "options": {
+                "diagram_mode": "logical",
+                "include_sql_sources": false,
+                "collapse_intermediate_datasets": true,
+                "include_lookup_nodes": true,
+                "llm_role_classification": false,
+                "llm_business_labels": false,
+                "llm_sql_grouping": false
+            },
+            "complexity": "small",
+            "semantic_hints_applied": false
+        },
+        {
+            "source_file": "alteryx_sttm_example1_detailed_pseudocode 1.txt",
+            "paths": [
+                [
+                    "Customer Segments (SP)",
+                    "Clean Customer Fields",
+                    "Customer Enrichment",
+                    "Join Customer-Segment",
+                    "Customer Summary",
+                    "Rank by Revenue",
+                    "Add Ranking",
+                    "Top 1000 Filter",
+                    "Browse Top Customers"
+                ]
+            ],
+            "edges": [
+                {
+                    "source": "Customer Segments (SP)",
+                    "target": "Clean Customer Fields",
+                    "kind": "input"
+                },
+                {
+                    "source": "Clean Customer Fields",
+                    "target": "Customer Enrichment",
+                    "kind": "input"
+                },
+                {
+                    "source": "Customer Enrichment",
+                    "target": "Auto Field Conversion",
+                    "kind": "input"
+                },
+                {
+                    "source": "Transaction Data",
+                    "target": "Transaction Calculations",
+                    "kind": "input"
+                },
+                {
+                    "source": "Auto Field Conversion",
+                    "target": "Transaction Calculations",
+                    "kind": "input"
+                },
+                {
+                    "source": "Transaction Calculations",
+                    "target": "Margin Analysis",
+                    "kind": "input"
+                },
+                {
+                    "source": "Customer Enrichment",
+                    "target": "Join Customer-Segment",
+                    "kind": "input"
+                },
+                {
+                    "source": "Customer Master",
+                    "target": "Join Customer-Segment",
+                    "kind": "input"
+                },
+                {
+                    "source": "Customer Segments (SP)",
+                    "target": "Join Customer-Segment",
+                    "kind": "input"
+                },
+                {
+                    "source": "Transaction Calculations",
+                    "target": "Join Transaction-Product",
+                    "kind": "input"
+                },
+                {
+                    "source": "Transaction Data",
+                    "target": "Join Transaction-Product",
+                    "kind": "input"
+                },
+                {
+                    "source": "Margin Analysis",
+                    "target": "Join Transaction-Product",
+                    "kind": "input"
+                },
+                {
+                    "source": "Master Join",
+                    "target": "Final Calculations",
+                    "kind": "input"
+                },
+                {
+                    "source": "Join Customer-Segment",
+                    "target": "Customer Summary",
+                    "kind": "input"
+                },
+                {
+                    "source": "Product Catalog",
+                    "target": "Product Performance",
+                    "kind": "input"
+                },
+                {
+                    "source": "Customer Summary",
+                    "target": "Rank by Revenue",
+                    "kind": "input"
+                },
+                {
+                    "source": "Rank by Revenue",
+                    "target": "Add Ranking",
+                    "kind": "input"
+                },
+                {
+                    "source": "Add Ranking",
+                    "target": "Top 1000 Filter",
+                    "kind": "input"
+                },
+                {
+                    "source": "Product Performance",
+                    "target": "Product Performance Excel",
+                    "kind": "input"
+                },
+                {
+                    "source": "Monthly Trends",
+                    "target": "Monthly Trends CSV",
+                    "kind": "input"
+                },
+                {
+                    "source": "Final Calculations",
+                    "target": "Load to Data Warehouse (SP)",
+                    "kind": "input"
+                },
+                {
+                    "source": "Top 1000 Filter",
+                    "target": "Browse Top Customers",
+                    "kind": "input"
+                }
+            ],
+            "nodes": [
+                {
+                    "id": "Customer Segments (SP)",
+                    "type": "TRANSFORM",
+                    "label": "Customer Segments (SP)",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Clean Customer Fields",
+                    "type": "TRANSFORM",
+                    "label": "Clean Customer Fields",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Customer Enrichment",
+                    "type": "TRANSFORM",
+                    "label": "Customer Enrichment",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Auto Field Conversion",
+                    "type": "TRANSFORM",
+                    "label": "Auto Field Conversion",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Transaction Data",
+                    "type": "TRANSFORM",
+                    "label": "Transaction Data",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Transaction Calculations",
+                    "type": "TRANSFORM",
+                    "label": "Transaction Calculations",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Margin Analysis",
+                    "type": "TRANSFORM",
+                    "label": "Margin Analysis",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Join Customer-Segment",
+                    "type": "TRANSFORM",
+                    "label": "Join Customer-Segment",
+                    "details": [
+                        "Transformation",
+                        "Condition: Left.CustomerID == Right.CustomerID"
+                    ]
+                },
+                {
+                    "id": "Customer Master",
+                    "type": "TRANSFORM",
+                    "label": "Customer Master",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Join Transaction-Product",
+                    "type": "TRANSFORM",
+                    "label": "Join Transaction-Product",
+                    "details": [
+                        "Transformation",
+                        "Condition: Left.ProductID == Right.ProductID"
+                    ]
+                },
+                {
+                    "id": "Master Join",
+                    "type": "TRANSFORM",
+                    "label": "Master Join",
+                    "details": [
+                        "Transformation",
+                        "Condition: Left.CustomerID == Right.CustomerID"
+                    ]
+                },
+                {
+                    "id": "Final Calculations",
+                    "type": "TRANSFORM",
+                    "label": "Final Calculations",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Customer Summary",
+                    "type": "TRANSFORM",
+                    "label": "Customer Summary",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Product Catalog",
+                    "type": "TRANSFORM",
+                    "label": "Product Catalog",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Product Performance",
+                    "type": "TRANSFORM",
+                    "label": "Product Performance",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Rank by Revenue",
+                    "type": "TRANSFORM",
+                    "label": "Rank by Revenue",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Add Ranking",
+                    "type": "TRANSFORM",
+                    "label": "Add Ranking",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Top 1000 Filter",
+                    "type": "TRANSFORM",
+                    "label": "Top 1000 Filter",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Product Performance Excel",
+                    "type": "TRANSFORM",
+                    "label": "Product Performance Excel",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Monthly Trends",
+                    "type": "TRANSFORM",
+                    "label": "Monthly Trends",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Monthly Trends CSV",
+                    "type": "TRANSFORM",
+                    "label": "Monthly Trends CSV",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Load to Data Warehouse (SP)",
+                    "type": "TRANSFORM",
+                    "label": "Load to Data Warehouse (SP)",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Browse Top Customers",
+                    "type": "TRANSFORM",
+                    "label": "Browse Top Customers",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Write to TopCustomers (SP)",
+                    "type": "TRANSFORM",
+                    "label": "Write to TopCustomers (SP)",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Browse Products",
+                    "type": "TRANSFORM",
+                    "label": "Browse Products",
+                    "details": [
+                        "Transformation"
+                    ]
+                }
+            ],
+            "annotations": {
+                "Customer Segments (SP)": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "Clean Customer Fields": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "Customer Enrichment": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "Auto Field Conversion": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "Transaction Data": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "Transaction Calculations": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "Margin Analysis": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "Join Customer-Segment": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "Customer Master": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "Join Transaction-Product": {
+                    "role": "branch",
+                    "lane": "branch"
+                },
+                "Master Join": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "Final Calculations": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "Customer Summary": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "Product Catalog": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "Product Performance": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "Rank by Revenue": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "Add Ranking": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "Top 1000 Filter": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "Product Performance Excel": {
+                    "role": "branch",
+                    "lane": "branch"
+                },
+                "Monthly Trends": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "Monthly Trends CSV": {
+                    "role": "branch",
+                    "lane": "branch"
+                },
+                "Load to Data Warehouse (SP)": {
+                    "role": "branch",
+                    "lane": "branch"
+                },
+                "Browse Top Customers": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "Write to TopCustomers (SP)": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "Browse Products": {
+                    "role": "support",
+                    "lane": "support"
+                }
+            },
+            "sql_sources": [],
+            "options": {
+                "diagram_mode": "logical",
+                "include_sql_sources": false,
+                "collapse_intermediate_datasets": true,
+                "include_lookup_nodes": true,
+                "llm_role_classification": false,
+                "llm_business_labels": false,
+                "llm_sql_grouping": false
+            },
+            "complexity": "large",
+            "semantic_hints_applied": false
+        },
+        {
+            "source_file": "alteryx_sttm_example2_detailed_pseudocode 1 (1).txt",
+            "paths": [
+                [
+                    "Product Catalog XLS",
+                    "Auto Field Product Data",
+                    "Calculate Profit Margin",
+                    "Filter High Performance",
+                    "Sort by Stock Status",
+                    "Join Inventory Data",
+                    "Inventory Status Summary",
+                    "Inventory Analytics CSV"
+                ]
+            ],
+            "edges": [
+                {
+                    "source": "Customer Master CSV",
+                    "target": "Clean Customer Data",
+                    "kind": "input"
+                },
+                {
+                    "source": "Clean Customer Data",
+                    "target": "Calculate Value Score",
+                    "kind": "input"
+                },
+                {
+                    "source": "Product Catalog XLS",
+                    "target": "Auto Field Product Data",
+                    "kind": "input"
+                },
+                {
+                    "source": "Auto Field Product Data",
+                    "target": "Calculate Profit Margin",
+                    "kind": "input"
+                },
+                {
+                    "source": "Calculate Profit Margin",
+                    "target": "Filter High Performance",
+                    "kind": "input"
+                },
+                {
+                    "source": "Filter High Performance",
+                    "target": "Sort by Stock Status",
+                    "kind": "input"
+                },
+                {
+                    "source": "Calculate Value Score",
+                    "target": "Join Customer Data",
+                    "kind": "input"
+                },
+                {
+                    "source": "Customer Master CSV",
+                    "target": "Join Customer Data",
+                    "kind": "input"
+                },
+                {
+                    "source": "Customer Segments SP",
+                    "target": "Join Customer Data",
+                    "kind": "input"
+                },
+                {
+                    "source": "Product Catalog XLS",
+                    "target": "Join Product Data",
+                    "kind": "input"
+                },
+                {
+                    "source": "Product Performance SP",
+                    "target": "Join Product Data",
+                    "kind": "input"
+                },
+                {
+                    "source": "Inventory Status SP",
+                    "target": "Join Inventory Data",
+                    "kind": "input"
+                },
+                {
+                    "source": "Sort by Stock Status",
+                    "target": "Join Inventory Data",
+                    "kind": "input"
+                },
+                {
+                    "source": "Join Customer Data",
+                    "target": "Customer Segment Summary",
+                    "kind": "input"
+                },
+                {
+                    "source": "Join Product Data",
+                    "target": "Product Category Summary",
+                    "kind": "input"
+                },
+                {
+                    "source": "Join Inventory Data",
+                    "target": "Inventory Status Summary",
+                    "kind": "input"
+                },
+                {
+                    "source": "Customer Segment Summary",
+                    "target": "Customer Analytics DB",
+                    "kind": "input"
+                },
+                {
+                    "source": "Product Category Summary",
+                    "target": "Product Analytics XLS",
+                    "kind": "input"
+                },
+                {
+                    "source": "Inventory Status Summary",
+                    "target": "Inventory Analytics CSV",
+                    "kind": "input"
+                },
+                {
+                    "source": "Sales Analytics SP",
+                    "target": "Sales Analytics DB",
+                    "kind": "input"
+                },
+                {
+                    "source": "Customer Segment Summary",
+                    "target": "Browse Customer Data",
+                    "kind": "input"
+                },
+                {
+                    "source": "Product Category Summary",
+                    "target": "Browse Product Data",
+                    "kind": "input"
+                },
+                {
+                    "source": "Inventory Status Summary",
+                    "target": "Browse Inventory Data",
+                    "kind": "input"
+                }
+            ],
+            "nodes": [
+                {
+                    "id": "Customer Master CSV",
+                    "type": "TRANSFORM",
+                    "label": "Customer Master CSV",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Clean Customer Data",
+                    "type": "TRANSFORM",
+                    "label": "Clean Customer Data",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Calculate Value Score",
+                    "type": "TRANSFORM",
+                    "label": "Calculate Value Score",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Product Catalog XLS",
+                    "type": "TRANSFORM",
+                    "label": "Product Catalog XLS",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Auto Field Product Data",
+                    "type": "TRANSFORM",
+                    "label": "Auto Field Product Data",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Calculate Profit Margin",
+                    "type": "TRANSFORM",
+                    "label": "Calculate Profit Margin",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Filter High Performance",
+                    "type": "TRANSFORM",
+                    "label": "Filter High Performance",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Sort by Stock Status",
+                    "type": "TRANSFORM",
+                    "label": "Sort by Stock Status",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Join Customer Data",
+                    "type": "TRANSFORM",
+                    "label": "Join Customer Data",
+                    "details": [
+                        "Transformation",
+                        "Condition: Left.CustomerID == Right.CustomerID"
+                    ]
+                },
+                {
+                    "id": "Customer Segments SP",
+                    "type": "TRANSFORM",
+                    "label": "Customer Segments SP",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Join Product Data",
+                    "type": "TRANSFORM",
+                    "label": "Join Product Data",
+                    "details": [
+                        "Transformation",
+                        "Condition: Left.ProductID == Right.ProductID"
+                    ]
+                },
+                {
+                    "id": "Product Performance SP",
+                    "type": "TRANSFORM",
+                    "label": "Product Performance SP",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Inventory Status SP",
+                    "type": "TRANSFORM",
+                    "label": "Inventory Status SP",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Join Inventory Data",
+                    "type": "TRANSFORM",
+                    "label": "Join Inventory Data",
+                    "details": [
+                        "Transformation",
+                        "Condition: Left.ProductID == Right.ProductID"
+                    ]
+                },
+                {
+                    "id": "Customer Segment Summary",
+                    "type": "TRANSFORM",
+                    "label": "Customer Segment Summary",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Product Category Summary",
+                    "type": "TRANSFORM",
+                    "label": "Product Category Summary",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Inventory Status Summary",
+                    "type": "TRANSFORM",
+                    "label": "Inventory Status Summary",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Customer Analytics DB",
+                    "type": "TRANSFORM",
+                    "label": "Customer Analytics DB",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Product Analytics XLS",
+                    "type": "TRANSFORM",
+                    "label": "Product Analytics XLS",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Inventory Analytics CSV",
+                    "type": "TRANSFORM",
+                    "label": "Inventory Analytics CSV",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Sales Analytics SP",
+                    "type": "TRANSFORM",
+                    "label": "Sales Analytics SP",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Sales Analytics DB",
+                    "type": "TRANSFORM",
+                    "label": "Sales Analytics DB",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Browse Customer Data",
+                    "type": "TRANSFORM",
+                    "label": "Browse Customer Data",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Browse Product Data",
+                    "type": "TRANSFORM",
+                    "label": "Browse Product Data",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "Browse Inventory Data",
+                    "type": "TRANSFORM",
+                    "label": "Browse Inventory Data",
+                    "details": [
+                        "Transformation"
+                    ]
+                }
+            ],
+            "annotations": {
+                "Customer Master CSV": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "Clean Customer Data": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "Calculate Value Score": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "Product Catalog XLS": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "Auto Field Product Data": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "Calculate Profit Margin": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "Filter High Performance": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "Sort by Stock Status": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "Join Customer Data": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "Customer Segments SP": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "Join Product Data": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "Product Performance SP": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "Inventory Status SP": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "Join Inventory Data": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "Customer Segment Summary": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "Product Category Summary": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "Inventory Status Summary": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "Customer Analytics DB": {
+                    "role": "branch",
+                    "lane": "branch"
+                },
+                "Product Analytics XLS": {
+                    "role": "branch",
+                    "lane": "branch"
+                },
+                "Inventory Analytics CSV": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "Sales Analytics SP": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "Sales Analytics DB": {
+                    "role": "branch",
+                    "lane": "branch"
+                },
+                "Browse Customer Data": {
+                    "role": "branch",
+                    "lane": "branch"
+                },
+                "Browse Product Data": {
+                    "role": "branch",
+                    "lane": "branch"
+                },
+                "Browse Inventory Data": {
+                    "role": "branch",
+                    "lane": "branch"
+                }
+            },
+            "sql_sources": [],
+            "options": {
+                "diagram_mode": "logical",
+                "include_sql_sources": false,
+                "collapse_intermediate_datasets": true,
+                "include_lookup_nodes": true,
+                "llm_role_classification": false,
+                "llm_business_labels": false,
+                "llm_sql_grouping": false
+            },
+            "complexity": "large",
+            "semantic_hints_applied": false
+        },
+        {
+            "source_file": "pseudo code for XML 1200 lines.txt",
+            "paths": [
+                [
+                    "src_t_TM_PM_EMPLOYEE_D_ORG",
+                    "SQ_src_t_TM_PM_EMPLOYEE_D_ORG",
+                    "JNRTRANS_SOSIKI",
+                    "JNRTRANS_CHANNEL",
+                    "JNRTRANS_ORGZN",
+                    "JNRTRANS_EMP",
+                    "JNRTRANS_ORGZN_1",
+                    "JNRTRANS_ORGZN_2",
+                    "JNRTRANS_ORGZN_3",
+                    "JNRTRANS_SIKAKU",
+                    "JNRTRANS_CCIORG",
+                    "EXPTRANS",
+                    "tgt_t_TM_PM_EMPLOYEE_D_ORG"
+                ]
+            ],
+            "edges": [
+                {
+                    "source": "src_f_PM_EMPLOYEE_D",
+                    "target": "SQ_src_f_PM_EMPLOYEE_D",
+                    "kind": "input"
+                },
+                {
+                    "source": "src_t_TM_PM_EMPLOYEE_D_ORG",
+                    "target": "SQ_src_t_TM_PM_EMPLOYEE_D_ORG",
+                    "kind": "input"
+                },
+                {
+                    "source": "src_t_TM_SOSIKI_STG",
+                    "target": "SQ_src_t_TM_SOSIKI_STG",
+                    "kind": "input"
+                },
+                {
+                    "source": "src_t_TM_Channel",
+                    "target": "SQ_src_t_TM_Channel",
+                    "kind": "input"
+                },
+                {
+                    "source": "src_t_TM_ORGZN_STG",
+                    "target": "SQ_src_t_TM_ORGZN_STG",
+                    "kind": "input"
+                },
+                {
+                    "source": "src_t_TM_SIKAKU_STG",
+                    "target": "SQ_src_t_TM_SIKAKU_STG",
+                    "kind": "input"
+                },
+                {
+                    "source": "src_t_TM_NM_CCIORG_STG",
+                    "target": "SQ_src_t_TM_NM_CCIORG_STG",
+                    "kind": "input"
+                },
+                {
+                    "source": "src_t_TM_EMP_STG",
+                    "target": "SQ_src_t_TM_EMP_STG",
+                    "kind": "input"
+                },
+                {
+                    "source": "JNRTRANS_CCIORG",
+                    "target": "EXPTRANS",
+                    "kind": "input"
+                },
+                {
+                    "source": "SQ_src_f_PM_EMPLOYEE_D",
+                    "target": "EXPTRANS",
+                    "kind": "input"
+                },
+                {
+                    "source": "SQ_src_t_TM_PM_EMPLOYEE_D_ORG",
+                    "target": "JNRTRANS_SOSIKI",
+                    "kind": "input"
+                },
+                {
+                    "source": "SQ_src_t_TM_SOSIKI_STG",
+                    "target": "JNRTRANS_SOSIKI",
+                    "kind": "input"
+                },
+                {
+                    "source": "JNRTRANS_SOSIKI",
+                    "target": "JNRTRANS_CHANNEL",
+                    "kind": "input"
+                },
+                {
+                    "source": "SQ_src_t_TM_Channel",
+                    "target": "JNRTRANS_CHANNEL",
+                    "kind": "input"
+                },
+                {
+                    "source": "JNRTRANS_CHANNEL",
+                    "target": "JNRTRANS_ORGZN",
+                    "kind": "input"
+                },
+                {
+                    "source": "SQ_src_t_TM_ORGZN_STG",
+                    "target": "JNRTRANS_ORGZN",
+                    "kind": "input"
+                },
+                {
+                    "source": "JNRTRANS_ORGZN",
+                    "target": "JNRTRANS_EMP",
+                    "kind": "input"
+                },
+                {
+                    "source": "SQ_src_t_TM_EMP_STG",
+                    "target": "JNRTRANS_EMP",
+                    "kind": "input"
+                },
+                {
+                    "source": "JNRTRANS_EMP",
+                    "target": "JNRTRANS_ORGZN_1",
+                    "kind": "input"
+                },
+                {
+                    "source": "SQ_src_t_TM_ORGZN_STG",
+                    "target": "JNRTRANS_ORGZN_1",
+                    "kind": "input"
+                },
+                {
+                    "source": "JNRTRANS_ORGZN_1",
+                    "target": "JNRTRANS_ORGZN_2",
+                    "kind": "input"
+                },
+                {
+                    "source": "SQ_src_t_TM_ORGZN_STG",
+                    "target": "JNRTRANS_ORGZN_2",
+                    "kind": "input"
+                },
+                {
+                    "source": "JNRTRANS_ORGZN_2",
+                    "target": "JNRTRANS_ORGZN_3",
+                    "kind": "input"
+                },
+                {
+                    "source": "SQ_src_t_TM_ORGZN_STG",
+                    "target": "JNRTRANS_ORGZN_3",
+                    "kind": "input"
+                },
+                {
+                    "source": "JNRTRANS_ORGZN_3",
+                    "target": "JNRTRANS_SIKAKU",
+                    "kind": "input"
+                },
+                {
+                    "source": "SQ_src_t_TM_SIKAKU_STG",
+                    "target": "JNRTRANS_SIKAKU",
+                    "kind": "input"
+                },
+                {
+                    "source": "JNRTRANS_SIKAKU",
+                    "target": "JNRTRANS_CCIORG",
+                    "kind": "input"
+                },
+                {
+                    "source": "SQ_src_t_TM_NM_CCIORG_STG",
+                    "target": "JNRTRANS_CCIORG",
+                    "kind": "input"
+                },
+                {
+                    "source": "EXPTRANS",
+                    "target": "tgt_t_TM_PM_EMPLOYEE_D_ORG",
+                    "kind": "input"
+                },
+                {
+                    "source": "EXPTRANS",
+                    "target": "tgt_t_TM_SEC_STG",
+                    "kind": "input"
+                }
+            ],
+            "nodes": [
+                {
+                    "id": "src_f_PM_EMPLOYEE_D",
+                    "type": "TRANSFORM",
+                    "label": "src_f_PM_EMPLOYEE_D",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "SQ_src_f_PM_EMPLOYEE_D",
+                    "type": "TRANSFORM",
+                    "label": "SQ_src_f_PM_EMPLOYEE_D",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "src_t_TM_PM_EMPLOYEE_D_ORG",
+                    "type": "TRANSFORM",
+                    "label": "src_t_TM_PM_EMPLOYEE_D_ORG",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "SQ_src_t_TM_PM_EMPLOYEE_D_ORG",
+                    "type": "TRANSFORM",
+                    "label": "SQ_src_t_TM_PM_EMPLOYEE_D_ORG",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "src_t_TM_SOSIKI_STG",
+                    "type": "TRANSFORM",
+                    "label": "src_t_TM_SOSIKI_STG",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "SQ_src_t_TM_SOSIKI_STG",
+                    "type": "TRANSFORM",
+                    "label": "SQ_src_t_TM_SOSIKI_STG",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "src_t_TM_Channel",
+                    "type": "TRANSFORM",
+                    "label": "src_t_TM_Channel",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "SQ_src_t_TM_Channel",
+                    "type": "TRANSFORM",
+                    "label": "SQ_src_t_TM_Channel",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "src_t_TM_ORGZN_STG",
+                    "type": "TRANSFORM",
+                    "label": "src_t_TM_ORGZN_STG",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "SQ_src_t_TM_ORGZN_STG",
+                    "type": "TRANSFORM",
+                    "label": "SQ_src_t_TM_ORGZN_STG",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "src_t_TM_SIKAKU_STG",
+                    "type": "TRANSFORM",
+                    "label": "src_t_TM_SIKAKU_STG",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "SQ_src_t_TM_SIKAKU_STG",
+                    "type": "TRANSFORM",
+                    "label": "SQ_src_t_TM_SIKAKU_STG",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "src_t_TM_NM_CCIORG_STG",
+                    "type": "TRANSFORM",
+                    "label": "src_t_TM_NM_CCIORG_STG",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "SQ_src_t_TM_NM_CCIORG_STG",
+                    "type": "TRANSFORM",
+                    "label": "SQ_src_t_TM_NM_CCIORG_STG",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "src_t_TM_EMP_STG",
+                    "type": "TRANSFORM",
+                    "label": "src_t_TM_EMP_STG",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "SQ_src_t_TM_EMP_STG",
+                    "type": "TRANSFORM",
+                    "label": "SQ_src_t_TM_EMP_STG",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "JNRTRANS_CCIORG",
+                    "type": "TRANSFORM",
+                    "label": "JNRTRANS_CCIORG",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "EXPTRANS",
+                    "type": "TRANSFORM",
+                    "label": "EXPTRANS",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "JNRTRANS_SOSIKI",
+                    "type": "TRANSFORM",
+                    "label": "JNRTRANS_SOSIKI",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "JNRTRANS_CHANNEL",
+                    "type": "TRANSFORM",
+                    "label": "JNRTRANS_CHANNEL",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "JNRTRANS_ORGZN",
+                    "type": "TRANSFORM",
+                    "label": "JNRTRANS_ORGZN",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "JNRTRANS_EMP",
+                    "type": "TRANSFORM",
+                    "label": "JNRTRANS_EMP",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "JNRTRANS_ORGZN_1",
+                    "type": "TRANSFORM",
+                    "label": "JNRTRANS_ORGZN_1",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "JNRTRANS_ORGZN_2",
+                    "type": "TRANSFORM",
+                    "label": "JNRTRANS_ORGZN_2",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "JNRTRANS_ORGZN_3",
+                    "type": "TRANSFORM",
+                    "label": "JNRTRANS_ORGZN_3",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "JNRTRANS_SIKAKU",
+                    "type": "TRANSFORM",
+                    "label": "JNRTRANS_SIKAKU",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "tgt_t_TM_PM_EMPLOYEE_D_ORG",
+                    "type": "TRANSFORM",
+                    "label": "tgt_t_TM_PM_EMPLOYEE_D_ORG",
+                    "details": [
+                        "Transformation"
+                    ]
+                },
+                {
+                    "id": "tgt_t_TM_SEC_STG",
+                    "type": "TRANSFORM",
+                    "label": "tgt_t_TM_SEC_STG",
+                    "details": [
+                        "Transformation"
+                    ]
+                }
+            ],
+            "annotations": {
+                "src_f_PM_EMPLOYEE_D": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "SQ_src_f_PM_EMPLOYEE_D": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "src_t_TM_PM_EMPLOYEE_D_ORG": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "SQ_src_t_TM_PM_EMPLOYEE_D_ORG": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "src_t_TM_SOSIKI_STG": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "SQ_src_t_TM_SOSIKI_STG": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "src_t_TM_Channel": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "SQ_src_t_TM_Channel": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "src_t_TM_ORGZN_STG": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "SQ_src_t_TM_ORGZN_STG": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "src_t_TM_SIKAKU_STG": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "SQ_src_t_TM_SIKAKU_STG": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "src_t_TM_NM_CCIORG_STG": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "SQ_src_t_TM_NM_CCIORG_STG": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "src_t_TM_EMP_STG": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "SQ_src_t_TM_EMP_STG": {
+                    "role": "support",
+                    "lane": "support"
+                },
+                "JNRTRANS_CCIORG": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "EXPTRANS": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "JNRTRANS_SOSIKI": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "JNRTRANS_CHANNEL": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "JNRTRANS_ORGZN": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "JNRTRANS_EMP": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "JNRTRANS_ORGZN_1": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "JNRTRANS_ORGZN_2": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "JNRTRANS_ORGZN_3": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "JNRTRANS_SIKAKU": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "tgt_t_TM_PM_EMPLOYEE_D_ORG": {
+                    "role": "main",
+                    "lane": "main"
+                },
+                "tgt_t_TM_SEC_STG": {
+                    "role": "branch",
+                    "lane": "branch"
+                }
+            },
+            "sql_sources": [],
+            "options": {
+                "diagram_mode": "logical",
+                "include_sql_sources": false,
+                "collapse_intermediate_datasets": true,
+                "include_lookup_nodes": true,
+                "llm_role_classification": false,
+                "llm_business_labels": false,
+                "llm_sql_grouping": false
+            },
+            "complexity": "large",
+            "semantic_hints_applied": false
+        },
+        {
+            "source_file": "pseudo code for XML 700 lines",
+            "paths": [
+                [
+                    ""
+                ]
+            ],
+            "edges": [],
+            "nodes": [
+                {
+                    "id": "",
+                    "type": "TRANSFORM",
+                    "label": "",
+                    "details": [
+                        "Transformation"
+                    ]
+                }
+            ],
+            "annotations": {
+                "": {
+                    "role": "main",
+                    "lane": "main"
+                }
+            },
+            "sql_sources": [],
+            "options": {
+                "diagram_mode": "logical",
+                "include_sql_sources": false,
+                "collapse_intermediate_datasets": true,
+                "include_lookup_nodes": true,
+                "llm_role_classification": false,
+                "llm_business_labels": false,
+                "llm_sql_grouping": false
+            },
+            "complexity": "small",
+            "semantic_hints_applied": false
+        }
+    ]
+}
