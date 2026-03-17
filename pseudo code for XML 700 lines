@@ -1,0 +1,949 @@
+```
+// Parent Context: REPOSITORY PCRS, FOLDER PROD_ATIT_RET_ARL
+
+// Session Configuration: default_session_config
+SESSION_CONFIGURATION:
+  Configuration_Name: default_session_config
+  Configuration_Type: Default
+  Description: Default session configuration object
+  Is_Default: YES
+  Version_Number: 1
+  
+  PERFORMANCE_ATTRIBUTES:
+    Constraint_Based_Load_Ordering: NO
+    Cache_LOOKUP_Function: YES
+    Default_Buffer_Block_Size: Auto
+    Line_Sequential_Buffer_Length: 1024
+    Maximum_Memory_Allowed_For_Auto_Memory_Attributes: 512MB
+    Maximum_Percentage_Of_Total_Memory_Allowed_For_Auto_Memory_Attributes: 5
+    Additional_Concurrent_Pipelines_For_Lookup_Cache_Creation: Auto
+    Pre_Build_Lookup_Cache: Auto
+    Optimization_Level: Medium
+    
+  DATETIME_ATTRIBUTES:
+    DateTime_Format_String: MM/DD/YYYY HH24:MI:SS.US
+    Pre_85_Timestamp_Compatibility: NO
+    
+  LOGGING_ATTRIBUTES:
+    Log_Options: 0
+    Save_Session_Log_By: Session runs
+    Save_Session_Log_For_These_Runs: 0
+    Session_Log_File_Max_Size: 0
+    Session_Log_File_Max_Time_Period: 0
+    Maximum_Partial_Session_Log_Files: 1
+    Writer_Commit_Statistics_Log_Frequency: 1
+    Writer_Commit_Statistics_Log_Interval: 0
+    
+  ERROR_HANDLING_ATTRIBUTES:
+    Stop_On_Errors: 0
+    Override_Tracing: None
+    On_Stored_Procedure_Error: Stop
+    On_Pre_Session_Command_Task_Error: Stop
+    On_Pre_Post_SQL_Error: Stop
+    Enable_Recovery: NO
+    Error_Log_Type: None
+    Error_Log_Table_Name_Prefix: ""
+    Error_Log_File_Name: PMError.log
+    Log_Source_Row_Data: NO
+    Data_Column_Delimiter: |
+    
+  PARTITIONING_ATTRIBUTES:
+    Dynamic_Partitioning: Disabled
+    Number_Of_Partitions: 1
+    Multiplication_Factor: Auto
+    
+  GRID_ATTRIBUTES:
+    Session_On_Grid_Is_Enabled: NO
+
+// Workflow Definition: w_arl_control_det
+WORKFLOW_DEFINITION:
+  Workflow_Name: w_arl_control_det
+  Workflow_Type: ETL_Workflow
+  Parent_Context: REPOSITORY PCRS, FOLDER PROD_ATIT_RET_ARL
+  Is_Valid: YES
+  Is_Enabled: YES
+  Is_Service: NO
+  Is_Runnable_Service: NO
+  Version_Number: 1
+  Suspend_On_Error: NO
+  Tasks_Must_Run_On_Server: NO
+  Reusable_Scheduler: NO
+  
+  SCHEDULER_CONFIGURATION:
+    Scheduler_Name: Scheduler
+    Schedule_Type: ONDEMAND
+    Reusable: NO
+    Version_Number: 1
+  
+  WORKFLOW_ATTRIBUTES:
+    Parameter_Filename: ""
+    Write_Backward_Compatible_Workflow_Log_File: YES
+    Workflow_Log_File_Name: "/prod/ATIT/logs/w_arl_control_det.log"
+    Workflow_Log_File_Directory: ""
+    Save_Workflow_Log_By: "By timestamp"
+    Save_Workflow_Log_For_These_Runs: 0
+    Service_Name: ""
+    Service_Timeout: 0
+    Is_Service_Visible: NO
+    Is_Service_Protected: NO
+    Fail_Task_After_Wait_Time: 0
+    Enable_HA_Recovery: NO
+    Automatically_Recover_Terminated_Tasks: NO
+    Service_Level_Name: "Default"
+    Allow_Concurrent_Run_With_Unique_Run_Instance_Name: NO
+    Allow_Concurrent_Run_With_Same_Run_Instance_Name: NO
+    Maximum_Number_Of_Concurrent_Runs: 0
+    Assigned_Web_Services_Hubs: ""
+    Maximum_Number_Of_Concurrent_Runs_Per_Hub: 1000
+    Expected_Service_Time: 1
+
+// Mapping Definition: m_arl_control_det
+MAPPING_DEFINITION:
+  Mapping_Name: m_arl_control_det
+  Mapping_Type: ETL_Mapping
+  Parent_Context: REPOSITORY PCRS, FOLDER PROD_ATIT_RET_ARL
+  Object_Version: 1
+  Version_Number: 1
+  Is_Valid: YES
+  Session_Configuration: default_session_config
+
+// Expression Macro Definition: TRIM
+EXPRESSION_MACRO:
+  Macro_Name: TRIM
+  Macro_Type: Public
+  Description: ""
+  Expression: LTRIM(RTRIM(FIELD1))
+  Return_Type: nstring
+  Prototype: NSTRING TRIM( FIELD1 as string )
+  
+  ARGUMENTS:
+    FIELD1: string(255), Order=1, Scale=0
+
+chunk pseudo code ended
+
+// XML Source Definition: ROOT_ARLGESTIP_V01_01
+SOURCE_DEFINITION:
+  Source_Name: ROOT_ARLGESTIP_V01_01
+  Source_Type: XML_File
+  Database_Type: XML
+  Codepage: UTF-8
+  File_Format: XML with XSD schema
+  Schema_Location: prssnt0nas01/INFORMATICA_V10_USERDATA/ANTEPROD/S820461/my documents/Prest IJ/ARL file/ROOT_ARLGESTIP_V01_01.xsd
+  Namespace: urn:cnamts:tlsemp:ARLGESTIP
+  Root_Element: ARL
+
+// Output Group 1: X_ARLGESTIP_ARL (Parent Group)
+OUTPUT_GROUP_1:
+  Group_Name: X_ARLGESTIP_ARL
+  Group_Type: OUTPUT
+  Order: 1
+  XML_Path: ARLGESTIP:ARL
+  
+  COLUMNS:
+    XPK_ARLGESTIP_ARL: integer(20), PRIMARY_KEY, NOT_NULL
+    Version: string(255), XML_MAPPING="./@Version", XSD_TYPE="xsd:string"
+    Profil: string(255), XML_MAPPING="./@Profil", XSD_TYPE="ARLGESTIP:PATTERN0_ARLGESTIP_DonneesDeService_Commun_Agregats_ARL_Profil"
+    ARLGESTIP_Identification: string(255), XML_MAPPING="./ARLGESTIP:Identification", XSD_TYPE="xsd:string"
+    ARLGESTIP_Temps: dateTime(19), XML_MAPPING="./ARLGESTIP:Temps", XSD_TYPE="xsd:dateTime"
+    ARLGESTIP_Fonction: string(255), XML_MAPPING="./ARLGESTIP:Fonction", XSD_TYPE="ARLGESTIP:ARLGESTIP_DonneesDeService_Commun_Simples_Code"
+    ARLGESTIP_Identite: string(255), XML_MAPPING="./ARLGESTIP:Emetteur/ARLGESTIP:Identite", XSD_TYPE="xsd:string"
+    R: string(255), XML_MAPPING="./ARLGESTIP:Emetteur/ARLGESTIP:Identite/@R", XSD_TYPE="xsd:string"
+    ARLGESTIP_Qualite: string(255), XML_MAPPING="./ARLGESTIP:Emetteur/ARLGESTIP:Qualite", XSD_TYPE="ARLGESTIP:PATTERN0_ARLGESTIP_DonneesDeService_Commun_Agregats_Emetteur_Qualite"
+    ARLGESTIP_Identite0: string(255), XML_MAPPING="./ARLGESTIP:Recepteur/ARLGESTIP:Identite", XSD_TYPE="xsd:string"
+    R0: string(255), XML_MAPPING="./ARLGESTIP:Recepteur/ARLGESTIP:Identite/@R", XSD_TYPE="xsd:string"
+    ARLGESTIP_Qualite0: string(255), XML_MAPPING="./ARLGESTIP:Recepteur/ARLGESTIP:Qualite", XSD_TYPE="ARLGESTIP:PATTERN0_ARLGESTIP_DonneesDeService_Commun_Agregats_Recepteur_Qualite"
+    ARLGESTIP_Profil: string(255), XML_MAPPING="./ARLGESTIP:DiagEntete/ARLGESTIP:Profil", XSD_TYPE="ARLGESTIP:PATTERN0_ARLGESTIP_DonneesDeService_Commun_Agregats_UniteEnvoi_Profil"
+    ARLGESTIP_Identification0: string(255), XML_MAPPING="./ARLGESTIP:DiagEntete/ARLGESTIP:Identification", XSD_TYPE="xsd:string"
+    ARLGESTIP_Temps0: dateTime(19), XML_MAPPING="./ARLGESTIP:DiagEntete/ARLGESTIP:Temps", XSD_TYPE="xsd:dateTime"
+    ARLGESTIP_Fonction0: string(255), XML_MAPPING="./ARLGESTIP:DiagEntete/ARLGESTIP:Fonction", XSD_TYPE="ARLGESTIP:ARLGESTIP_DonneesDeService_Commun_Simples_Code"
+    ARLGESTIP_Activite: string(255), XML_MAPPING="./ARLGESTIP:DiagEntete/ARLGESTIP:Diagnostic/ARLGESTIP:Activite", XSD_TYPE="ARLGESTIP:PATTERN0_ARLGESTIP_DonneesDeService_Commun_Agregats_Diagnostic_Activite"
+    ARLGESTIP_Etat: string(255), XML_MAPPING="./ARLGESTIP:DiagEntete/ARLGESTIP:Diagnostic/ARLGESTIP:Etat", XSD_TYPE="ARLGESTIP:PATTERN0_ARLGESTIP_DonneesDeService_Commun_Agregats_Diagnostic_Etat"
+    ARLGESTIP_Cause: string(255), XML_MAPPING="./ARLGESTIP:DiagEntete/ARLGESTIP:Diagnostic/ARLGESTIP:Cause", XSD_TYPE="ARLGESTIP:ARLGESTIP_DonneesDeService_Commun_Simples_Code"
+    ARLGESTIP_Libelle: string(255), XML_MAPPING="./ARLGESTIP:DiagEntete/ARLGESTIP:Diagnostic/ARLGESTIP:Libelle", XSD_TYPE="ARLGESTIP:ARLGESTIP_DonneesDeService_Commun_Simples_Code"
+
+// Output Group 2: X_ARLGESTIP_DiagDocument (Child Group)
+OUTPUT_GROUP_2:
+  Group_Name: X_ARLGESTIP_DiagDocument
+  Group_Type: OUTPUT
+  Order: 2
+  XML_Path: ARLGESTIP:ARL/ARLGESTIP:DiagEntete/ARLGESTIP:DiagDocument
+  Parent_Relationship: hierarchy with X_ARLGESTIP_ARL
+  
+  COLUMNS:
+    XPK_ARLGESTIP_DiagDocument: integer(20), PRIMARY_KEY, NOT_NULL
+    FK_ARLGESTIP_ARL: integer(20), FOREIGN_KEY, NOT_NULL, REFERENCES="ROOT_ARLGESTIP_V01_01.XPK_ARLGESTIP_ARL"
+    ARLGESTIP_Profil0: string(255), XML_MAPPING="./ARLGESTIP:Mindex/ARLGESTIP:Profil", XSD_TYPE="ARLGESTIP:PATTERN0_ARLGESTIP_DonneesDeService_Commun_Agregats_Mindex_Profil"
+    ARLGESTIP_Identification1: string(255), XML_MAPPING="./ARLGESTIP:Mindex/ARLGESTIP:Identification", XSD_TYPE="ARLGESTIP:ARLGESTIP_DonneesDeService_Commun_Simples_Code"
+    ARLGESTIP_Temps1: dateTime(19), XML_MAPPING="./ARLGESTIP:Mindex/ARLGESTIP:Temps", XSD_TYPE="xsd:dateTime"
+    ARLGESTIP_Fonction1: string(255), XML_MAPPING="./ARLGESTIP:Mindex/ARLGESTIP:Fonction", XSD_TYPE="ARLGESTIP:ARLGESTIP_DonneesDeService_Commun_Simples_Code"
+    ARLGESTIP_Activite0: string(255), XML_MAPPING="./ARLGESTIP:Diagnostic/ARLGESTIP:Activite", XSD_TYPE="ARLGESTIP:PATTERN0_ARLGESTIP_DonneesDeService_Commun_Agregats_Diagnostic_Activite"
+    ARLGESTIP_Etat0: string(255), XML_MAPPING="./ARLGESTIP:Diagnostic/ARLGESTIP:Etat", XSD_TYPE="ARLGESTIP:PATTERN0_ARLGESTIP_DonneesDeService_Commun_Agregats_Diagnostic_Etat"
+    ARLGESTIP_Cause0: string(255), XML_MAPPING="./ARLGESTIP:Diagnostic/ARLGESTIP:Cause", XSD_TYPE="ARLGESTIP:ARLGESTIP_DonneesDeService_Commun_Simples_Code"
+    ARLGESTIP_Libelle0: string(255), XML_MAPPING="./ARLGESTIP:Diagnostic/ARLGESTIP:Libelle", XSD_TYPE="ARLGESTIP:ARLGESTIP_DonneesDeService_Commun_Simples_Code"
+
+chunk pseudo code ended
+
+// XML Source Qualifier Transformation: XMLDSQ_ROOT_ARLGESTIP_V01_01
+XML_SOURCE_QUALIFIER_TRANSFORMATION:
+  Transformation_Name: XMLDSQ_ROOT_ARLGESTIP_V01_01
+  Transformation_Type: XML Source Qualifier
+  Parent_Context: REPOSITORY PCRS, FOLDER PROD_ATIT_RET_ARL
+  REF_SOURCE_NAME: ROOT_ARLGESTIP_V01_01
+  REF_DBD_NAME: XML_File
+  Input_Link: ROOT_ARLGESTIP_V01_01
+  Output_Link: XMLDSQ_ROOT_ARLGESTIP_V01_01_OUTPUT
+  Session_Configuration: default_session_config
+  
+  GROUP_1_X_ARLGESTIP_ARL:
+    Group_Name: X_ARLGESTIP_ARL
+    Group_Type: INPUT/OUTPUT
+    Order: 1
+    
+    FIELDS:
+      XPK_ARLGESTIP_ARL: bigint(19), GENERATED_KEY/INPUT/OUTPUT, DEFAULT_VALUE=1173, SEQUENCE_GENERATOR_VALUE=1
+      Version: string(255), INPUT/OUTPUT
+      Profil: string(255), INPUT/OUTPUT
+      ARLGESTIP_Identification: string(255), INPUT/OUTPUT
+      ARLGESTIP_Temps: date/time(29), INPUT/OUTPUT, SCALE=9
+      ARLGESTIP_Fonction: string(255), INPUT/OUTPUT
+      ARLGESTIP_Identite: string(255), INPUT/OUTPUT
+      R: string(255), INPUT/OUTPUT
+      ARLGESTIP_Qualite: string(255), INPUT/OUTPUT
+      ARLGESTIP_Identite0: string(255), INPUT/OUTPUT
+      R0: string(255), INPUT/OUTPUT
+      ARLGESTIP_Qualite0: string(255), INPUT/OUTPUT
+      ARLGESTIP_Profil: string(255), INPUT/OUTPUT
+      ARLGESTIP_Identification0: string(255), INPUT/OUTPUT
+      ARLGESTIP_Temps0: date/time(29), INPUT/OUTPUT, SCALE=9
+      ARLGESTIP_Fonction0: string(255), INPUT/OUTPUT
+      ARLGESTIP_Activite: string(255), INPUT/OUTPUT
+      ARLGESTIP_Etat: string(255), INPUT/OUTPUT
+      ARLGESTIP_Cause: string(255), INPUT/OUTPUT
+      ARLGESTIP_Libelle: string(255), INPUT/OUTPUT
+  
+  GROUP_2_X_ARLGESTIP_DiagDocument:
+    Group_Name: X_ARLGESTIP_DiagDocument
+    Group_Type: INPUT/OUTPUT
+    Order: 2
+    
+    FIELDS:
+      XPK_ARLGESTIP_DiagDocument: bigint(19), GENERATED_KEY/INPUT/OUTPUT, DEFAULT_VALUE=1154, SEQUENCE_GENERATOR_VALUE=1
+      FK_ARLGESTIP_ARL: bigint(19), INPUT/OUTPUT
+      ARLGESTIP_Profil0: string(255), INPUT/OUTPUT
+      ARLGESTIP_Identification1: string(255), INPUT/OUTPUT
+      ARLGESTIP_Temps1: date/time(29), INPUT/OUTPUT, SCALE=9
+      ARLGESTIP_Fonction1: string(255), INPUT/OUTPUT
+      ARLGESTIP_Activite0: string(255), INPUT/OUTPUT
+      ARLGESTIP_Etat0: string(255), INPUT/OUTPUT
+      ARLGESTIP_Cause0: string(255), INPUT/OUTPUT
+      ARLGESTIP_Libelle0: string(255), INPUT/OUTPUT
+  
+  TRANSFORMATION_ATTRIBUTES:
+    Tracing_Level: Normal
+    Reset: NO
+    Restart: NO
+    Validate_XML_Source: "Validate only if DTD/Schema is present"
+    Is_Partitionable: NO
+
+chunk pseudo code ended
+
+// Sorter Transformation: SRT_ARL
+SORTER_TRANSFORMATION:
+  Transformation_Name: SRT_ARL
+  Transformation_Type: Sorter
+  Input_Link: XMLDSQ_ROOT_ARLGESTIP_V01_01_OUTPUT
+  Output_Link: SRT_ARL_OUTPUT
+  Session_Configuration: default_session_config
+  
+  SORT_FIELDS:
+    XPK_ARLGESTIP_ARL: bigint(19), SORT_KEY=YES, SORT_DIRECTION=ASCENDING
+    ARLGESTIP_Identification: string(255), SORT_KEY=NO
+    ARLGESTIP_Temps: dateTime(29), SORT_KEY=NO
+    ARLGESTIP_Fonction: string(255), SORT_KEY=NO
+    ARLGESTIP_Identite_emeteur: string(255), SORT_KEY=NO
+    ARLGESTIP_Qualite_emeteur: string(255), SORT_KEY=NO
+    ARLGESTIP_Identite_recepteur: string(255), SORT_KEY=NO
+    ARLGESTIP_Qualite_recepteur: string(255), SORT_KEY=NO
+    ARLGESTIP_Profil_diag_entete: string(255), SORT_KEY=NO
+    ARLGESTIP_Identification_diag_entete: string(255), SORT_KEY=NO
+    ARLGESTIP_Temps_diag_entete: dateTime(29), SORT_KEY=NO
+    ARLGESTIP_Fonction_diag_entete: string(255), SORT_KEY=NO
+    ARLGESTIP_Activite_diag_entete: string(255), SORT_KEY=NO
+    ARLGESTIP_Etat_diag_entete: string(255), SORT_KEY=NO
+    ARLGESTIP_Cause_diag_entete: string(255), SORT_KEY=NO
+    ARLGESTIP_Libelle_diag_entete: string(255), SORT_KEY=NO
+  
+  SORT_ATTRIBUTES:
+    Sorter_Cache_Size: Auto
+    Case_Sensitive: YES
+    Work_Directory: $PMTempDir
+    Distinct: NO
+    Tracing_Level: Normal
+    Null_Treated_Low: NO
+    Merge_Only: NO
+    Partitioning: Order records for individual partitions
+    Transformation_Scope: All Input
+
+// Sorter Transformation: SRT_DIAG_DOCUMENT
+SORTER_TRANSFORMATION:
+  Transformation_Name: SRT_DIAG_DOCUMENT
+  Transformation_Type: Sorter
+  Input_Link: XMLDSQ_ROOT_ARLGESTIP_V01_01_OUTPUT
+  Output_Link: SRT_DIAG_DOCUMENT_OUTPUT
+  Session_Configuration: default_session_config
+  
+  SORT_FIELDS:
+    FK_ARLGESTIP_ARL: bigint(19), SORT_KEY=YES, SORT_DIRECTION=ASCENDING
+    ARLGESTIP_Profil_diag_doc: string(255), SORT_KEY=NO
+    ARLGESTIP_Identification_diag_doc: string(255), SORT_KEY=NO
+    ARLGESTIP_Temps_diag_doc: dateTime(29), SORT_KEY=NO
+    ARLGESTIP_Fonction_diag_doc: string(255), SORT_KEY=NO
+    ARLGESTIP_Activite_diag_doc: string(255), SORT_KEY=NO
+    ARLGESTIP_Etat_diag_doc: string(255), SORT_KEY=NO
+    ARLGESTIP_Cause_diag_doc: string(255), SORT_KEY=NO
+    ARLGESTIP_Libelle_diag_doc: string(255), SORT_KEY=NO
+  
+  SORT_ATTRIBUTES:
+    Sorter_Cache_Size: Auto
+    Case_Sensitive: YES
+    Work_Directory: $PMTempDir
+    Distinct: NO
+    Tracing_Level: Normal
+    Null_Treated_Low: NO
+    Merge_Only: NO
+    Partitioning: Order records for individual partitions
+    Transformation_Scope: All Input
+
+chunk pseudo code ended
+
+// Joiner Transformation: JNR_DETAIL
+JOINER_TRANSFORMATION:
+  Transformation_Name: JNR_DETAIL
+  Transformation_Type: Joiner
+  Parent_Context: REPOSITORY PCRS, FOLDER PROD_ATIT_RET_ARL
+  Input_Link_Master: SRT_ARL_OUTPUT
+  Input_Link_Detail: SRT_DIAG_DOCUMENT_OUTPUT
+  Output_Link: JNR_DETAIL_OUTPUT
+  Session_Configuration: default_session_config
+  
+  MASTER_FIELDS:
+    XPK_ARLGESTIP_ARL: bigint(19), INPUT/MASTER
+    ARLGESTIP_Identification: string(255), INPUT/OUTPUT/MASTER
+    ARLGESTIP_Temps: dateTime(29), INPUT/OUTPUT/MASTER
+    ARLGESTIP_Fonction: string(255), INPUT/OUTPUT/MASTER
+    ARLGESTIP_Identite_emeteur: string(255), INPUT/OUTPUT/MASTER
+    ARLGESTIP_Qualite_emeteur: string(255), INPUT/OUTPUT/MASTER
+    ARLGESTIP_Identite_recepteur: string(255), INPUT/OUTPUT/MASTER
+    ARLGESTIP_Qualite_recepteur: string(255), INPUT/OUTPUT/MASTER
+    ARLGESTIP_Profil_diag_entete: string(255), INPUT/OUTPUT/MASTER
+    ARLGESTIP_Identification_diag_entete: string(255), INPUT/OUTPUT/MASTER
+    ARLGESTIP_Temps_diag_entete: dateTime(29), INPUT/OUTPUT/MASTER
+    ARLGESTIP_Fonction_diag_entete: string(255), INPUT/OUTPUT/MASTER
+    ARLGESTIP_Activite_diag_entete: string(255), INPUT/OUTPUT/MASTER
+    ARLGESTIP_Etat_diag_entete: string(255), INPUT/OUTPUT/MASTER
+    ARLGESTIP_Cause_diag_entete: string(255), INPUT/OUTPUT/MASTER
+    ARLGESTIP_Libelle_diag_entete: string(255), INPUT/OUTPUT/MASTER
+  
+  DETAIL_FIELDS:
+    FK_ARLGESTIP_ARL: bigint(19), INPUT
+    ARLGESTIP_Profil_diag_doc: string(255), INPUT/OUTPUT
+    ARLGESTIP_Identification_diag_doc: string(255), INPUT/OUTPUT
+    ARLGESTIP_Temps_diag_doc: dateTime(29), INPUT/OUTPUT
+    ARLGESTIP_Fonction_diag_doc: string(255), INPUT/OUTPUT
+    ARLGESTIP_Activite_diag_doc: string(255), INPUT/OUTPUT
+    ARLGESTIP_Etat_diag_doc: string(255), INPUT/OUTPUT
+    ARLGESTIP_Cause_diag_doc: string(255), INPUT/OUTPUT
+    ARLGESTIP_Libelle_diag_doc: string(255), INPUT/OUTPUT
+  
+  JOIN_ATTRIBUTES:
+    Join_Condition: XPK_ARLGESTIP_ARL = FK_ARLGESTIP_ARL
+    Join_Type: Detail Outer Join
+    Case_Sensitive_String_Comparison: YES
+    Cache_Directory: $PMCacheDir
+    Null_Ordering_Master: Null Is Highest Value
+    Null_Ordering_Detail: Null Is Highest Value
+    Tracing_Level: Normal
+    Joiner_Data_Cache_Size: Auto
+    Joiner_Index_Cache_Size: Auto
+    Sorted_Input: YES
+    Master_Sort_Order: Auto
+    Transformation_Scope: All Input
+
+chunk pseudo code ended
+
+// Expression Transformation: EXP_TRIM
+EXPRESSION_TRANSFORMATION:
+  Transformation_Name: EXP_TRIM
+  Transformation_Type: Expression
+  Parent_Context: REPOSITORY PCRS, FOLDER PROD_ATIT_RET_ARL
+  Input_Link: JNR_DETAIL_OUTPUT
+  Output_Link: EXP_TRIM_OUTPUT
+  Session_Configuration: default_session_config
+  
+  INPUT_FIELDS:
+    in_ARLGESTIP_Identification: string(255)
+    in_ARLGESTIP_Temps: dateTime(29)
+    in_ARLGESTIP_Fonction: string(255)
+    in_ARLGESTIP_Identite_emeteur: string(255)
+    in_ARLGESTIP_Qualite_emeteur: string(255)
+    in_ARLGESTIP_Identite_recepteur: string(255)
+    in_ARLGESTIP_Qualite_recepteur: string(255)
+    in_ARLGESTIP_Profil_diag_entete: string(255)
+    in_ARLGESTIP_Identification_diag_entete: string(255)
+    in_ARLGESTIP_Temps_diag_entete: dateTime(29)
+    in_ARLGESTIP_Fonction_diag_entete: string(255)
+    in_ARLGESTIP_Activite_diag_entete: string(255)
+    in_ARLGESTIP_Etat_diag_entete: string(255)
+    in_ARLGESTIP_Cause_diag_entete: string(255)
+    in_ARLGESTIP_Libelle_diag_entete: string(255)
+    in_ARLGESTIP_Profil_diag_doc: string(255)
+    in_ARLGESTIP_Identification_diag_doc: string(255)
+    in_ARLGESTIP_Temps_diag_doc: dateTime(29)
+    in_ARLGESTIP_Fonction_diag_doc: string(255)
+    in_ARLGESTIP_Activite_diag_doc: string(255)
+    in_ARLGESTIP_Etat_diag_doc: string(255)
+    in_ARLGESTIP_Cause_diag_doc: string(255)
+    in_ARLGESTIP_Libelle_diag_doc: string(255)
+    XPK_ARLGESTIP_ARL: bigint(19)
+    FK_ARLGESTIP_ARL: bigint(19)
+  
+  OUTPUT_FIELDS:
+    ARLGESTIP_Identification: string(255), EXPRESSION=":UDF.TRIM(in_ARLGESTIP_Identification)"
+    ARLGESTIP_Temps: string(29), EXPRESSION=":UDF.TRIM(TO_CHAR(in_ARLGESTIP_Temps,'YYYY-MM-DD HH24:MI:SS'))"
+    ARLGESTIP_Fonction: string(255), EXPRESSION=":UDF.TRIM(in_ARLGESTIP_Fonction)"
+    ARLGESTIP_Identite_emeteur: string(255), EXPRESSION=":UDF.TRIM(in_ARLGESTIP_Identite_emeteur)"
+    ARLGESTIP_Qualite_emeteur: string(255), EXPRESSION=":UDF.TRIM(in_ARLGESTIP_Qualite_emeteur)"
+    ARLGESTIP_Identite_recepteur: string(255), EXPRESSION=":UDF.TRIM(in_ARLGESTIP_Identite_recepteur)"
+    ARLGESTIP_Qualite_recepteur: string(255), EXPRESSION=":UDF.TRIM(in_ARLGESTIP_Qualite_recepteur)"
+    ARLGESTIP_Profil_diag_entete: string(255), EXPRESSION=":UDF.TRIM(in_ARLGESTIP_Profil_diag_entete)"
+    ARLGESTIP_Identification_diag_entete: string(255), EXPRESSION=":UDF.TRIM(in_ARLGESTIP_Identification_diag_entete)"
+    ARLGESTIP_Temps_diag_entete: string(29), EXPRESSION=":UDF.TRIM(TO_CHAR(in_ARLGESTIP_Temps_diag_entete,'YYYY-MM-DD HH24:MI:SS'))"
+    ARLGESTIP_Fonction_diag_entete: string(255), EXPRESSION=":UDF.TRIM(in_ARLGESTIP_Fonction_diag_entete)"
+    ARLGESTIP_Activite_diag_entete: string(255), EXPRESSION=":UDF.TRIM(in_ARLGESTIP_Activite_diag_entete)"
+    ARLGESTIP_Etat_diag_entete: string(255), EXPRESSION=":UDF.TRIM(in_ARLGESTIP_Etat_diag_entete)"
+    ARLGESTIP_Cause_diag_entete: string(255), EXPRESSION=":UDF.TRIM(in_ARLGESTIP_Cause_diag_entete)"
+    ARLGESTIP_Libelle_diag_entete: string(255), EXPRESSION=":UDF.TRIM(in_ARLGESTIP_Libelle_diag_entete)"
+    ARLGESTIP_Profil_diag_doc: string(255), EXPRESSION=":UDF.TRIM(in_ARLGESTIP_Profil_diag_doc)"
+    ARLGESTIP_Identification_diag_doc: string(255), EXPRESSION=":UDF.TRIM(in_ARLGESTIP_Identification_diag_doc)"
+    ARLGESTIP_Temps_diag_doc: string(29), EXPRESSION=":UDF.TRIM(TO_CHAR(in_ARLGESTIP_Temps_diag_doc,'YYYY-MM-DD HH24:MI:SS'))"
+    ARLGESTIP_Fonction_diag_doc: string(255), EXPRESSION=":UDF.TRIM(in_ARLGESTIP_Fonction_diag_doc)"
+    ARLGESTIP_Activite_diag_doc: string(255), EXPRESSION=":UDF.TRIM(in_ARLGESTIP_Activite_diag_doc)"
+    ARLGESTIP_Etat_diag_doc: string(255), EXPRESSION=":UDF.TRIM(in_ARLGESTIP_Etat_diag_doc)"
+    ARLGESTIP_Cause_diag_doc: string(255), EXPRESSION=":UDF.TRIM(in_ARLGESTIP_Cause_diag_doc)"
+    ARLGESTIP_Libelle_diag_doc: string(255), EXPRESSION=":UDF.TRIM(in_ARLGESTIP_Libelle_diag_doc)"
+    XPK_ARLGESTIP_ARL: bigint(19), EXPRESSION="XPK_ARLGESTIP_ARL"
+    FK_ARLGESTIP_ARL: bigint(19), EXPRESSION="FK_ARLGESTIP_ARL"
+  
+  TRANSFORMATION_ATTRIBUTES:
+    Tracing_Level: Normal
+    Macro_Dependencies: TRIM
+
+chunk pseudo code ended
+
+// Target Definition: ARL_DETAIL
+TARGET_DEFINITION:
+  Target_Name: ARL_DETAIL
+  Target_Type: Flat_File
+  Database_Type: Flat File
+  Codepage: UTF-8
+  File_Format: Delimited
+  Delimiter: ";"
+  Quote_Character: NONE
+  Null_Character: "*"
+  Line_Endings: System default
+  Datetime_Format: "dd/mm/yyyy hh24:mi:ss"
+  Decimal_Separator: "."
+  Input_Link: EXP_TRIM_OUTPUT
+  Target_Load_Order: 1
+  Session_Configuration: default_session_config
+  
+  COLUMNS:
+    ARLGESTIP_Identification: string(255), NULLABLE
+    ARLGESTIP_Temps: string(29), NULLABLE
+    ARLGESTIP_Fonction: string(255), NULLABLE
+    ARLGESTIP_Identite_emeteur: string(255), NULLABLE
+    ARLGESTIP_Qualite_emeteur: string(255), NULLABLE
+    ARLGESTIP_Identite_recepteur: string(255), NULLABLE
+    ARLGESTIP_Qualite_recepteur: string(255), NULLABLE
+    ARLGESTIP_Profil_diag_entete: string(255), NULLABLE
+    ARLGESTIP_Identification_diag_entete: string(255), NULLABLE
+    ARLGESTIP_Temps_diag_entete: string(29), NULLABLE
+    ARLGESTIP_Fonction_diag_entete: string(255), NULLABLE
+    ARLGESTIP_Activite_diag_entete: string(255), NULLABLE
+    ARLGESTIP_Etat_diag_entete: string(255), NULLABLE
+    ARLGESTIP_Cause_diag_entete: string(255), NULLABLE
+    ARLGESTIP_Libelle_diag_entete: string(255), NULLABLE
+    ARLGESTIP_Profil_diag_doc: string(255), NULLABLE
+    ARLGESTIP_Identification_diag_doc: string(255), NULLABLE
+    ARLGESTIP_Temps_diag_doc: string(29), NULLABLE
+    ARLGESTIP_Fonction_diag_doc: string(255), NULLABLE
+    ARLGESTIP_Activite_diag_doc: string(255), NULLABLE
+    ARLGESTIP_Etat_diag_doc: string(255), NULLABLE
+    ARLGESTIP_Cause_diag_doc: string(255), NULLABLE
+    ARLGESTIP_Libelle_diag_doc: string(255), NULLABLE
+
+chunk pseudo code ended
+
+// Session Definition: s_arl_control_det
+SESSION_DEFINITION:
+  Session_Name: s_arl_control_det
+  Session_Type: ETL_Session
+  Parent_Context: REPOSITORY PCRS, FOLDER PROD_ATIT_RET_ARL
+  Mapping_Name: m_arl_control_det
+  Is_Valid: YES
+  Is_Reusable: NO
+  Sort_Order: Binary
+  Version_Number: 1
+  
+  SESSION_TRANSFORMATION_INSTANCES:
+    ROOT_ARLGESTIP_V01_01:
+      Instance_Name: ROOT_ARLGESTIP_V01_01
+      Transformation_Name: ROOT_ARLGESTIP_V01_01
+      Transformation_Type: Source Definition
+      Is_Repartition_Point: NO
+      Pipeline: 0
+      Stage: 0
+      
+      FLATFILE_ATTRIBUTES:
+        Codepage: UTF-8
+        Consecutive_Delimiters_As_One: NO
+        Delimited: NO
+        Delimiters: ","
+        Escape_Character: ""
+        Keep_Escape_Character: NO
+        Line_Sequential: NO
+        Multi_Delimiters_As_And: NO
+        Null_Character_Type: ASCII
+        Null_Character: "*"
+        Pad_Bytes: 1
+        Quote_Character: NONE
+        Repeatable: NO
+        Row_Delimiter: 0
+        Skip_Rows: 0
+        Strip_Trailing_Blanks: NO
+    
+    XMLDSQ_ROOT_ARLGESTIP_V01_01:
+      Instance_Name: XMLDSQ_ROOT_ARLGESTIP_V01_01
+      Transformation_Name: XMLDSQ_ROOT_ARLGESTIP_V01_01
+      Transformation_Type: XML Source Qualifier
+      Is_Repartition_Point: YES
+      Partition_Type: PASS THROUGH
+      Pipeline: 1
+      Stage: 1
+    
+    SRT_ARL:
+      Instance_Name: SRT_ARL
+      Transformation_Name: SRT_ARL
+      Transformation_Type: Sorter
+      Is_Repartition_Point: NO
+      Pipeline: 1
+      Stage: 1
+      Partition_Name: "Partition #1"
+    
+    SRT_DIAG_DOCUMENT:
+      Instance_Name: SRT_DIAG_DOCUMENT
+      Transformation_Name: SRT_DIAG_DOCUMENT
+      Transformation_Type: Sorter
+      Is_Repartition_Point: NO
+      Pipeline: 1
+      Stage: 1
+      Partition_Name: "Partition #1"
+    
+    JNR_DETAIL:
+      Instance_Name: JNR_DETAIL
+      Transformation_Name: JNR_DETAIL
+      Transformation_Type: Joiner
+      Is_Repartition_Point: NO
+      Pipeline: 1
+      Stage: 1
+      Partition_Name: "Partition #1"
+    
+    EXP_TRIM:
+      Instance_Name: EXP_TRIM
+      Transformation_Name: EXP_TRIM
+      Transformation_Type: Expression
+      Is_Repartition_Point: NO
+      Pipeline: 1
+      Stage: 1
+      Partition_Name: "Partition #1"
+    
+    ARL_DETAIL:
+      Instance_Name: ARL_DETAIL
+      Transformation_Name: ARL_DETAIL
+      Transformation_Type: Target Definition
+      Is_Repartition_Point: YES
+      Partition_Type: PASS THROUGH
+      Pipeline: 1
+      Stage: 2
+      
+      FLATFILE_ATTRIBUTES:
+        Codepage: UTF-8
+        Consecutive_Delimiters_As_One: NO
+        Delimited: YES
+        Delimiters: ";"
+        Escape_Character: ""
+        Keep_Escape_Character: NO
+        Line_Sequential: NO
+        Multi_Delimiters_As_And: NO
+        Null_Character_Type: ASCII
+        Null_Character: "*"
+        Pad_Bytes: 1
+        Quote_Character: NONE
+        Repeatable: NO
+        Row_Delimiter: 10
+        Skip_Rows: 0
+        Strip_Trailing_Blanks: NO
+  
+  SESSION_CONFIGURATION_REFERENCE:
+    Reference_Object_Name: default_session_config
+    Reference_Type: Session config
+    
+    CUSTOM_ATTRIBUTES:
+      Custom_Properties: "RemoveOutputHeaderHash=Yes;"
+      Save_Session_Log_By: "Session timestamp"
+      Stop_On_Errors: 1
+  
+  SESSION_EXTENSIONS:
+    XML_READER_ROOT_ARLGESTIP_V01_01:
+      Extension_Name: "XML Reader"
+      Instance_Name: ROOT_ARLGESTIP_V01_01
+      DSQ_Instance_Name: XMLDSQ_ROOT_ARLGESTIP_V01_01
+      DSQ_Instance_Type: "XML Source Qualifier"
+      Transformation_Type: "Source Definition"
+      Extension_Type: READER
+      Extension_Subtype: "XML Reader"
+      
+      CONNECTION_REFERENCE:
+        Connection_Reference_Name: Connection
+        Connection_Name: ""
+        Connection_Number: 1
+        Connection_Subtype: ""
+        Connection_Type: ""
+        Variable: ""
+      
+      READER_ATTRIBUTES:
+        Treat_Empty_Content_As_NULL: NO
+        Source_File_Directory: ""
+        Source_Filename: "$InputFile_src"
+        Source_Filetype: "Indirect"
+    
+    XML_READER_XMLDSQ:
+      Extension_Name: "XML Reader"
+      Instance_Name: XMLDSQ_ROOT_ARLGESTIP_V01_01
+      Transformation_Type: "XML Source Qualifier"
+      Extension_Type: READER
+      Extension_Subtype: "XML Reader"
+    
+    FILE_WRITER_ARL_DETAIL:
+      Extension_Name: "File Writer"
+      Instance_Name: ARL_DETAIL
+      Transformation_Type: "Target Definition"
+      Extension_Type: WRITER
+      Extension_Subtype: "File Writer"
+      
+      CONNECTION_REFERENCE:
+        Connection_Reference_Name: Connection
+        Connection_Name: ""
+        Connection_Number: 1
+        Connection_Subtype: ""
+        Connection_Type: ""
+        Variable: ""
+      
+      WRITER_ATTRIBUTES:
+        Merge_Type: "No Merge"
+        Merge_File_Directory: "$PMTargetFileDir\"
+        Merge_File_Name: "arl_detail1.out"
+        Append_If_Exists: NO
+        Create_Target_Directory: NO
+        Header_Options: "Output Field Names"
+        Header_Command: ""
+        Footer_Command: ""
+        Output_Type: "File"
+        Merge_Command: ""
+        Output_File_Directory: ""
+        Output_Filename: "$OutputFile_tgt"
+        Reject_File_Directory: ""
+        Reject_Filename: "/dev/null"
+        Command: ""
+        Codepage_Parameter: ""
+  
+  SESSION_ATTRIBUTES:
+    General_Options: ""
+    Write_Backward_Compatible_Session_Log_File: YES
+    Session_Log_File_Name: "$PMSessionLogFile"
+    Session_Log_File_Directory: ""
+    Parameter_Filename: "$PMRootDir/conf/pwct_param.txt"
+    Enable_Test_Load: NO
+    Source_Connection_Value: ""
+    Target_Connection_Value: ""
+    Treat_Source_Rows_As: "Insert"
+    Commit_Type: "Target"
+    Commit_Interval: 10000
+    Commit_On_End_Of_File: YES
+    Rollback_Transactions_On_Errors: NO
+    Recovery_Strategy: "Fail task and continue workflow"
+    Java_Classpath: ""
+    Performance: ""
+    DTM_Buffer_Size: "Auto"
+    Collect_Performance_Data: NO
+    Write_Performance_Data_To_Repository: NO
+    Incremental_Aggregation: NO
+    Enable_High_Precision: NO
+    Session_Retry_On_Deadlock: NO
+    Pushdown_Optimization: "None"
+    Allow_Temporary_View_For_Pushdown: NO
+    Allow_Temporary_Sequence_For_Pushdown: NO
+    Allow_Pushdown_For_User_Incompatible_Connections: NO
+
+chunk pseudo code ended
+
+// Workflow Task Definitions
+WORKFLOW_TASKS:
+  START_TASK:
+    Task_Name: Start
+    Task_Type: Start
+    Description: ""
+    Is_Enabled: YES
+    Is_Reusable: NO
+    Version_Number: 1
+  
+  SESSION_TASK:
+    Task_Name: s_arl_control_det
+    Task_Type: Session
+    Description: ""
+    Is_Enabled: YES
+    Is_Reusable: NO
+    Version_Number: 1
+    Fail_Parent_If_Instance_Did_Not_Run: NO
+    Fail_Parent_If_Instance_Fails: YES
+    Treat_Input_Link_As_And: YES
+
+// Workflow Task Instances
+WORKFLOW_TASK_INSTANCES:
+  START_INSTANCE:
+    Instance_Name: Start
+    Task_Name: Start
+    Task_Type: Start
+    Description: ""
+    Is_Enabled: YES
+    Is_Reusable: NO
+  
+  SESSION_INSTANCE:
+    Instance_Name: s_arl_control_det
+    Task_Name: s_arl_control_det
+    Task_Type: Session
+    Description: ""
+    Is_Enabled: YES
+    Is_Reusable: NO
+    Fail_Parent_If_Instance_Did_Not_Run: NO
+    Fail_Parent_If_Instance_Fails: YES
+    Treat_Input_Link_As_And: YES
+
+// Workflow Links
+WORKFLOW_LINKS:
+  WORKFLOW_LINK_1:
+    From_Task: Start
+    To_Task: s_arl_control_det
+    Condition: ""
+
+// Workflow Variables
+WORKFLOW_VARIABLES:
+  SESSION_START_TIME:
+    Variable_Name: "$s_arl_control_det.StartTime"
+    Data_Type: date/time
+    Default_Value: ""
+    Description: "The time this task started"
+    Is_Null: NO
+    Is_Persistent: NO
+    User_Defined: NO
+  
+  SESSION_END_TIME:
+    Variable_Name: "$s_arl_control_det.EndTime"
+    Data_Type: date/time
+    Default_Value: ""
+    Description: "The time this task completed"
+    Is_Null: NO
+    Is_Persistent: NO
+    User_Defined: NO
+  
+  SESSION_STATUS:
+    Variable_Name: "$s_arl_control_det.Status"
+    Data_Type: integer
+    Default_Value: ""
+    Description: "Status of this task's execution"
+    Is_Null: NO
+    Is_Persistent: NO
+    User_Defined: NO
+  
+  SESSION_PREV_TASK_STATUS:
+    Variable_Name: "$s_arl_control_det.PrevTaskStatus"
+    Data_Type: integer
+    Default_Value: ""
+    Description: "Status of the previous task that is not disabled"
+    Is_Null: NO
+    Is_Persistent: NO
+    User_Defined: NO
+  
+  SESSION_ERROR_CODE:
+    Variable_Name: "$s_arl_control_det.ErrorCode"
+    Data_Type: integer
+    Default_Value: ""
+    Description: "Error code for this task's execution"
+    Is_Null: NO
+    Is_Persistent: NO
+    User_Defined: NO
+  
+  SESSION_ERROR_MSG:
+    Variable_Name: "$s_arl_control_det.ErrorMsg"
+    Data_Type: string
+    Default_Value: ""
+    Description: "Error message for this task's execution"
+    Is_Null: NO
+    Is_Persistent: NO
+    User_Defined: NO
+  
+  SESSION_SRC_SUCCESS_ROWS:
+    Variable_Name: "$s_arl_control_det.SrcSuccessRows"
+    Data_Type: bigint
+    Default_Value: ""
+    Description: "Rows successfully read"
+    Is_Null: NO
+    Is_Persistent: NO
+    User_Defined: NO
+  
+  SESSION_SRC_FAILED_ROWS:
+    Variable_Name: "$s_arl_control_det.SrcFailedRows"
+    Data_Type: bigint
+    Default_Value: ""
+    Description: "Rows failed to read"
+    Is_Null: NO
+    Is_Persistent: NO
+    User_Defined: NO
+  
+  SESSION_TGT_SUCCESS_ROWS:
+    Variable_Name: "$s_arl_control_det.TgtSuccessRows"
+    Data_Type: bigint
+    Default_Value: ""
+    Description: "Rows successfully loaded"
+    Is_Null: NO
+    Is_Persistent: NO
+    User_Defined: NO
+  
+  SESSION_TGT_FAILED_ROWS:
+    Variable_Name: "$s_arl_control_det.TgtFailedRows"
+    Data_Type: bigint
+    Default_Value: ""
+    Description: "Rows failed to load"
+    Is_Null: NO
+    Is_Persistent: NO
+    User_Defined: NO
+  
+  SESSION_TOTAL_TRANS_ERRORS:
+    Variable_Name: "$s_arl_control_det.TotalTransErrors"
+    Data_Type: integer
+    Default_Value: ""
+    Description: "Total number of transformation errors"
+    Is_Null: NO
+    Is_Persistent: NO
+    User_Defined: NO
+  
+  SESSION_FIRST_ERROR_CODE:
+    Variable_Name: "$s_arl_control_det.FirstErrorCode"
+    Data_Type: integer
+    Default_Value: ""
+    Description: "First error code"
+    Is_Null: NO
+    Is_Persistent: NO
+    User_Defined: NO
+  
+  SESSION_FIRST_ERROR_MSG:
+    Variable_Name: "$s_arl_control_det.FirstErrorMsg"
+    Data_Type: string
+    Default_Value: ""
+    Description: "First error message"
+    Is_Null: NO
+    Is_Persistent: NO
+    User_Defined: NO
+  
+  START_START_TIME:
+    Variable_Name: "$Start.StartTime"
+    Data_Type: date/time
+    Default_Value: ""
+    Description: "The time this task started"
+    Is_Null: NO
+    Is_Persistent: NO
+    User_Defined: NO
+  
+  START_END_TIME:
+    Variable_Name: "$Start.EndTime"
+    Data_Type: date/time
+    Default_Value: ""
+    Description: "The time this task completed"
+    Is_Null: NO
+    Is_Persistent: NO
+    User_Defined: NO
+  
+  START_STATUS:
+    Variable_Name: "$Start.Status"
+    Data_Type: integer
+    Default_Value: ""
+    Description: "Status of this task's execution"
+    Is_Null: NO
+    Is_Persistent: NO
+    User_Defined: NO
+  
+  START_PREV_TASK_STATUS:
+    Variable_Name: "$Start.PrevTaskStatus"
+    Data_Type: integer
+    Default_Value: ""
+    Description: "Status of the previous task that is not disabled"
+    Is_Null: NO
+    Is_Persistent: NO
+    User_Defined: NO
+  
+  START_ERROR_CODE:
+    Variable_Name: "$Start.ErrorCode"
+    Data_Type: integer
+    Default_Value: ""
+    Description: "Error code for this task's execution"
+    Is_Null: NO
+    Is_Persistent: NO
+    User_Defined: NO
+  
+  START_ERROR_MSG:
+    Variable_Name: "$Start.ErrorMsg"
+    Data_Type: string
+    Default_Value: ""
+    Description: "Error message for this task's execution"
+    Is_Null: NO
+    Is_Persistent: NO
+    User_Defined: NO
+
+// Data Flow Links
+DATA_FLOW:
+  Input_Link: ROOT_ARLGESTIP_V01_01 -> XMLDSQ_ROOT_ARLGESTIP_V01_01
+  Processing_Link_1: XMLDSQ_ROOT_ARLGESTIP_V01_01_OUTPUT -> SRT_ARL
+  Processing_Link_2: XMLDSQ_ROOT_ARLGESTIP_V01_01_OUTPUT -> SRT_DIAG_DOCUMENT
+  Processing_Link_3: SRT_ARL_OUTPUT -> JNR_DETAIL (Master)
+  Processing_Link_4: SRT_DIAG_DOCUMENT_OUTPUT -> JNR_DETAIL (Detail)
+  Processing_Link_5: JNR_DETAIL_OUTPUT -> EXP_TRIM
+  Processing_Link_6: EXP_TRIM_OUTPUT -> ARL_DETAIL
+  Output_Link: ARL_DETAIL
+
+// Workflow Execution Flow
+WORKFLOW_EXECUTION_FLOW:
+  Workflow_Link_1: Start -> s_arl_control_det
+  Session_Execution: s_arl_control_det executes m_arl_control_det mapping
+
+// Mapping Connector Details
+CONNECTOR_MAPPINGS:
+  Source_to_XML_SQ: ROOT_ARLGESTIP_V01_01 -> XMLDSQ_ROOT_ARLGESTIP_V01_01
+  XML_SQ_to_SRT_ARL: XMLDSQ_ROOT_ARLGESTIP_V01_01 -> SRT_ARL
+  XML_SQ_to_SRT_DIAG: XMLDSQ_ROOT_ARLGESTIP_V01_01 -> SRT_DIAG_DOCUMENT
+  SRT_ARL_to_JNR: SRT_ARL -> JNR_DETAIL (Master)
+  SRT_DIAG_to_JNR: SRT_DIAG_DOCUMENT -> JNR_DETAIL (Detail)
+  JNR_to_EXP: JNR_DETAIL -> EXP_TRIM
+  EXP_to_TARGET: EXP_TRIM -> ARL_DETAIL
+
+chunk pseudo code ended
+```

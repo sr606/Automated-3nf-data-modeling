@@ -1,0 +1,2292 @@
+```
+POWERMART_REPOSITORY: PCRS
+FOLDER: APL_GZ
+MAPPING: m_TT_VP_AB_SL_STG
+
+EXPRESSION_MACRO: func_DATE_FMT_CHK
+MACRO_TYPE: Public
+RETURN_TYPE: date/time
+INPUT_ARGUMENTS:
+  argDATE_STR: string(256)
+  argDATE_FMT_STR: string(256)
+EXPRESSION_LOGIC:
+  IIF(IS_DATE(argDATE_STR,argDATE_FMT_STR), TO_DATE(argDATE_STR,argDATE_FMT_STR), NULL)
+
+MAPPING_VARIABLE: $$NN_RUN_DT
+DATATYPE: string
+ISPARAM: YES
+USERDEFINED: YES
+
+SHORTCUT_MAPPING: m_COMM_TT_AB_STG
+OBJECT_TYPE: MAPPING
+REFERENCE_TYPE: LOCAL
+SOURCE_FOLDER: APL_GZ_SHARED
+TARGET_FOLDER: APL_GZ
+REFERENCED_OBJECT: m_COMM_TT_AB_STG
+VERSION: 1
+
+SHORTCUT_MAPPING: m_COMM_TT_SL_STG
+OBJECT_TYPE: MAPPING
+REFERENCE_TYPE: LOCAL
+REFERENCE_OBJECT: m_COMM_TT_SL_STG
+SOURCE_FOLDER: APL_GZ_SHARED
+TARGET_REPOSITORY: PCRS
+VERSION_NUMBER: 1
+
+SHORTCUT_MAPPING: m_COMM_TT_VP_STG
+OBJECT_TYPE: MAPPING
+REFERENCE_TYPE: LOCAL
+SOURCE_FOLDER: APL_GZ_SHARED
+TARGET_FOLDER: APL_GZ
+REPOSITORY: PCRS
+VERSION: 1
+
+DEFAULT_SESSION_CONFIG:
+Config_Name: default_session_config
+Is_Default: YES
+Version: 1
+MEMORY_SETTINGS:
+  Cache_LOOKUP_Function: YES
+  Default_Buffer_Block_Size: Auto
+  Line_Sequential_Buffer_Length: 1024
+  Maximum_Memory_Allowed: 512MB
+  Memory_Percentage_Limit: 5%
+  Additional_Concurrent_Pipelines: Auto
+  Pre_Build_Lookup_Cache: Auto
+PERFORMANCE_SETTINGS:
+  Optimization_Level: Medium
+  Constraint_Based_Load_Ordering: NO
+DATETIME_SETTINGS:
+  DateTime_Format: MM/DD/YYYY HH24:MI:SS.US
+  Pre_85_Timestamp_Compatibility: NO
+LOGGING_SETTINGS:
+  Log_Options: 0
+  Save_Session_Log_By: Session runs
+  Save_Session_Log_Runs: 0
+  Session_Log_File_Max_Size: 0
+  Session_Log_File_Max_Time: 0
+  Maximum_Partial_Log_Files: 1
+  Writer_Commit_Log_Frequency: 1
+  Writer_Commit_Log_Interval: 0
+ERROR_HANDLING:
+  Stop_On_Errors: 0
+  Override_Tracing: None
+  On_Stored_Procedure_Error: Stop
+  On_Pre_Session_Command_Error: Stop
+  On_Pre_Post_SQL_Error: Stop
+  Enable_Recovery: NO
+  Error_Log_Type: None
+  Error_Log_File: PMError.log
+  Log_Source_Row_Data: NO
+  Data_Column_Delimiter: |
+PARTITIONING_SETTINGS:
+  Dynamic_Partitioning: Disabled
+  Number_Of_Partitions: 1
+  Multiplication_Factor: Auto
+GRID_SETTINGS:
+  Session_On_Grid_Enabled: NO
+
+WORKFLOW: wf_m_COMM_TT_VP_AB_SL_STG
+PARENT: FOLDER APL_GZ
+Status: ENABLED
+Valid: YES
+Runnable_Service: NO
+Service: NO
+Reusable_Scheduler: NO
+Suspend_On_Error: NO
+Tasks_Must_Run_On_Server: NO
+Version: 1
+SCHEDULER: Default_Scheduler
+  Type: ONDEMAND
+  Reusable: NO
+  Version: 1
+
+WORKFLOW_CONFIGURATION:
+  Workflow_Log_File_Name: wf_m_COMM_TT_VP_AB_SL_STG.log
+  Workflow_Log_File_Directory: $PMWorkflowLogDir\
+  Save_Workflow_log_by: By runs
+  Save_workflow_log_for_these_runs: 0
+  Enable_HA_recovery: NO
+  Automatically_recover_terminated_tasks: NO
+  Allow_concurrent_run_with_unique_run_instance_name: NO
+  Allow_concurrent_run_with_same_run_instance_name: NO
+  Maximum_number_of_concurrent_runs: 0
+
+TASK_INSTANCES:
+  START_TASK:
+    NAME: Start
+    TYPE: Start
+    ENABLED: YES
+    Output_Link: To_s_m_COMM_TT_AB_STG
+
+  SESSION_TASK_1:
+    NAME: s_m_COMM_TT_AB_STG
+    TYPE: Session
+    ENABLED: YES
+    FAIL_PARENT_IF_INSTANCE_FAILS: YES
+    TREAT_INPUTLINK_AS_AND: YES
+    Input_Link: From_Start
+    Output_Link: To_s_m_COMM_TT_VP_STG
+
+  SESSION_TASK_2:
+    NAME: s_m_COMM_TT_VP_STG
+    TYPE: Session
+    ENABLED: YES
+    FAIL_PARENT_IF_INSTANCE_FAILS: YES
+    TREAT_INPUTLINK_AS_AND: YES
+    Input_Link: From_s_m_COMM_TT_AB_STG
+    Output_Link: To_s_m_COMM_TT_SL_STG
+
+  SESSION_TASK_3:
+    NAME: s_m_COMM_TT_SL_STG
+    TYPE: Session
+    ENABLED: YES
+    FAIL_PARENT_IF_INSTANCE_FAILS: YES
+    TREAT_INPUTLINK_AS_AND: YES
+    Input_Link: From_s_m_COMM_TT_VP_STG
+    Output_Link: To_s_m_TT_VP_AB_SL_STG
+
+  SESSION_TASK_4:
+    NAME: s_m_TT_VP_AB_SL_STG
+    TYPE: Session
+    ENABLED: YES
+    FAIL_PARENT_IF_INSTANCE_FAILS: YES
+    TREAT_INPUTLINK_AS_AND: YES
+    Input_Link: From_s_m_COMM_TT_SL_STG
+    Output_Link: To_End
+
+WORKFLOW_LINKS:
+  LINK_1: Start -> s_m_COMM_TT_AB_STG
+  LINK_2: s_m_COMM_TT_AB_STG -> s_m_COMM_TT_VP_STG
+  LINK_3: s_m_COMM_TT_VP_STG -> s_m_COMM_TT_SL_STG
+  LINK_4: s_m_COMM_TT_SL_STG -> s_m_TT_VP_AB_SL_STG
+
+WORKFLOW_VARIABLES:
+  START_TASK_VARIABLES:
+    StartTime: date/time
+    EndTime: date/time
+    Status: integer
+    PrevTaskStatus: integer
+    ErrorCode: integer
+    ErrorMsg: string
+
+  SESSION_s_m_COMM_TT_AB_STG_VARIABLES:
+    StartTime: date/time
+    EndTime: date/time
+    Status: integer
+    PrevTaskStatus: integer
+    ErrorCode: integer
+    ErrorMsg: string
+    SrcSuccessRows: bigint
+    SrcFailedRows: bigint
+    TgtSuccessRows: bigint
+    TgtFailedRows: bigint
+    TotalTransErrors: integer
+    FirstErrorCode: integer
+    FirstErrorMsg: string
+
+  SESSION_s_m_COMM_TT_VP_STG_VARIABLES:
+    StartTime: date/time
+    EndTime: date/time
+    Status: integer
+    PrevTaskStatus: integer
+    ErrorCode: integer
+    ErrorMsg: string
+    SrcSuccessRows: bigint
+    SrcFailedRows: bigint
+    TgtSuccessRows: bigint
+    TgtFailedRows: bigint
+    TotalTransErrors: integer
+    FirstErrorCode: integer
+    FirstErrorMsg: string
+
+  SESSION_s_m_COMM_TT_SL_STG_VARIABLES:
+    StartTime: date/time
+    EndTime: date/time
+    Status: integer
+    PrevTaskStatus: integer
+    ErrorCode: integer
+    ErrorMsg: string
+    SrcSuccessRows: bigint
+    SrcFailedRows: bigint
+    TgtSuccessRows: bigint
+    TgtFailedRows: bigint
+    TotalTransErrors: integer
+    FirstErrorCode: integer
+    FirstErrorMsg: string
+
+  SESSION_s_m_TT_VP_AB_SL_STG_VARIABLES:
+    StartTime: date/time
+    EndTime: date/time
+    Status: integer
+    PrevTaskStatus: integer
+    ErrorCode: integer
+    ErrorMsg: string
+    SrcSuccessRows: bigint
+    SrcFailedRows: bigint
+    TgtSuccessRows: bigint
+    TgtFailedRows: bigint
+    TotalTransErrors: integer
+    FirstErrorCode: integer
+    FirstErrorMsg: string
+
+ERROR_HANDLING:
+  SUSPEND_ON_ERROR: NO
+  FAIL_PARENT_IF_INSTANCE_FAILS: YES for all sessions
+  Track error codes and messages for each task
+  Monitor source/target success and failed row counts
+  Log transformation errors
+
+chunk pseudo code ended
+
+SOURCE_DEFINITION: src_t_TT_VP_AB_SL_STG
+DATABASE_TYPE: Oracle
+COLUMN_DEFINITIONS:
+  DATA_KBN: varchar2(256), NOT NULL
+  SYS_TYP: varchar2(256), NOT NULL
+  KIJUN_YYYYMM: varchar2(256), NOT NULL
+  SLP_EXCLUDE_KBN: varchar2(256), NULLABLE
+  SLP_EXCLUDE_KBN_HOSEI_FLG: varchar2(256), NULLABLE
+  POLICY_NO: varchar2(256), PRIMARY KEY, NOT NULL
+  COVER_CD: varchar2(256), PRIMARY KEY, NOT NULL
+  MAIN_FLG: varchar2(256), NULLABLE
+  VP_KEISU: varchar2(256), NULLABLE
+  ANP: varchar2(256), NULLABLE
+  VP: varchar2(256), NULLABLE
+  KEIYAKU_DATE: date(19), NULLABLE
+  HOKEN_KIKAN_CD: varchar2(256), NULLABLE
+  MAIN_COVER_CD: varchar2(256), NULLABLE
+  NEW_KEIYAKU_DATE: date(19), NULLABLE
+  YOTEI_RIRITU: varchar2(256), NULLABLE
+  ABGROUP: varchar2(256), NULLABLE
+  HARAIKATA_CD: varchar2(256), NULLABLE
+  HARAIZUMI_SHIKIBETSU_CD: varchar2(256), NULLABLE
+  HANBAI_PLAN_CD: varchar2(256), NULLABLE
+  SHOKANTEN_CD_CORR_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD: varchar2(256), NULLABLE
+  SHOKANTEN_CD_LJ: varchar2(265), NULLABLE
+  SHOKANTEN_CD_PRE_CORR_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD_PRE_LJ: varchar2(256), NULLABLE
+  SEX: varchar2(256), NULLABLE
+  ENTRY_DATE: date(19), NULLABLE
+  RUN_DT: date(19), NULLABLE
+PRIMARY_KEY: POLICY_NO, COVER_CD
+OUTPUT_LINK: src_t_TT_VP_AB_SL_STG_out
+
+SOURCE_DEFINITION: src_t_TT_VP_AB_SL_STG_AB
+DATABASE_TYPE: Oracle
+SOURCE_TABLE: TT_VP_AB_SL_STG_AB
+PARENT_MAPPING: m_TT_VP_AB_SL_STG
+COLUMN_DEFINITIONS:
+  DATA_KBN: varchar2(256), NOT NULL
+  SYS_TYP: varchar2(256), NOT NULL
+  KIJUN_YYYYMM: varchar2(256), NOT NULL
+  SLP_EXCLUDE_KBN: varchar2(256), NULLABLE
+  SLP_EXCLUDE_KBN_HOSEI_FLG: varchar2(256), NULLABLE
+  POLICY_NO: varchar2(256), PRIMARY KEY, NOT NULL
+  COVER_CD: varchar2(256), PRIMARY KEY, NOT NULL
+  MAIN_FLG: varchar2(256), NULLABLE
+  VP_KEISU: varchar2(256), NULLABLE
+  ANP: varchar2(256), NULLABLE
+  VP: varchar2(256), NULLABLE
+  KEIYAKU_DATE: date(19), NULLABLE
+  HOKEN_KIKAN_CD: varchar2(256), NULLABLE
+  MAIN_COVER_CD: varchar2(256), NULLABLE
+  NEW_KEIYAKU_DATE: date(19), NULLABLE
+  YOTEI_RIRITU: varchar2(256), NULLABLE
+  ABGROUP: varchar2(256), NULLABLE
+  HARAIKATA_CD: varchar2(256), NULLABLE
+  HARAIZUMI_SHIKIBETSU_CD: varchar2(256), NULLABLE
+  HANBAI_PLAN_CD: varchar2(256), NULLABLE
+  SHOKANTEN_CD_CORR_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD: varchar2(256), NULLABLE
+  SHOKANTEN_CD_LJ: varchar2(265), NULLABLE
+  SHOKANTEN_CD_PRE_CORR_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD_PRE_LJ: varchar2(256), NULLABLE
+  SEX: varchar2(256), NULLABLE
+  ENTRY_DATE: date(19), NULLABLE
+  RUN_DT: date(19), NULLABLE
+OUTPUT_LINK: src_t_TT_VP_AB_SL_STG_AB_out
+
+SOURCE_DEFINITION: src_t_TT_VP_AB_SL_STG_SL
+DATABASE_TYPE: Oracle
+SOURCE_TABLE: TT_VP_AB_SL_STG_SL
+PARENT_MAPPING: m_TT_VP_AB_SL_STG
+COLUMN_DEFINITIONS:
+  DATA_KBN: varchar2(256), NOT NULL
+  SYS_TYP: varchar2(256), NOT NULL
+  KIJUN_YYYYMM: varchar2(256), NOT NULL
+  SLP_EXCLUDE_KBN: varchar2(256), NULLABLE
+  SLP_EXCLUDE_KBN_HOSEI_FLG: varchar2(256), NULLABLE
+  POLICY_NO: varchar2(256), PRIMARY KEY, NOT NULL
+  COVER_CD: varchar2(256), PRIMARY KEY, NOT NULL
+  MAIN_FLG: varchar2(256), NULLABLE
+  VP_KEISU: varchar2(256), NULLABLE
+  ANP: varchar2(256), NULLABLE
+  VP: varchar2(256), NULLABLE
+  KEIYAKU_DATE: date(19), NULLABLE
+  HOKEN_KIKAN_CD: varchar2(256), NULLABLE
+  MAIN_COVER_CD: varchar2(256), NULLABLE
+  NEW_KEIYAKU_DATE: date(19), NULLABLE
+  YOTEI_RIRITU: varchar2(256), NULLABLE
+  ABGROUP: varchar2(256), NULLABLE
+  HARAIKATA_CD: varchar2(256), NULLABLE
+  HARAIZUMI_SHIKIBETSU_CD: varchar2(256), NULLABLE
+  HANBAI_PLAN_CD: varchar2(256), NULLABLE
+  SHOKANTEN_CD_CORR_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD: varchar2(256), NULLABLE
+  SHOKANTEN_CD_LJ: varchar2(265), NULLABLE
+  SHOKANTEN_CD_PRE_CORR_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD_PRE_LJ: varchar2(256), NULLABLE
+  SEX: varchar2(256), NULLABLE
+  ENTRY_DATE: date(19), NULLABLE
+  RUN_DT: date(19), NULLABLE
+OUTPUT_LINK: src_t_TT_VP_AB_SL_STG_SL_out
+
+SOURCE_DEFINITION: src_t_TT_VP_AB_SL_STG_VP
+DATABASE_TYPE: Oracle
+SOURCE_TABLE: TT_VP_AB_SL_STG_VP
+PARENT_MAPPING: m_TT_VP_AB_SL_STG
+COLUMN_DEFINITIONS:
+  DATA_KBN: varchar2(256), NOT NULL
+  SYS_TYP: varchar2(256), NOT NULL
+  KIJUN_YYYYMM: varchar2(256), NOT NULL
+  SLP_EXCLUDE_KBN: varchar2(256), NULLABLE
+  SLP_EXCLUDE_KBN_HOSEI_FLG: varchar2(256), NULLABLE
+  POLICY_NO: varchar2(256), PRIMARY KEY, NOT NULL
+  COVER_CD: varchar2(256), PRIMARY KEY, NOT NULL
+  MAIN_FLG: varchar2(256), NULLABLE
+  VP_KEISU: varchar2(256), NULLABLE
+  ANP: varchar2(256), NULLABLE
+  VP: varchar2(256), NULLABLE
+  KEIYAKU_DATE: date(19), NULLABLE
+  HOKEN_KIKAN_CD: varchar2(256), NULLABLE
+  MAIN_COVER_CD: varchar2(256), NULLABLE
+  NEW_KEIYAKU_DATE: date(19), NULLABLE
+  YOTEI_RIRITU: varchar2(256), NULLABLE
+  ABGROUP: varchar2(256), NULLABLE
+  HARAIKATA_CD: varchar2(256), NULLABLE
+  HARAIZUMI_SHIKIBETSU_CD: varchar2(256), NULLABLE
+  HANBAI_PLAN_CD: varchar2(256), NULLABLE
+  SHOKANTEN_CD_CORR_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD: varchar2(256), NULLABLE
+  SHOKANTEN_CD_LJ: varchar2(265), NULLABLE
+  SHOKANTEN_CD_PRE_CORR_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD_PRE_LJ: varchar2(256), NULLABLE
+  SEX: varchar2(256), NULLABLE
+  ENTRY_DATE: date(19), NULLABLE
+  RUN_DT: date(19), NULLABLE
+OUTPUT_LINK: src_t_TT_VP_AB_SL_STG_VP_out
+
+SOURCE_DEFINITION: src_t_TT_VP_AB_SL_STG_IN
+DATABASE_TYPE: Oracle
+TABLE: TT_VP_AB_SL_STG_IN
+PARENT_MAPPING: m_COMM_TT_VP_STG, m_COMM_TT_SL_STG, m_COMM_TT_AB_STG
+COLUMN_DEFINITIONS:
+  DATA_KBN: varchar2(256), NOT NULL
+  SYS_TYP: varchar2(256), NOT NULL
+  KIJUN_YYYYMM: varchar2(256), NOT NULL
+  POLICY_NO: varchar2(256), PRIMARY KEY, NOT NULL
+  COVER_CD: varchar2(256), PRIMARY KEY, NOT NULL
+  ANP: varchar2(256), NULLABLE
+  KEIYAKU_DATE: date(19), NULLABLE
+  HOKEN_KIKAN_CD: varchar2(256), NULLABLE
+  MAIN_COVER_CD: varchar2(256), NULLABLE
+  NEW_KEIYAKU_DATE: date(19), NULLABLE
+  YOTEI_RIRITU: varchar2(256), NULLABLE
+  HARAIKATA_CD: varchar2(256), NULLABLE
+  HARAIZUMI_SHIKIBETSU_CD: varchar2(256), NULLABLE
+  HANBAI_PLAN_CD: varchar2(256), NULLABLE
+  SHOKANTEN_CD_CORR_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD_LJ: varchar2(256), NULLABLE
+  SHOKANTEN_CD_PRE_CORR_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD_PRE_LJ: varchar2(256), NULLABLE
+  SEX: varchar2(256), NULLABLE
+  CLTDOB: date(19), NULLABLE
+  RUN_DT: date(19), NULLABLE
+PRIMARY_KEY: POLICY_NO, COVER_CD
+OUTPUT_LINK: src_t_TT_VP_AB_SL_STG_IN_out
+
+SOURCE_DEFINITION: src_t_TM_HOSYOCD_STG
+DATABASE_TYPE: Oracle
+PARENT_MAPPING: m_COMM_TT_VP_STG, m_COMM_TT_SL_STG, m_COMM_TT_AB_STG
+COLUMN_DEFINITIONS:
+  COVER_CD: varchar2(256), PRIMARY KEY, NOT NULL
+  COVER_NM: varchar2(256), NULLABLE
+  MAIN_FLG: varchar2(256), NULLABLE
+  SYS_TYP: varchar2(256), NULLABLE
+  SMC_PRODUCT_ID: varchar2(256), NULLABLE
+  SLP_PRODUCT_ID: varchar2(256), NULLABLE
+  SLP_EXCLUDE_KBN: varchar2(256), NULLABLE
+  ENTRY_DATE: date(19), NULLABLE
+  RUN_DT: date(19), NULLABLE
+  NEW_KEIYAKU_DATE_FROM: date(19), NULLABLE
+  NEW_KEIYAKU_DATE_TO: date(19), NULLABLE
+OUTPUT_LINK: src_t_TM_HOSYOCD_STG_out
+
+SOURCE_DEFINITION: src_t_TM_VP_STG
+DATABASE_TYPE: Oracle
+PARENT_MAPPING: m_COMM_TT_VP_STG
+COLUMN_DEFINITIONS:
+  FY: varchar2(256), PRIMARY KEY, NOT NULL
+  SLP_PRODUCT_ID: varchar2(256), PRIMARY KEY, NOT NULL
+  SHIKIBETSU_KBN: varchar2(256), PRIMARY KEY, NOT NULL
+  VP_BUNRUI_NM: varchar2(256), NULLABLE
+  VP_BUNRUI_NM_E: varchar2(256), NULLABLE
+  VP_SORT_NO: varchar2(256), NULLABLE
+  VP_KEISU: varchar2(256), NULLABLE
+  ENTRY_DATE: date(19), NULLABLE
+  RUN_DT: date(19), NULLABLE
+OUTPUT_LINK: src_t_TM_VP_STG_out
+
+SOURCE_DEFINITION: src_t_TM_ORG_STG
+DATABASE_TYPE: Oracle
+PARENT_MAPPING: m_COMM_TT_SL_STG
+COLUMN_DEFINITIONS:
+  ORGZN_CD: varchar2(256), PRIMARY KEY, NOT NULL
+  ORGZN_NM: varchar2(256), NULLABLE
+  ORGZN_NM_KANA: varchar2(256), NULLABLE
+  SYS_TYP: varchar2(256), NULLABLE
+  ORGZN_CD_ND: varchar2(256), NULLABLE
+  CHANNEL_NM: varchar2(256), NULLABLE
+  KYOKU_CD: varchar2(256), NULLABLE
+  KYOKU_NM: varchar2(256), NULLABLE
+  SISHA_CD: varchar2(256), NULLABLE
+  SISHA_NM: varchar2(256), NULLABLE
+  EIGYOSHO_CD: varchar2(256), NULLABLE
+  EIGYOSHO_NM: varchar2(256), NULLABLE
+  ENTRY_DATE: date(19), NULLABLE
+  RUN_DT: date(19), NULLABLE
+OUTPUT_LINK: src_t_TM_ORG_STG_out
+
+SOURCE_DEFINITION: src_t_TM_ORG_REVISE_STG
+DATABASE_TYPE: Oracle
+PARENT_MAPPING: m_COMM_TT_SL_STG
+COLUMN_DEFINITIONS:
+  REVISE_YEAR: varchar2(256), PRIMARY KEY, NOT NULL
+  REVISE_DATA_KBN: varchar2(256), PRIMARY KEY, NOT NULL
+  REVISE_SHOKANTEN_CD: varchar2(256), PRIMARY KEY, NOT NULL
+  SHOKANTEN_CD: varchar2(256), NULLABLE
+  NOTE: varchar2(256), NULLABLE
+  ENTRY_DATE: date(19), NULLABLE
+  RUN_DT: date(19), NULLABLE
+PRIMARY_KEY_CONSTRAINT: (REVISE_YEAR, REVISE_DATA_KBN, REVISE_SHOKANTEN_CD)
+OUTPUT_LINK: src_t_TM_ORG_REVISE_STG_out
+
+SOURCE_DEFINITION: src_t_TM_POL_REVISE_STG
+DATABASE_TYPE: Oracle
+PARENT_MAPPING: m_COMM_TT_SL_STG
+COLUMN_DEFINITIONS:
+  REVISE_YEAR: varchar2(256), PRIMARY KEY, NOT NULL
+  REVISE_DATA_KBN: varchar2(256), PRIMARY KEY, NOT NULL
+  REVISE_POLICY_NO: varchar2(256), PRIMARY KEY, NOT NULL
+  SHOKANTEN_CD: varchar2(256), NULLABLE
+  SHOKANTEN_CD_PRE: varchar2(256), NULLABLE
+  SLP_EXCLUDE_KBN: varchar2(256), NULLABLE
+  NOTE: varchar2(256), NULLABLE
+  ENTRY_DATE: date(19), NULLABLE
+  RUN_DT: date(19), NULLABLE
+PRIMARY_KEY_CONSTRAINT: (REVISE_YEAR, REVISE_DATA_KBN, REVISE_POLICY_NO)
+OUTPUT_LINK: src_t_TM_POL_REVISE_STG_out
+
+SOURCE_DEFINITION: src_t_TT_PRE_CSC_STG
+DATABASE_TYPE: Oracle
+PARENT_MAPPING: m_COMM_TT_SL_STG
+COLUMN_DEFINITIONS:
+  POLICY_NO: varchar2(256), PRIMARY KEY, NOT NULL
+  SHOKANTEN_CD_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD_PRE_LJ: varchar2(256), NULLABLE
+  ENTRY_DATE: date(19), NULLABLE
+  RUN_DT: date(19), NULLABLE
+OUTPUT_LINK: src_t_TT_PRE_CSC_STG_out
+
+chunk pseudo code ended
+
+SOURCE_QUALIFIER: SQ_src_t_TT_VP_AB_SL_STG_AB
+TYPE: Source Qualifier
+REUSABLE: NO
+INPUT_LINK: src_t_TT_VP_AB_SL_STG_AB_out
+ASSOCIATED_SOURCE: src_t_TT_VP_AB_SL_STG_AB
+PROCESS: Extract and qualify source data
+INPUT_OUTPUT_FIELDS:
+  POLICY_NO: string(256)
+  COVER_CD: string(256)
+  DATA_KBN: string(256)
+  SYS_TYP: string(256)
+  KIJUN_YYYYMM: string(256)
+  SLP_EXCLUDE_KBN: string(256)
+  SLP_EXCLUDE_KBN_HOSEI_FLG: string(256)
+  MAIN_FLG: string(256)
+  VP_KEISU: string(256)
+  ANP: string(256)
+  VP: string(256)
+  KEIYAKU_DATE: date/time(29,9)
+  HOKEN_KIKAN_CD: string(256)
+  MAIN_COVER_CD: string(256)
+  NEW_KEIYAKU_DATE: date/time(29,9)
+  YOTEI_RIRITU: string(256)
+  ABGROUP: string(256)
+  HARAIKATA_CD: string(256)
+  HARAIZUMI_SHIKIBETSU_CD: string(256)
+  HANBAI_PLAN_CD: string(256)
+  SHOKANTEN_CD_CORR_PRE: string(256)
+  SHOKANTEN_CD: string(256)
+  SHOKANTEN_CD_LJ: string(265)
+  SHOKANTEN_CD_PRE_CORR_PRE: string(256)
+  SHOKANTEN_CD_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  SEX: string(256)
+  ENTRY_DATE: date/time(29,9)
+  RUN_DT: date/time(29,9)
+CONFIGURATION:
+  Number_Of_Sorted_Ports: 2
+  Select_Distinct: NO
+  Is_Partitionable: NO
+  Output_is_deterministic: NO
+  Output_is_repeatable: Never
+  Tracing_Level: Normal
+OUTPUT_LINK: SQ_src_t_TT_VP_AB_SL_STG_AB_OUTPUT
+
+SOURCE_QUALIFIER: SQ_src_t_TT_VP_AB_SL_STG_SL
+TYPE: Source Qualifier
+REUSABLE: NO
+INPUT_LINK: src_t_TT_VP_AB_SL_STG_SL_out
+ASSOCIATED_SOURCE: src_t_TT_VP_AB_SL_STG_SL
+PROCESS: Apply source_qualifier_logic
+INPUT_OUTPUT_FIELDS:
+  POLICY_NO: string(256)
+  COVER_CD: string(256)
+  DATA_KBN: string(256)
+  SYS_TYP: string(256)
+  KIJUN_YYYYMM: string(256)
+  SLP_EXCLUDE_KBN: string(256)
+  SLP_EXCLUDE_KBN_HOSEI_FLG: string(256)
+  MAIN_FLG: string(256)
+  VP_KEISU: string(256)
+  ANP: string(256)
+  VP: string(256)
+  KEIYAKU_DATE: date/time(29,9)
+  HOKEN_KIKAN_CD: string(256)
+  MAIN_COVER_CD: string(256)
+  NEW_KEIYAKU_DATE: date/time(29,9)
+  YOTEI_RIRITU: string(256)
+  ABGROUP: string(256)
+  HARAIKATA_CD: string(256)
+  HARAIZUMI_SHIKIBETSU_CD: string(256)
+  HANBAI_PLAN_CD: string(256)
+  SHOKANTEN_CD_CORR_PRE: string(256)
+  SHOKANTEN_CD: string(256)
+  SHOKANTEN_CD_LJ: string(265)
+  SHOKANTEN_CD_PRE_CORR_PRE: string(256)
+  SHOKANTEN_CD_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  SEX: string(256)
+  ENTRY_DATE: date/time(29,9)
+  RUN_DT: date/time(29,9)
+CONFIGURATION:
+  Number_Of_Sorted_Ports: 2
+  Select_Distinct: NO
+  Is_Partitionable: NO
+  Output_is_deterministic: NO
+  Output_is_repeatable: Never
+  Tracing_Level: Normal
+OUTPUT_LINK: SQ_src_t_TT_VP_AB_SL_STG_SL_OUTPUT
+
+SOURCE_QUALIFIER: SQ_src_t_TT_VP_AB_SL_STG_VP
+TYPE: Source Qualifier
+REUSABLE: NO
+INPUT_LINK: src_t_TT_VP_AB_SL_STG_VP_out
+ASSOCIATED_SOURCE: src_t_TT_VP_AB_SL_STG_VP
+PROCESS: Extract and qualify source data
+INPUT_OUTPUT_FIELDS:
+  POLICY_NO: string(256)
+  COVER_CD: string(256)
+  DATA_KBN: string(256)
+  SYS_TYP: string(256)
+  KIJUN_YYYYMM: string(256)
+  SLP_EXCLUDE_KBN: string(256)
+  SLP_EXCLUDE_KBN_HOSEI_FLG: string(256)
+  MAIN_FLG: string(256)
+  VP_KEISU: string(256)
+  ANP: string(256)
+  VP: string(256)
+  KEIYAKU_DATE: date/time(29,9)
+  HOKEN_KIKAN_CD: string(256)
+  MAIN_COVER_CD: string(256)
+  NEW_KEIYAKU_DATE: date/time(29,9)
+  YOTEI_RIRITU: string(256)
+  ABGROUP: string(256)
+  HARAIKATA_CD: string(256)
+  HARAIZUMI_SHIKIBETSU_CD: string(256)
+  HANBAI_PLAN_CD: string(256)
+  SHOKANTEN_CD_CORR_PRE: string(256)
+  SHOKANTEN_CD: string(256)
+  SHOKANTEN_CD_LJ: string(265)
+  SHOKANTEN_CD_PRE_CORR_PRE: string(256)
+  SHOKANTEN_CD_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  SEX: string(256)
+  ENTRY_DATE: date/time(29,9)
+  RUN_DT: date/time(29,9)
+CONFIGURATION:
+  Number_Of_Sorted_Ports: 2
+  Select_Distinct: NO
+  Is_Partitionable: NO
+  Output_is_deterministic: NO
+  Output_is_repeatable: Never
+  Tracing_Level: Normal
+OUTPUT_LINK: SQ_src_t_TT_VP_AB_SL_STG_VP_OUTPUT
+
+SOURCE_QUALIFIER: SQ_src_t_TT_VP_AB_SL_STG_IN
+TYPE: Source Qualifier
+REUSABLE: NO
+INPUT_LINK: src_t_TT_VP_AB_SL_STG_IN_out
+ASSOCIATED_SOURCE: src_t_TT_VP_AB_SL_STG_IN
+PARENT_MAPPING: m_COMM_TT_VP_STG, m_COMM_TT_SL_STG, m_COMM_TT_AB_STG
+PROCESS: Extract and qualify source data
+INPUT_OUTPUT_FIELDS:
+  MAIN_COVER_CD: string(256)
+  DATA_KBN: string(256)
+  SYS_TYP: string(256)
+  KIJUN_YYYYMM: string(256)
+  POLICY_NO: string(256)
+  COVER_CD: string(256)
+  ANP: string(256)
+  KEIYAKU_DATE: date/time(29,9)
+  HOKEN_KIKAN_CD: string(256)
+  NEW_KEIYAKU_DATE: date/time(29,9)
+  YOTEI_RIRITU: string(256)
+  HARAIKATA_CD: string(256)
+  HARAIZUMI_SHIKIBETSU_CD: string(256)
+  HANBAI_PLAN_CD: string(256)
+  SHOKANTEN_CD_CORR_PRE: string(256)
+  SHOKANTEN_CD_LJ: string(256)
+  SHOKANTEN_CD_PRE_CORR_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  SEX: string(256)
+  RUN_DT: date/time(29,9)
+CONFIGURATION:
+  Number_Of_Sorted_Ports: 1
+  Select_Distinct: NO
+  Is_Partitionable: NO
+  Output_is_deterministic: NO
+  Output_is_repeatable: Never
+  Tracing_Level: Normal
+OUTPUT_LINK: SQ_src_t_TT_VP_AB_SL_STG_IN_OUTPUT
+
+SOURCE_QUALIFIER: SQ_src_t_TM_HOSYOCD_STG
+TYPE: Source Qualifier
+REUSABLE: NO
+INPUT_LINK: src_t_TM_HOSYOCD_STG_out
+ASSOCIATED_SOURCE: src_t_TM_HOSYOCD_STG
+PARENT_MAPPING: m_COMM_TT_VP_STG, m_COMM_TT_SL_STG, m_COMM_TT_AB_STG
+PROCESS: Extract and qualify source data
+INPUT_OUTPUT_FIELDS:
+  COVER_CD: string(256)
+  COVER_NM: string(256)
+  MAIN_FLG: string(256)
+  SYS_TYP: string(256)
+  SMC_PRODUCT_ID: string(256)
+  SLP_PRODUCT_ID: string(256)
+  SLP_EXCLUDE_KBN: string(256)
+  ENTRY_DATE: date/time(29,9)
+  RUN_DT: date/time(29,9)
+  NEW_KEIYAKU_DATE_FROM: date/time(29,9)
+  NEW_KEIYAKU_DATE_TO: date/time(29,9)
+CONFIGURATION:
+  Number_Of_Sorted_Ports: 1
+  Select_Distinct: NO
+  Is_Partitionable: NO
+  Output_is_deterministic: NO
+  Output_is_repeatable: Never
+  Tracing_Level: Normal
+OUTPUT_LINK: SQ_src_t_TM_HOSYOCD_STG_OUTPUT
+
+SOURCE_QUALIFIER: SQ_src_t_TM_VP_STG
+TYPE: Source Qualifier
+REUSABLE: NO
+INPUT_LINK: src_t_TM_VP_STG_out
+ASSOCIATED_SOURCE: src_t_TM_VP_STG
+PARENT_MAPPING: m_COMM_TT_VP_STG
+PROCESS: Extract and qualify source data
+INPUT_OUTPUT_FIELDS:
+  FY: string(256)
+  SLP_PRODUCT_ID: string(256)
+  SHIKIBETSU_KBN: string(256)
+  VP_BUNRUI_NM: string(256)
+  VP_BUNRUI_NM_E: string(256)
+  VP_SORT_NO: string(256)
+  VP_KEISU: string(256)
+  ENTRY_DATE: date/time(29,9)
+  RUN_DT: date/time(29,9)
+CONFIGURATION:
+  Number_Of_Sorted_Ports: 3
+  Select_Distinct: NO
+  Is_Partitionable: NO
+  Output_is_deterministic: NO
+  Output_is_repeatable: Never
+  Tracing_Level: Normal
+OUTPUT_LINK: SQ_src_t_TM_VP_STG_OUTPUT
+
+SOURCE_QUALIFIER: SQ_src_t_TM_ORG_STG
+TYPE: Source Qualifier
+REUSABLE: NO
+INPUT_LINK: src_t_TM_ORG_STG_out
+ASSOCIATED_SOURCE: src_t_TM_ORG_STG
+PARENT_MAPPING: m_COMM_TT_SL_STG
+PROCESS: Extract and qualify source data
+INPUT_OUTPUT_FIELDS:
+  ORGZN_CD: string(256)
+  ORGZN_NM: string(256)
+  ORGZN_NM_KANA: string(256)
+  SYS_TYP: string(256)
+  ORGZN_CD_ND: string(256)
+  CHANNEL_NM: string(256)
+  KYOKU_CD: string(256)
+  KYOKU_NM: string(256)
+  SISHA_CD: string(256)
+  SISHA_NM: string(256)
+  EIGYOSHO_CD: string(256)
+  EIGYOSHO_NM: string(256)
+  ENTRY_DATE: datetime(29,9)
+  RUN_DT: datetime(29,9)
+CONFIGURATION:
+  Number_Of_Sorted_Ports: 1
+  Select_Distinct: NO
+  Is_Partitionable: NO
+  Output_is_deterministic: NO
+  Output_is_repeatable: Never
+  Tracing_Level: Normal
+OUTPUT_LINK: SQ_src_t_TM_ORG_STG_OUTPUT
+
+SOURCE_QUALIFIER: SQ_src_t_TM_ORG_REVISE_STG
+TYPE: Source Qualifier
+REUSABLE: NO
+INPUT_LINK: src_t_TM_ORG_REVISE_STG_out
+ASSOCIATED_SOURCE: src_t_TM_ORG_REVISE_STG
+PARENT_MAPPING: m_COMM_TT_SL_STG
+SOURCE_FILTER: REVISE_DATA_KBN='IFC'
+PROCESS: Extract and qualify source data with filter
+INPUT_OUTPUT_FIELDS:
+  REVISE_YEAR: string(256)
+  REVISE_DATA_KBN: string(256)
+  REVISE_SHOKANTEN_CD: string(256)
+  SHOKANTEN_CD: string(256)
+  NOTE: string(256)
+  ENTRY_DATE: datetime(29,9)
+  RUN_DT: datetime(29,9)
+CONFIGURATION:
+  Number_Of_Sorted_Ports: 3
+  Select_Distinct: NO
+  Is_Partitionable: NO
+  Output_is_deterministic: NO
+  Output_is_repeatable: Never
+  Tracing_Level: Normal
+OUTPUT_LINK: SQ_src_t_TM_ORG_REVISE_STG_OUTPUT
+
+SOURCE_QUALIFIER: SQ_src_t_TM_POL_REVISE_STG
+TYPE: Source Qualifier
+REUSABLE: NO
+INPUT_LINK: src_t_TM_POL_REVISE_STG_out
+ASSOCIATED_SOURCE: src_t_TM_POL_REVISE_STG
+PARENT_MAPPING: m_COMM_TT_SL_STG
+SOURCE_FILTER: REVISE_DATA_KBN='IFC'
+PROCESS: Extract and qualify source data with filter
+INPUT_OUTPUT_FIELDS:
+  REVISE_YEAR: string(256)
+  REVISE_DATA_KBN: string(256)
+  REVISE_POLICY_NO: string(256)
+  SHOKANTEN_CD: string(256)
+  SHOKANTEN_CD_PRE: string(256)
+  SLP_EXCLUDE_KBN: string(256)
+  NOTE: string(256)
+  ENTRY_DATE: date/time(29,9)
+  RUN_DT: date/time(29,9)
+CONFIGURATION:
+  Number_Of_Sorted_Ports: 3
+  Select_Distinct: NO
+  Is_Partitionable: NO
+  Output_is_deterministic: NO
+  Output_is_repeatable: Never
+  Tracing_Level: Normal
+OUTPUT_LINK: SQ_src_t_TM_POL_REVISE_STG_OUTPUT
+
+SOURCE_QUALIFIER: SQ_src_t_TT_PRE_CSC_STG
+TYPE: Source Qualifier
+REUSABLE: NO
+INPUT_LINK: src_t_TT_PRE_CSC_STG_out
+ASSOCIATED_SOURCE: src_t_TT_PRE_CSC_STG
+PARENT_MAPPING: m_COMM_TT_SL_STG
+PROCESS: Extract and qualify source data
+INPUT_OUTPUT_FIELDS:
+  POLICY_NO: string(256)
+  SHOKANTEN_CD_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  ENTRY_DATE: datetime(29,9)
+  RUN_DT: datetime(29,9)
+CONFIGURATION:
+  Number_Of_Sorted_Ports: 1
+  Select_Distinct: NO
+  Is_Partitionable: NO
+  Output_is_deterministic: NO
+  Output_is_repeatable: Never
+  Tracing_Level: Normal
+OUTPUT_LINK: SQ_src_t_TT_PRE_CSC_STG_OUTPUT
+
+chunk pseudo code ended
+
+SESSION: s_m_COMM_TT_AB_STG
+PARENT: WORKFLOW wf_m_COMM_TT_VP_AB_SL_STG
+MAPPING: m_COMM_TT_AB_STG
+FOLDER: APL_GZ_SHARED
+
+MAPPING_VARIABLE: $$NN_RUN_DT
+DATATYPE: string
+DEFAULT_VALUE: ""
+IS_PARAMETER: YES
+PRECISION: 256
+SCALE: 0
+
+SOURCE_DEFINITION: src_t_TM_HOSYOCD_STG_AB
+PARENT: FOLDER APL_GZ_SHARED
+DATABASE_TYPE: Oracle
+OBJECT_VERSION: 1
+PIPELINE: 0
+STAGE: 0
+SOURCE_FIELDS:
+  COVER_CD: varchar2(256), PRIMARY_KEY, NOT_NULL
+  COVER_NM: varchar2(256), NULLABLE
+  MAIN_FLG: varchar2(256), NULLABLE
+  SYS_TYP: varchar2(256), NULLABLE
+  SMC_PRODUCT_ID: varchar2(256), NULLABLE
+  SLP_PRODUCT_ID: varchar2(256), NULLABLE
+  SLP_EXCLUDE_KBN: varchar2(256), NULLABLE
+  ENTRY_DATE: date(19), NULLABLE
+  RUN_DT: date(19), NULLABLE
+  NEW_KEIYAKU_DATE_FROM: date(19), NULLABLE
+  NEW_KEIYAKU_DATE_TO: date(19), NULLABLE
+OUTPUT_LINK: To_SQ_src_t_TM_HOSYOCD_STG_AB
+
+SOURCE_DEFINITION: src_t_TT_VP_AB_SL_STG_IN_AB
+PARENT: FOLDER APL_GZ_SHARED
+DATABASE_TYPE: Oracle
+SOURCE_TABLE_NAME: TT_VP_AB_SL_STG_IN
+PIPELINE: 0
+STAGE: 0
+SOURCE_FIELDS:
+  DATA_KBN: varchar2(256), NOT NULL
+  SYS_TYP: varchar2(256), NOT NULL
+  KIJUN_YYYYMM: varchar2(256), NOT NULL
+  POLICY_NO: varchar2(256), PRIMARY KEY, NOT NULL
+  COVER_CD: varchar2(256), PRIMARY KEY, NOT NULL
+  ANP: varchar2(256), NULLABLE
+  KEIYAKU_DATE: date(19), NULLABLE
+  HOKEN_KIKAN_CD: varchar2(256), NULLABLE
+  MAIN_COVER_CD: varchar2(256), NULLABLE
+  NEW_KEIYAKU_DATE: date(19), NULLABLE
+  YOTEI_RIRITU: varchar2(256), NULLABLE
+  HARAIKATA_CD: varchar2(256), NULLABLE
+  HARAIZUMI_SHIKIBETSU_CD: varchar2(256), NULLABLE
+  HANBAI_PLAN_CD: varchar2(256), NULLABLE
+  SHOKANTEN_CD_CORR_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD_LJ: varchar2(256), NULLABLE
+  SHOKANTEN_CD_PRE_CORR_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD_PRE_LJ: varchar2(256), NULLABLE
+  SEX: varchar2(256), NULLABLE
+  CLTDOB: date(19), NULLABLE
+  RUN_DT: date(19), NULLABLE
+PRIMARY_KEY: POLICY_NO, COVER_CD
+OUTPUT_LINK: To_SQ_src_t_TT_VP_AB_SL_STG_IN_AB
+
+SOURCE_QUALIFIER: SQ_src_t_TM_HOSYOCD_STG_AB
+PIPELINE: 1
+STAGE: 2
+PARTITION_TYPE: PASS_THROUGH
+INPUT_LINK: From_src_t_TM_HOSYOCD_STG_AB
+OUTPUT_LINK: To_JNR_MAIN_COVER_CD_AB
+CONNECTION: DB_Connection
+
+SOURCE_QUALIFIER: SQ_src_t_TT_VP_AB_SL_STG_IN_AB
+PIPELINE: 2
+STAGE: 3
+PARTITION_TYPE: PASS_THROUGH
+INPUT_LINK: From_src_t_TT_VP_AB_SL_STG_IN_AB
+OUTPUT_LINK: To_EXPTRANS_AB
+CONNECTION: DB_Connection
+
+EXPRESSION: EXPTRANS_AB
+PIPELINE: 2
+STAGE: 3
+PARTITION: Partition_#1
+INPUT_LINK: From_SQ_src_t_TT_VP_AB_SL_STG_IN_AB
+OUTPUT_LINK: To_JNR_MAIN_COVER_CD_AB
+
+JOINER: JNR_MAIN_COVER_CD_AB
+TYPE: Joiner
+PIPELINE: 2
+STAGE: 3
+PARTITION: Partition_#1
+INPUT_LINK_1: From_SQ_src_t_TM_HOSYOCD_STG_AB
+INPUT_LINK_2: From_EXPTRANS_AB
+DETAIL_INPUT_FIELDS:
+  DATA_KBN: string(256)
+  SYS_TYP: string(256)
+  KIJUN_YYYYMM: string(256)
+  POLICY_NO: string(256)
+  COVER_CD: string(256)
+  ANP: string(256)
+  KEIYAKU_DATE: datetime(29,9)
+  HOKEN_KIKAN_CD: string(256)
+  MAIN_COVER_CD: string(256)
+  NEW_KEIYAKU_DATE: datetime(29,9)
+  YOTEI_RIRITU: string(256)
+  HARAIKATA_CD: string(256)
+  HARAIZUMI_SHIKIBETSU_CD: string(256)
+  HANBAI_PLAN_CD: string(256)
+  SHOKANTEN_CD_CORR_PRE: string(256)
+  SHOKANTEN_CD_LJ: string(256)
+  SHOKANTEN_CD_PRE_CORR_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  SEX: string(256)
+  RUN_DT: datetime(29,9)
+MASTER_FIELDS:
+  HOSYOCD__COVER_CD: string(256)
+  HOSYOCD__SMC_PRODUCT_ID: string(256)
+JOIN_LOGIC:
+  JOIN_TYPE: Master Outer Join
+  JOIN_CONDITION: HOSYOCD__COVER_CD = MAIN_COVER_CD
+  CASE_SENSITIVE: YES
+  SORTED_INPUT: YES
+  MASTER_SORT_ORDER: Auto
+  NULL_ORDERING_MASTER: Null Is Highest Value
+  NULL_ORDERING_DETAIL: Null Is Highest Value
+  CACHE_DIRECTORY: $PMCacheDir
+  DATA_CACHE_SIZE: Auto
+  INDEX_CACHE_SIZE: Auto
+  TRANSFORMATION_SCOPE: All Input
+OUTPUT_FIELDS:
+  DATA_KBN: string(256)
+  SYS_TYP: string(256)
+  KIJUN_YYYYMM: string(256)
+  POLICY_NO: string(256)
+  COVER_CD: string(256)
+  ANP: string(256)
+  KEIYAKU_DATE: datetime(29,9)
+  HOKEN_KIKAN_CD: string(256)
+  MAIN_COVER_CD: string(256)
+  NEW_KEIYAKU_DATE: datetime(29,9)
+  YOTEI_RIRITU: string(256)
+  HARAIKATA_CD: string(256)
+  HARAIZUMI_SHIKIBETSU_CD: string(256)
+  HANBAI_PLAN_CD: string(256)
+  SHOKANTEN_CD_CORR_PRE: string(256)
+  SHOKANTEN_CD_LJ: string(256)
+  SHOKANTEN_CD_PRE_CORR_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  SEX: string(256)
+  RUN_DT: datetime(29,9)
+  HOSYOCD__COVER_CD: string(256)
+  HOSYOCD__SMC_PRODUCT_ID: string(256)
+OUTPUT_LINK: To_EXPTRANS_AB_FINAL
+
+EXPRESSION: EXPTRANS_AB_FINAL
+TYPE: Expression
+INPUT_LINK: From_JNR_MAIN_COVER_CD_AB
+INPUT_FIELDS:
+  DATA_KBN: string(256)
+  SYS_TYP: string(256)
+  KIJUN_YYYYMM: string(256)
+  POLICY_NO: string(256)
+  COVER_CD: string(256)
+  ANP: string(256)
+  KEIYAKU_DATE: date/time(29,9)
+  HOKEN_KIKAN_CD: string(256)
+  MAIN_COVER_CD: string(256)
+  NEW_KEIYAKU_DATE: date/time(29,9)
+  YOTEI_RIRITU: string(256)
+  HARAIKATA_CD: string(256)
+  HARAIZUMI_SHIKIBETSU_CD: string(256)
+  HANBAI_PLAN_CD: string(256)
+  SHOKANTEN_CD_CORR_PRE: string(256)
+  SHOKANTEN_CD_LJ: string(256)
+  SHOKANTEN_CD_PRE_CORR_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  SEX: string(256)
+  HOSYOCD__SMC_PRODUCT_ID: string(256)
+OUTPUT_FIELDS:
+  DATA_KBN: string(256)
+  SYS_TYP: string(256)
+  KIJUN_YYYYMM: string(256)
+  POLICY_NO: string(256)
+  COVER_CD: string(256)
+  ANP: string(256)
+  KEIYAKU_DATE: date/time(29,9)
+  HOKEN_KIKAN_CD: string(256)
+  MAIN_COVER_CD: string(256)
+  NEW_KEIYAKU_DATE: date/time(29,9)
+  YOTEI_RIRITU: string(256)
+  HARAIKATA_CD: string(256)
+  HARAIZUMI_SHIKIBETSU_CD: string(256)
+  HANBAI_PLAN_CD: string(256)
+  SHOKANTEN_CD_CORR_PRE: string(256)
+  SHOKANTEN_CD_LJ: string(256)
+  SHOKANTEN_CD_PRE_CORR_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  SEX: string(256)
+  HOSYOCD__SMC_PRODUCT_ID: string(256)
+  ABGROUP: string(256)
+  ENTRY_DATE: date/time(29,9)
+  RUN_DT: date/time(29,9)
+EXPRESSION_LOGIC:
+  ABGROUP: iif(to_decimal(YOTEI_RIRITU) >= 3.75 and NEW_KEIYAKU_DATE <= to_date('20000101','yyyymmdd') and in(HOSYOCD__SMC_PRODUCT_ID,'060','070','080','300'), 'B', 'A')
+  ENTRY_DATE: SYSDATE
+  RUN_DT: :UDF.FUNC_DATE_FMT_CHK($$NN_RUN_DT,'yyyymmdd')
+UDF_DEPENDENCY: func_DATE_FMT_CHK
+OUTPUT_LINK: To_tgt_t_TT_VP_AB_SL_STG_AB
+
+TARGET_DEFINITION: tgt_t_TT_VP_AB_SL_STG_AB
+PARENT: FOLDER APL_GZ_SHARED
+DATABASE_TYPE: Oracle
+TARGET_TABLE_NAME: TT_VP_AB_SL_STG_AB
+PIPELINE: 2
+STAGE: 1
+PARTITION_TYPE: PASS_THROUGH
+TARGET_FIELDS:
+  DATA_KBN: varchar2(256), NOT NULL
+  SYS_TYP: varchar2(256), NOT NULL
+  KIJUN_YYYYMM: varchar2(256), NOT NULL
+  SLP_EXCLUDE_KBN: varchar2(256), NULLABLE
+  SLP_EXCLUDE_KBN_HOSEI_FLG: varchar2(256), NULLABLE
+  POLICY_NO: varchar2(256), PRIMARY KEY, NOT NULL
+  COVER_CD: varchar2(256), PRIMARY KEY, NOT NULL
+  MAIN_FLG: varchar2(256), NULLABLE
+  VP_KEISU: varchar2(256), NULLABLE
+  ANP: varchar2(256), NULLABLE
+  VP: varchar2(256), NULLABLE
+  KEIYAKU_DATE: date, NULLABLE
+  HOKEN_KIKAN_CD: varchar2(256), NULLABLE
+  MAIN_COVER_CD: varchar2(256), NULLABLE
+  NEW_KEIYAKU_DATE: date, NULLABLE
+  YOTEI_RIRITU: varchar2(256), NULLABLE
+  ABGROUP: varchar2(256), NULLABLE
+  HARAIKATA_CD: varchar2(256), NULLABLE
+  HARAIZUMI_SHIKIBETSU_CD: varchar2(256), NULLABLE
+  HANBAI_PLAN_CD: varchar2(256), NULLABLE
+  SHOKANTEN_CD_CORR_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD: varchar2(256), NULLABLE
+  SHOKANTEN_CD_LJ: varchar2(256), NULLABLE
+  SHOKANTEN_CD_PRE_CORR_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD_PRE_LJ: varchar2(256), NULLABLE
+  SEX: varchar2(256), NULLABLE
+  ENTRY_DATE: date, NULLABLE
+  RUN_DT: date, NULLABLE
+PRIMARY_KEY: POLICY_NO, COVER_CD
+INPUT_LINK: From_EXPTRANS_AB_FINAL
+CONNECTION: DB_Connection
+LOAD_TYPE: Normal
+INSERT: YES
+UPDATE_AS_UPDATE: NO
+UPDATE_AS_INSERT: NO
+UPDATE_ELSE_INSERT: NO
+DELETE: NO
+TRUNCATE_TARGET_TABLE: YES
+REJECT_FILE_DIRECTORY: $PMBadFileDir\
+REJECT_FILENAME: tgt_t_tt_vp_ab_sl_stg1.bad
+
+SESSION_CONFIG:
+  Stop_on_Errors: 1
+  Session_Log_File: s_m_COMM_TT_AB_STG.log
+  Session_Log_Directory: $PMSessionLogDir\
+  Treat_Source_Rows_As: Insert
+  Commit_Type: Target
+  Commit_Interval: 2147483647
+  Commit_On_End_Of_File: YES
+  Rollback_Transactions_on_Errors: NO
+  Recovery_Strategy: Fail_task_and_continue_workflow
+  DTM_Buffer_Size: Auto
+  Collect_Performance_Data: NO
+  Write_Performance_Data_to_Repository: NO
+  Incremental_Aggregation: NO
+  Enable_High_Precision: NO
+  Session_Retry_on_Deadlock: NO
+  Pushdown_Optimization: None
+  Allow_Temporary_View_for_Pushdown: NO
+  Allow_Temporary_Sequence_for_Pushdown: NO
+  Allow_Pushdown_for_User_Incompatible_Connections: NO
+
+DATA_FLOW_SEQUENCE:
+1. src_t_TT_VP_AB_SL_STG_IN_AB -> SQ_src_t_TT_VP_AB_SL_STG_IN_AB
+2. src_t_TM_HOSYOCD_STG_AB -> SQ_src_t_TM_HOSYOCD_STG_AB
+3. SQ_src_t_TT_VP_AB_SL_STG_IN_AB -> EXPTRANS_AB
+4. EXPTRANS_AB -> JNR_MAIN_COVER_CD_AB
+5. SQ_src_t_TM_HOSYOCD_STG_AB -> JNR_MAIN_COVER_CD_AB
+6. JNR_MAIN_COVER_CD_AB -> EXPTRANS_AB_FINAL
+7. EXPTRANS_AB_FINAL -> tgt_t_TT_VP_AB_SL_STG_AB
+
+chunk pseudo code ended
+
+SESSION: s_m_COMM_TT_VP_STG
+PARENT: WORKFLOW wf_m_COMM_TT_VP_AB_SL_STG
+MAPPING: m_COMM_TT_VP_STG
+FOLDER: APL_GZ_SHARED
+
+MAPPING_VARIABLE: $$NN_RUN_DT
+DATATYPE: string
+DEFAULT_VALUE: ""
+IS_PARAMETER: YES
+PRECISION: 256
+SCALE: 0
+
+SOURCE_DEFINITION: src_t_TT_VP_AB_SL_STG_IN_VP
+PARENT: FOLDER APL_GZ_SHARED
+DATABASE_TYPE: Oracle
+SOURCE_TABLE_NAME: TT_VP_AB_SL_STG_IN
+PIPELINE: 0
+STAGE: 0
+SOURCE_FIELDS:
+  DATA_KBN: varchar2(256), NOT NULL
+  SYS_TYP: varchar2(256), NOT NULL
+  KIJUN_YYYYMM: varchar2(256), NOT NULL
+  POLICY_NO: varchar2(256), PRIMARY KEY, NOT NULL
+  COVER_CD: varchar2(256), PRIMARY KEY, NOT NULL
+  ANP: varchar2(256), NULLABLE
+  KEIYAKU_DATE: date(19), NULLABLE
+  HOKEN_KIKAN_CD: varchar2(256), NULLABLE
+  MAIN_COVER_CD: varchar2(256), NULLABLE
+  NEW_KEIYAKU_DATE: date(19), NULLABLE
+  YOTEI_RIRITU: varchar2(256), NULLABLE
+  HARAIKATA_CD: varchar2(256), NULLABLE
+  HARAIZUMI_SHIKIBETSU_CD: varchar2(256), NULLABLE
+  HANBAI_PLAN_CD: varchar2(256), NULLABLE
+  SHOKANTEN_CD_CORR_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD_LJ: varchar2(256), NULLABLE
+  SHOKANTEN_CD_PRE_CORR_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD_PRE_LJ: varchar2(256), NULLABLE
+  SEX: varchar2(256), NULLABLE
+  RUN_DT: date(19), NULLABLE
+PRIMARY_KEY: POLICY_NO, COVER_CD
+OUTPUT_LINK: To_SQ_src_t_TT_VP_AB_SL_STG_IN_VP
+
+SOURCE_DEFINITION: src_t_TM_HOSYOCD_STG_VP
+PARENT: FOLDER APL_GZ_SHARED
+DATABASE_TYPE: Oracle
+SOURCE_TABLE_NAME: TM_HOSYOCD_STG
+PIPELINE: 0
+STAGE: 0
+SOURCE_FIELDS:
+  COVER_CD: varchar2(256), PRIMARY KEY, NOT NULL
+  COVER_NM: varchar2(256), NULLABLE
+  MAIN_FLG: varchar2(256), NULLABLE
+  SYS_TYP: varchar2(256), NULLABLE
+  SMC_PRODUCT_ID: varchar2(256), NULLABLE
+  SLP_PRODUCT_ID: varchar2(256), NULLABLE
+  SLP_EXCLUDE_KBN: varchar2(256), NULLABLE
+  ENTRY_DATE: date(19), NULLABLE
+  RUN_DT: date(19), NULLABLE
+  NEW_KEIYAKU_DATE_FROM: date(19), NULLABLE
+  NEW_KEIYAKU_DATE_TO: date(19), NULLABLE
+OUTPUT_LINK: To_SQ_src_t_TM_HOSYOCD_STG_VP
+
+SOURCE_DEFINITION: src_t_TM_VP_STG_VP
+PARENT: FOLDER APL_GZ_SHARED
+DATABASE_TYPE: Oracle
+SOURCE_TABLE_NAME: TM_VP_STG
+PIPELINE: 0
+STAGE: 0
+SOURCE_FIELDS:
+  FY: varchar2(256), PRIMARY KEY, NOT NULL
+  SLP_PRODUCT_ID: varchar2(256), PRIMARY KEY, NOT NULL
+  SHIKIBETSU_KBN: varchar2(256), PRIMARY KEY, NOT NULL
+  VP_BUNRUI_NM: varchar2(256), NULLABLE
+  VP_BUNRUI_NM_E: varchar2(256), NULLABLE
+  VP_SORT_NO: varchar2(256), NULLABLE
+  VP_KEISU: varchar2(256), NULLABLE
+  ENTRY_DATE: date(19), NULLABLE
+  RUN_DT: date(19), NULLABLE
+OUTPUT_LINK: To_SQ_src_t_TM_VP_STG_VP
+
+SOURCE_QUALIFIER: SQ_src_t_TT_VP_AB_SL_STG_IN_VP
+PIPELINE: 1
+STAGE: 2
+PARTITION_TYPE: PASS_THROUGH
+INPUT_LINK: From_src_t_TT_VP_AB_SL_STG_IN_VP
+OUTPUT_LINK: To_JNR_COVER_CD
+CONNECTION: DB_Connection
+
+SOURCE_QUALIFIER: SQ_src_t_TM_HOSYOCD_STG_VP
+PIPELINE: 2
+STAGE: 3
+PARTITION_TYPE: PASS_THROUGH
+INPUT_LINK: From_src_t_TM_HOSYOCD_STG_VP
+OUTPUT_LINK: To_JNR_COVER_CD
+CONNECTION: DB_Connection
+
+SOURCE_QUALIFIER: SQ_src_t_TM_VP_STG_VP
+PIPELINE: 3
+STAGE: 4
+PARTITION_TYPE: PASS_THROUGH
+INPUT_LINK: From_src_t_TM_VP_STG_VP
+OUTPUT_LINK: To_JNR_VP
+CONNECTION: DB_Connection
+
+JOINER: JNR_COVER_CD
+TYPE: Joiner
+PIPELINE: 1
+STAGE: 2
+PARTITION: Partition_#1
+INPUT_LINK_1: From_SQ_src_t_TT_VP_AB_SL_STG_IN_VP
+INPUT_LINK_2: From_SQ_src_t_TM_HOSYOCD_STG_VP
+DETAIL_INPUT_FIELDS:
+  DATA_KBN: string(256)
+  SYS_TYP: string(256)
+  KIJUN_YYYYMM: string(256)
+  POLICY_NO: string(256)
+  COVER_CD: string(256)
+  ANP: string(256)
+  KEIYAKU_DATE: date/time(29,9)
+  HOKEN_KIKAN_CD: string(256)
+  MAIN_COVER_CD: string(256)
+  NEW_KEIYAKU_DATE: date/time(29,9)
+  YOTEI_RIRITU: string(256)
+  HARAIKATA_CD: string(256)
+  HARAIZUMI_SHIKIBETSU_CD: string(256)
+  HANBAI_PLAN_CD: string(256)
+  SHOKANTEN_CD_CORR_PRE: string(256)
+  SHOKANTEN_CD_LJ: string(256)
+  SHOKANTEN_CD_PRE_CORR_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  SEX: string(256)
+  RUN_DT: date/time(29,9)
+MASTER_INPUT_FIELDS:
+  HOSYOCD__COVER_CD: string(256)
+  HOSYO__SLP_PRODUCT_ID: string(256)
+JOIN_LOGIC:
+  JOIN_TYPE: Master Outer Join
+  JOIN_CONDITION: HOSYOCD__COVER_CD = COVER_CD
+  CASE_SENSITIVE: YES
+  SORTED_INPUT: YES
+  MASTER_SORT_ORDER: Auto
+  NULL_ORDERING_MASTER: Null Is Highest Value
+  NULL_ORDERING_DETAIL: Null Is Highest Value
+  CACHE_DIRECTORY: $PMCacheDir
+  DATA_CACHE_SIZE: Auto
+  INDEX_CACHE_SIZE: Auto
+  TRANSFORMATION_SCOPE: All Input
+OUTPUT_FIELDS:
+  DATA_KBN: string(256)
+  SYS_TYP: string(256)
+  KIJUN_YYYYMM: string(256)
+  POLICY_NO: string(256)
+  COVER_CD: string(256)
+  ANP: string(256)
+  KEIYAKU_DATE: date/time(29,9)
+  HOKEN_KIKAN_CD: string(256)
+  MAIN_COVER_CD: string(256)
+  NEW_KEIYAKU_DATE: date/time(29,9)
+  YOTEI_RIRITU: string(256)
+  HARAIKATA_CD: string(256)
+  HARAIZUMI_SHIKIBETSU_CD: string(256)
+  HANBAI_PLAN_CD: string(256)
+  SHOKANTEN_CD_CORR_PRE: string(256)
+  SHOKANTEN_CD_LJ: string(256)
+  SHOKANTEN_CD_PRE_CORR_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  SEX: string(256)
+  RUN_DT: date/time(29,9)
+  HOSYOCD__COVER_CD: string(256)
+  HOSYO__SLP_PRODUCT_ID: string(256)
+OUTPUT_LINK: To_EXP_VP_KEY
+
+EXPRESSION: EXP_VP_KEY
+INPUT_LINK: From_JNR_COVER_CD
+PARENT_MAPPING: m_COMM_TT_VP_STG
+PROCESS: Transform VP key fields
+INPUT_FIELDS:
+  DATA_KBN: string(256)
+  SYS_TYP: string(256)
+  KIJUN_YYYYMM: string(256)
+  POLICY_NO: string(256)
+  COVER_CD: string(256)
+  ANP: string(256)
+  KEIYAKU_DATE: date/time(29,9)
+  HOKEN_KIKAN_CD: string(256)
+  MAIN_COVER_CD: string(256)
+  NEW_KEIYAKU_DATE: date/time(29,9)
+  YOTEI_RIRITU: string(256)
+  HARAIKATA_CD: string(256)
+  HARAIZUMI_SHIKIBETSU_CD: string(256)
+  HANBAI_PLAN_CD: string(256)
+  SHOKANTEN_CD_CORR_PRE: string(256)
+  SHOKANTEN_CD_LJ: string(256)
+  SHOKANTEN_CD_PRE_CORR_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  SEX: string(256)
+  RUN_DT: date/time(29,9)
+  HOSYO__SLP_PRODUCT_ID: string(256)
+TRANSFORMATION_LOGIC:
+  VP_KEY_KIJUN_YYYY: SUBSTR(KIJUN_YYYYMM,1,4)
+  VP_KEY_SHIKIBETU_KUBUN: iif(HARAIZUMI_SHIKIBETSU_CD = '51','1',iif(HARAIZUMI_SHIKIBETSU_CD = '52','2',iif(HARAIZUMI_SHIKIBETSU_CD = '53','3','0')))
+OUTPUT_FIELDS:
+  DATA_KBN: string(256)
+  SYS_TYP: string(256)
+  KIJUN_YYYYMM: string(256)
+  POLICY_NO: string(256)
+  COVER_CD: string(256)
+  ANP: string(256)
+  KEIYAKU_DATE: date/time(29,9)
+  HOKEN_KIKAN_CD: string(256)
+  MAIN_COVER_CD: string(256)
+  NEW_KEIYAKU_DATE: date/time(29,9)
+  YOTEI_RIRITU: string(256)
+  HARAIKATA_CD: string(256)
+  HARAIZUMI_SHIKIBETSU_CD: string(256)
+  HANBAI_PLAN_CD: string(256)
+  SHOKANTEN_CD_CORR_PRE: string(256)
+  SHOKANTEN_CD_LJ: string(256)
+  SHOKANTEN_CD_PRE_CORR_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  SEX: string(256)
+  RUN_DT: date/time(29,9)
+  HOSYO__SLP_PRODUCT_ID: string(256)
+  VP_KEY_KIJUN_YYYY: string(256)
+  VP_KEY_SHIKIBETU_KUBUN: string(256)
+OUTPUT_LINK: To_SRT_VP
+
+SORTER: SRT_VP
+TYPE: Sorter
+PIPELINE: 1
+STAGE: 2
+PARTITION: Partition_#1
+INPUT_LINK: From_EXP_VP_KEY
+INPUT_FIELDS:
+  VP_KEY_KIJUN_YYYY: string(256)
+  HOSYO__SLP_PRODUCT_ID: string(256)
+  VP_KEY_SHIKIBETU_KUBUN: string(256)
+  DATA_KBN: string(256)
+  SYS_TYP: string(256)
+  KIJUN_YYYYMM: string(256)
+  POLICY_NO: string(256)
+  COVER_CD: string(256)
+  ANP: string(256)
+  KEIYAKU_DATE: datetime(29,9)
+  HOKEN_KIKAN_CD: string(256)
+  MAIN_COVER_CD: string(256)
+  NEW_KEIYAKU_DATE: datetime(29,9)
+  YOTEI_RIRITU: string(256)
+  HARAIKATA_CD: string(256)
+  HARAIZUMI_SHIKIBETSU_CD: string(256)
+  HANBAI_PLAN_CD: string(256)
+  SHOKANTEN_CD_CORR_PRE: string(256)
+  SHOKANTEN_CD_LJ: string(256)
+  SHOKANTEN_CD_PRE_CORR_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  SEX: string(256)
+  RUN_DT: datetime(29,9)
+SORT_KEYS:
+  VP_KEY_KIJUN_YYYY: ASCENDING
+  HOSYO__SLP_PRODUCT_ID: ASCENDING
+  VP_KEY_SHIKIBETU_KUBUN: ASCENDING
+CONFIGURATION:
+  Sorter_Cache_Size: Auto
+  Case_Sensitive: YES
+  Work_Directory: $PMTempDir
+  Distinct: NO
+  Tracing_Level: Normal
+  Null_Treated_Low: NO
+  Merge_Only: NO
+  Partitioning: Order records for individual partitions
+  Transformation_Scope: All Input
+OUTPUT_FIELDS:
+  VP_KEY_KIJUN_YYYY: string(256)
+  HOSYO__SLP_PRODUCT_ID: string(256)
+  VP_KEY_SHIKIBETU_KUBUN: string(256)
+  DATA_KBN: string(256)
+  SYS_TYP: string(256)
+  KIJUN_YYYYMM: string(256)
+  POLICY_NO: string(256)
+  COVER_CD: string(256)
+  ANP: string(256)
+  KEIYAKU_DATE: datetime(29,9)
+  HOKEN_KIKAN_CD: string(256)
+  MAIN_COVER_CD: string(256)
+  NEW_KEIYAKU_DATE: datetime(29,9)
+  YOTEI_RIRITU: string(256)
+  HARAIKATA_CD: string(256)
+  HARAIZUMI_SHIKIBETSU_CD: string(256)
+  HANBAI_PLAN_CD: string(256)
+  SHOKANTEN_CD_CORR_PRE: string(256)
+  SHOKANTEN_CD_LJ: string(256)
+  SHOKANTEN_CD_PRE_CORR_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  SEX: string(256)
+  RUN_DT: datetime(29,9)
+OUTPUT_LINK: To_JNR_VP_COMM
+
+JOINER: JNR_VP_COMM
+INPUT_LINK_DETAIL: From_SRT_VP
+INPUT_LINK_MASTER: From_SQ_src_t_TM_VP_STG_VP
+PARENT_MAPPING: m_COMM_TT_VP_STG
+JOIN_TYPE: Master Outer Join
+JOIN_CONDITION: VP__FY = VP_KEY_KIJUN_YYYY AND VP__SLP_PRODUCT_ID = HOSYO__SLP_PRODUCT_ID AND VP__SHIKIBETSU_KBN = VP_KEY_SHIKIBETU_KUBUN
+DETAIL_INPUT_FIELDS:
+  DATA_KBN: string(256)
+  SYS_TYP: string(256)
+  KIJUN_YYYYMM: string(256)
+  POLICY_NO: string(256)
+  COVER_CD: string(256)
+  ANP: string(256)
+  KEIYAKU_DATE: string(256)
+  HOKEN_KIKAN_CD: string(256)
+  MAIN_COVER_CD: string(256)
+  NEW_KEIYAKU_DATE: datetime(29,9)
+  YOTEI_RIRITU: string(256)
+  HARAIKATA_CD: string(256)
+  HARAIZUMI_SHIKIBETSU_CD: string(256)
+  HANBAI_PLAN_CD: string(256)
+  SHOKANTEN_CD_CORR_PRE: string(256)
+  SHOKANTEN_CD_LJ: string(256)
+  SHOKANTEN_CD_PRE_CORR_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  SEX: string(256)
+  RUN_DT: datetime(29,9)
+  HOSYO__SLP_PRODUCT_ID: string(256)
+  VP_KEY_KIJUN_YYYY: string(256)
+  VP_KEY_SHIKIBETU_KUBUN: string(256)
+MASTER_INPUT_FIELDS:
+  VP__FY: string(256)
+  VP__SLP_PRODUCT_ID: string(256)
+  VP__SHIKIBETSU_KBN: string(256)
+  VP__VP_KEISU: string(256)
+OUTPUT_FIELDS:
+  DATA_KBN: string(256)
+  SYS_TYP: string(256)
+  KIJUN_YYYYMM: string(256)
+  POLICY_NO: string(256)
+  COVER_CD: string(256)
+  ANP: string(256)
+  KEIYAKU_DATE: string(256)
+  HOKEN_KIKAN_CD: string(256)
+  MAIN_COVER_CD: string(256)
+  NEW_KEIYAKU_DATE: datetime(29,9)
+  YOTEI_RIRITU: string(256)
+  HARAIKATA_CD: string(256)
+  HARAIZUMI_SHIKIBETSU_CD: string(256)
+  HANBAI_PLAN_CD: string(256)
+  SHOKANTEN_CD_CORR_PRE: string(256)
+  SHOKANTEN_CD_LJ: string(256)
+  SHOKANTEN_CD_PRE_CORR_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  SEX: string(256)
+  RUN_DT: datetime(29,9)
+  HOSYO__SLP_PRODUCT_ID: string(256)
+  VP_KEY_KIJUN_YYYY: string(256)
+  VP_KEY_SHIKIBETU_KUBUN: string(256)
+  VP__FY: string(256)
+  VP__SLP_PRODUCT_ID: string(256)
+  VP__SHIKIBETSU_KBN: string(256)
+  VP__VP_KEISU: string(256)
+PROCESS: Join VP data with master VP table
+OUTPUT_LINK: To_EXPTRANS_COMM_VP
+
+EXPRESSION: EXPTRANS_COMM_VP
+INPUT_LINK: From_JNR_VP_COMM
+PARENT_MAPPING: m_COMM_TT_VP_STG
+PROCESS: Transform VP common fields
+INPUT_FIELDS:
+  DATA_KBN: string(256)
+  SYS_TYP: string(256)
+  KIJUN_YYYYMM: string(256)
+  POLICY_NO: string(256)
+  COVER_CD: string(256)
+  ANP: string(256)
+  KEIYAKU_DATE: datetime(29,9)
+  HOKEN_KIKAN_CD: string(256)
+  MAIN_COVER_CD: string(256)
+  NEW_KEIYAKU_DATE: datetime(29,9)
+  YOTEI_RIRITU: string(256)
+  HARAIKATA_CD: string(256)
+  HARAIZUMI_SHIKIBETSU_CD: string(256)
+  HANBAI_PLAN_CD: string(256)
+  SHOKANTEN_CD_CORR_PRE: string(256)
+  SHOKANTEN_CD_LJ: string(256)
+  SHOKANTEN_CD_PRE_CORR_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  SEX: string(256)
+  HOSYO__SLP_PRODUCT_ID: string(256)
+  VP_KEY_KIJUN_YYYY: string(256)
+  VP_KEY_SHIKIBETU_KUBUN: string(256)
+  VP__FY: string(256)
+  VP__SLP_PRODUCT_ID: string(256)
+  VP__SHIKIBETSU_KBN: string(256)
+  VP__VP_KEISU: string(256)
+TRANSFORMATION_LOGIC:
+  VP_KEISU: VP__VP_KEISU
+  VP: to_decimal(ANP) * to_decimal(VP__VP_KEISU)
+  ENTRY_DATE: SYSDATE
+  RUN_DT: :UDF.FUNC_DATE_FMT_CHK($$NN_RUN_DT,'yyyymmdd')
+OUTPUT_FIELDS:
+  DATA_KBN: string(256)
+  SYS_TYP: string(256)
+  KIJUN_YYYYMM: string(256)
+  POLICY_NO: string(256)
+  COVER_CD: string(256)
+  ANP: string(256)
+  KEIYAKU_DATE: datetime(29,9)
+  HOKEN_KIKAN_CD: string(256)
+  MAIN_COVER_CD: string(256)
+  NEW_KEIYAKU_DATE: datetime(29,9)
+  YOTEI_RIRITU: string(256)
+  HARAIKATA_CD: string(256)
+  HARAIZUMI_SHIKIBETSU_CD: string(256)
+  HANBAI_PLAN_CD: string(256)
+  SHOKANTEN_CD_CORR_PRE: string(256)
+  SHOKANTEN_CD_LJ: string(256)
+  SHOKANTEN_CD_PRE_CORR_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  SEX: string(256)
+  HOSYO__SLP_PRODUCT_ID: string(256)
+  VP_KEY_KIJUN_YYYY: string(256)
+  VP_KEY_SHIKIBETU_KUBUN: string(256)
+  VP__FY: string(256)
+  VP__SLP_PRODUCT_ID: string(256)
+  VP__SHIKIBETSU_KBN: string(256)
+  VP_KEISU: string(256)
+  VP: string(256)
+  ENTRY_DATE: datetime(29,9)
+  RUN_DT: datetime(29,9)
+UDF_DEPENDENCY: func_DATE_FMT_CHK
+OUTPUT_LINK: To_SRT_VP_COMM
+
+SORTER: SRT_VP_COMM
+INPUT_LINK: From_EXPTRANS_COMM_VP
+PARENT_MAPPING: m_COMM_TT_VP_STG
+PROCESS: Sort VP data
+OUTPUT_LINK: To_tgt_t_TT_VP_AB_SL_STG_VP_COMM
+
+TARGET_DEFINITION: tgt_t_TT_VP_AB_SL_STG_VP_COMM
+INPUT_LINK: From_SRT_VP_COMM
+DATABASE_TYPE: Oracle
+TABLE: TT_VP_AB_SL_STG_VP
+PARENT_MAPPING: m_COMM_TT_VP_STG
+LOAD_TYPE: Normal
+INSERT: YES
+TRUNCATE_TARGET: YES
+REJECT_FILE_DIR: $PMBadFileDir\
+REJECT_FILENAME: tgt_t_tt_vp_ab_sl_stg1.bad
+CONFIGURATION:
+  Reject_Truncated_Overflowed_Rows: YES
+
+chunk pseudo code ended
+
+SESSION: s_m_COMM_TT_SL_STG
+PARENT: WORKFLOW wf_m_COMM_TT_VP_AB_SL_STG
+MAPPING: m_COMM_TT_SL_STG
+FOLDER: APL_GZ_SHARED
+
+MAPPING_VARIABLE: $$NN_RUN_DT
+DATATYPE: string
+DEFAULT_VALUE: ""
+IS_PARAMETER: YES
+PRECISION: 256
+SCALE: 0
+
+SOURCE_DEFINITION: src_t_TT_VP_AB_SL_STG_IN
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_SQ_src_t_TT_VP_AB_SL_STG_IN
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD_PRE_CORR_PRE, CLTDOB
+
+SOURCE_QUALIFIER: SQ_src_t_TT_VP_AB_SL_STG_IN
+INPUT_LINK: From_src_t_TT_VP_AB_SL_STG_IN
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_EXPTRANS
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD_PRE_CORR_PRE, CLTDOB
+
+SOURCE_DEFINITION: src_t_TM_ORG_STG
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_SQ_src_t_TM_ORG_STG
+COLUMNS: ORGZN_CD, ORGZN_NM, ORGZN_NM_KANA, SYS_TYP, ORGZN_CD_ND, CHANNEL_NM, KYOKU_CD, KYOKU_NM, SISHA_CD, SISHA_NM, EIGYOSHO_CD, EIGYOSHO_NM, ENTRY_DATE, RUN_DT
+
+SOURCE_QUALIFIER: SQ_src_t_TM_ORG_STG
+INPUT_LINK: From_src_t_TM_ORG_STG
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_JNR_SHOKANTEN_CD_PRE__ORG, To_JNR_SHOKANTEN_CD__ORG, To_JNR_SHOKANTEN_CD_PRE_INFO
+COLUMNS: ORGZN_CD, ORGZN_NM, ORGZN_NM_KANA, SYS_TYP, ORGZN_CD_ND, CHANNEL_NM, KYOKU_CD, KYOKU_NM, SISHA_CD, SISHA_NM, EIGYOSHO_CD, EIGYOSHO_NM, ENTRY_DATE, RUN_DT
+
+SOURCE_DEFINITION: src_t_TM_ORG_REVISE_STG
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_SQ_src_t_TM_ORG_REVISE_STG
+COLUMNS: REVISE_YEAR, REVISE_DATA_KBN, REVISE_SHOKANTEN_CD, SHOKANTEN_CD, NOTE, ENTRY_DATE, RUN_DT
+
+SOURCE_QUALIFIER: SQ_src_t_TM_ORG_REVISE_STG
+INPUT_LINK: From_src_t_TM_ORG_REVISE_STG
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_JNR_SHOKANTEN_CD_PRE__ORG_REVISE, To_JNR_SHOKANTEN_CD__ORG_REVISE
+COLUMNS: REVISE_YEAR, REVISE_DATA_KBN, REVISE_SHOKANTEN_CD, SHOKANTEN_CD, NOTE, ENTRY_DATE, RUN_DT
+
+SOURCE_DEFINITION: src_t_TM_POL_REVISE_STG
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_SQ_src_t_TM_POL_REVISE_STG
+COLUMNS: REVISE_DATA_KBN, REVISE_POLICY_NO, SHOKANTEN_CD, SHOKANTEN_CD_PRE, SLP_EXCLUDE_KBN, NOTE, ENTRY_DATE, RUN_DT, REVISE_YEAR
+
+SOURCE_QUALIFIER: SQ_src_t_TM_POL_REVISE_STG
+INPUT_LINK: From_src_t_TM_POL_REVISE_STG
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_JNR_SHOKANTEN_CD_PRE__POL_REVISE
+COLUMNS: REVISE_DATA_KBN, REVISE_POLICY_NO, SHOKANTEN_CD, SHOKANTEN_CD_PRE, SLP_EXCLUDE_KBN, NOTE, ENTRY_DATE, RUN_DT, REVISE_YEAR
+
+SOURCE_DEFINITION: src_t_TT_PRE_CSC_STG
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_SQ_src_t_TT_PRE_CSC_STG
+COLUMNS: POLICY_NO, SHOKANTEN_CD_PRE, SHOKANTEN_CD_PRE_LJ, ENTRY_DATE, RUN_DT
+
+SOURCE_QUALIFIER: SQ_src_t_TT_PRE_CSC_STG
+INPUT_LINK: From_src_t_TT_PRE_CSC_STG
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_JNR_SHOKANTEN_CD_PRE__PRE_CSC
+COLUMNS: POLICY_NO, SHOKANTEN_CD_PRE, SHOKANTEN_CD_PRE_LJ, ENTRY_DATE, RUN_DT
+
+SOURCE_DEFINITION: src_t_TM_HOSYOCD_STG
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_SQ_src_t_TM_HOSYOCD_STG
+COLUMNS: COVER_CD, COVER_NM, MAIN_FLG, SYS_TYP, SMC_PRODUCT_ID, SLP_PRODUCT_ID, SLP_EXCLUDE_KBN, ENTRY_DATE, RUN_DT, NEW_KEIYAKU_DATE_FROM, NEW_KEIYAKU_DATE_TO
+
+SOURCE_QUALIFIER: SQ_src_t_TM_HOSYOCD_STG
+INPUT_LINK: From_src_t_TM_HOSYOCD_STG
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_JNR_HOSHOCD
+COLUMNS: COVER_CD, COVER_NM, MAIN_FLG, SYS_TYP, SMC_PRODUCT_ID, SLP_PRODUCT_ID, SLP_EXCLUDE_KBN, ENTRY_DATE, RUN_DT, NEW_KEIYAKU_DATE_FROM, NEW_KEIYAKU_DATE_TO
+
+EXPRESSION: EXPTRANS
+INPUT_LINK: From_SQ_src_t_TT_VP_AB_SL_STG_IN
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_SRT_SHOKANTEN_CD_PRE__POL_REVISE
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, KIJUN_YYYY, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD_PRE_CORR_PRE, CLTDOB
+TRANSFORMATION_LOGIC:
+  KIJUN_YYYY: substr(KIJUN_YYYYMM,1,4)
+
+SORTER: SRT_SHOKANTEN_CD_PRE__POL_REVISE
+INPUT_LINK: From_EXPTRANS
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_JNR_SHOKANTEN_CD_PRE__POL_REVISE
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, KIJUN_YYYY, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_CORR_PRE, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, CLTDOB
+SORT_KEYS:
+  KIJUN_YYYY: ASCENDING
+  DATA_KBN: ASCENDING
+  POLICY_NO: ASCENDING
+
+JOINER: JNR_SHOKANTEN_CD_PRE__POL_REVISE
+INPUT_LINK: From_SRT_SHOKANTEN_CD_PRE__POL_REVISE, From_SQ_src_t_TM_POL_REVISE_STG
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_SRT_SHOKANTEN_CD_PRE__PRE_CSC
+JOIN_TYPE: Master Outer Join
+JOIN_CONDITION: POL_REVISE__REVISE_YEAR = KIJUN_YYYY AND POL_REVISE__REVISE_DATA_KBN = DATA_KBN AND POL_REVISE__REVISE_POLICY_NO = POLICY_NO
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, KIJUN_YYYY, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_CORR_PRE, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, CLTDOB, POL_REVISE__REVISE_YEAR, POL_REVISE__REVISE_DATA_KBN, POL_REVISE__REVISE_POLICY_NO, POL_REVISE__SHOKANTEN_CD, POL_REVISE__SHOKANTEN_CD_PRE, POL_REVISE__SLP_EXCLUDE_KBN
+
+SORTER: SRT_SHOKANTEN_CD_PRE__PRE_CSC
+INPUT_LINK: From_JNR_SHOKANTEN_CD_PRE__POL_REVISE
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_JNR_SHOKANTEN_CD_PRE__PRE_CSC
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, KIJUN_YYYY, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_CORR_PRE, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, POL_REVISE__SHOKANTEN_CD, POL_REVISE__SHOKANTEN_CD_PRE, POL_REVISE__SLP_EXCLUDE_KBN, CLTDOB
+SORT_KEYS:
+  POLICY_NO: ASCENDING
+
+JOINER: JNR_SHOKANTEN_CD_PRE__PRE_CSC
+INPUT_LINK: From_SRT_SHOKANTEN_CD_PRE__PRE_CSC, From_SQ_src_t_TT_PRE_CSC_STG
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_SRT_SHOKANTEN_CD_PRE__ORG
+JOIN_TYPE: Master Outer Join
+JOIN_CONDITION: PRE_CSC__POLICY_NO = POLICY_NO
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, KIJUN_YYYY, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_CORR_PRE, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, POL_REVISE__SHOKANTEN_CD, POL_REVISE__SHOKANTEN_CD_PRE, POL_REVISE__SLP_EXCLUDE_KBN, PRE_CSC__SHOKANTEN_CD_PRE, CLTDOB
+
+SORTER: SRT_SHOKANTEN_CD_PRE__ORG
+INPUT_LINK: From_JNR_SHOKANTEN_CD_PRE__PRE_CSC
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_JNR_SHOKANTEN_CD_PRE__ORG
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, KIJUN_YYYY, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_CORR_PRE, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, POL_REVISE__SHOKANTEN_CD, POL_REVISE__SHOKANTEN_CD_PRE, POL_REVISE__SLP_EXCLUDE_KBN, PRE_CSC__SHOKANTEN_CD_PRE, CLTDOB
+SORT_KEYS:
+  SHOKANTEN_CD_PRE_LJ: ASCENDING
+
+JOINER: JNR_SHOKANTEN_CD_PRE__ORG
+INPUT_LINK: From_SRT_SHOKANTEN_CD_PRE__ORG, From_SQ_src_t_TM_ORG_STG
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_EXP_SHOKANTEN_CD_PRE__KEY
+JOIN_TYPE: Master Outer Join
+JOIN_CONDITION: ORG__ORGZN_CD = SHOKANTEN_CD_PRE_LJ
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, KIJUN_YYYY, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_CORR_PRE, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, POL_REVISE__SHOKANTEN_CD, POL_REVISE__SHOKANTEN_CD_PRE, POL_REVISE__SLP_EXCLUDE_KBN, PRE_CSC__SHOKANTEN_CD_PRE, ORG__ORGZN_CD, ORG__ORGZN_CD_ND, CLTDOB
+
+EXPRESSION: EXP_SHOKANTEN_CD_PRE__KEY
+INPUT_LINK: From_JNR_SHOKANTEN_CD_PRE__ORG
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_SRT_SHOKANTEN_CD_PRE__ORG_REVISE
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, KIJUN_YYYY, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_CORR_PRE, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, POL_REVISE__SHOKANTEN_CD, POL_REVISE__SHOKANTEN_CD_PRE, POL_REVISE__SLP_EXCLUDE_KBN, PRE_CSC__SHOKANTEN_CD_PRE, ORG__ORGZN_CD_ND, wk_ORG_REVISE_KEY, CLTDOB
+TRANSFORMATION_LOGIC:
+  wk_ORG_REVISE_KEY: iif((SYS_TYP='N' and (length(rtrim(SHOKANTEN_CD_PRE_CORR_PRE)) = 0 or isnull(SHOKANTEN_CD_PRE_CORR_PRE)=true)) or (SYS_TYP='J' and (length(rtrim(SHOKANTEN_CD_PRE_LJ)) = 0 or isnull(SHOKANTEN_CD_PRE_LJ)=true)),PRE_CSC__SHOKANTEN_CD_PRE,iif(SYS_TYP='N',SHOKANTEN_CD_PRE_CORR_PRE,iif(SYS_TYP='J',ORG__ORGZN_CD_ND,null)))
+
+SORTER: SRT_SHOKANTEN_CD_PRE__ORG_REVISE
+INPUT_LINK: From_EXP_SHOKANTEN_CD_PRE__KEY
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_JNR_SHOKANTEN_CD_PRE__ORG_REVISE
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, KIJUN_YYYY, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_CORR_PRE, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, POL_REVISE__SHOKANTEN_CD, POL_REVISE__SHOKANTEN_CD_PRE, POL_REVISE__SLP_EXCLUDE_KBN, PRE_CSC__SHOKANTEN_CD_PRE, ORG__ORGZN_CD_ND, wk_ORG_REVISE_KEY, CLTDOB
+SORT_KEYS:
+  KIJUN_YYYY: ASCENDING
+  DATA_KBN: ASCENDING
+  wk_ORG_REVISE_KEY: ASCENDING
+
+JOINER: JNR_SHOKANTEN_CD_PRE__ORG_REVISE
+INPUT_LINK: From_SRT_SHOKANTEN_CD_PRE__ORG_REVISE, From_SQ_src_t_TM_ORG_REVISE_STG
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_EXP_SHOKANTEN_CD_PRE
+JOIN_TYPE: Master Outer Join
+JOIN_CONDITION: ORG_REVISE__REVISE_YEAR = KIJUN_YYYY AND ORG_REVISE__REVISE_DATA_KBN = DATA_KBN AND ORG_REVISE__REVISE_SHOKANTEN_CD = wk_ORG_REVISE_KEY
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, KIJUN_YYYY, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_CORR_PRE, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, POL_REVISE__SHOKANTEN_CD, POL_REVISE__SHOKANTEN_CD_PRE, POL_REVISE__SLP_EXCLUDE_KBN, wk_ORG_REVISE_KEY, ORG_REVISE__REVISE_YEAR, ORG_REVISE__REVISE_DATA_KBN, ORG_REVISE__REVISE_SHOKANTEN_CD, ORG_REVISE__SHOKANTEN_CD, CLTDOB
+
+EXPRESSION: EXP_SHOKANTEN_CD_PRE
+INPUT_LINK: From_JNR_SHOKANTEN_CD_PRE__ORG_REVISE
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_SRT_SHOKANTEN_CD__ORG
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, KIJUN_YYYY, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_CORR_PRE, SHOKANTEN_CD_PRE, SHOKANTEN_CD_PRE_HOSEI_FLG, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, POL_REVISE__SHOKANTEN_CD, POL_REVISE__SLP_EXCLUDE_KBN, CLTDOB
+TRANSFORMATION_LOGIC:
+  wk_SHOKANTEN_CD_PRE_HOSEI_FLG: iif(length(rtrim(POL_REVISE__SHOKANTEN_CD_PRE)) <> 0 and isnull(POL_REVISE__SHOKANTEN_CD_PRE)=false,'1',iif(length(rtrim(ORG_REVISE__SHOKANTEN_CD)) <> 0 and isnull(ORG_REVISE__SHOKANTEN_CD)=false,'2','0'))
+  SHOKANTEN_CD_PRE: iif(wk_SHOKANTEN_CD_PRE_HOSEI_FLG='1',POL_REVISE__SHOKANTEN_CD_PRE,iif(wk_SHOKANTEN_CD_PRE_HOSEI_FLG='2',ORG_REVISE__SHOKANTEN_CD,wk_ORG_REVISE_KEY))
+  SHOKANTEN_CD_PRE_HOSEI_FLG: wk_SHOKANTEN_CD_PRE_HOSEI_FLG
+
+SORTER: SRT_SHOKANTEN_CD__ORG
+INPUT_LINK: From_EXP_SHOKANTEN_CD_PRE
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_JNR_SHOKANTEN_CD__ORG
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, KIJUN_YYYY, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_CORR_PRE, SHOKANTEN_CD_PRE, SHOKANTEN_CD_PRE_HOSEI_FLG, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, POL_REVISE__SHOKANTEN_CD, POL_REVISE__SLP_EXCLUDE_KBN, CLTDOB
+SORT_KEYS:
+  SHOKANTEN_CD_LJ: ASCENDING
+
+JOINER: JNR_SHOKANTEN_CD__ORG
+INPUT_LINK: From_SRT_SHOKANTEN_CD__ORG, From_SQ_src_t_TM_ORG_STG
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_EXP_SHOKANTEN_CD__KEY
+JOIN_TYPE: Master Outer Join
+JOIN_CONDITION: ORG__ORGZN_CD = SHOKANTEN_CD_LJ
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, KIJUN_YYYY, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_CORR_PRE, SHOKANTEN_CD_PRE, SHOKANTEN_CD_PRE_HOSEI_FLG, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, POL_REVISE__SHOKANTEN_CD, POL_REVISE__SLP_EXCLUDE_KBN, ORG__ORGZN_CD_ND, CLTDOB
+
+EXPRESSION: EXP_SHOKANTEN_CD__KEY
+INPUT_LINK: From_JNR_SHOKANTEN_CD__ORG
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_SRT_SHOKANTEN_CD__ORG_REVISE
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, KIJUN_YYYY, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_CORR_PRE, SHOKANTEN_CD_PRE, SHOKANTEN_CD_PRE_HOSEI_FLG, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, POL_REVISE__SHOKANTEN_CD, POL_REVISE__SLP_EXCLUDE_KBN, ORG__ORGZN_CD_ND, wk_ORG_REVISE_KEY, CLTDOB
+TRANSFORMATION_LOGIC:
+  wk_ORG_REVISE_KEY: IF SYS_TYP = 'N' THEN SHOKANTEN_CD_CORR_PRE ELSE IF SYS_TYP = 'J' THEN ORG__ORGZN_CD_ND ELSE NULL END IF DEFAULT ERROR('transformation error')
+
+SORTER: SRT_SHOKANTEN_CD__ORG_REVISE
+INPUT_LINK: From_EXP_SHOKANTEN_CD__KEY
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_JNR_SHOKANTEN_CD__ORG_REVISE
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, KIJUN_YYYY, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_CORR_PRE, SHOKANTEN_CD_PRE, SHOKANTEN_CD_PRE_HOSEI_FLG, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, POL_REVISE__SHOKANTEN_CD, POL_REVISE__SLP_EXCLUDE_KBN, ORG__ORGZN_CD_ND, wk_ORG_REVISE_KEY, CLTDOB
+SORT_KEYS:
+  KIJUN_YYYY: ASCENDING
+  DATA_KBN: ASCENDING
+  wk_ORG_REVISE_KEY: ASCENDING
+
+JOINER: JNR_SHOKANTEN_CD__ORG_REVISE
+INPUT_LINK: From_SRT_SHOKANTEN_CD__ORG_REVISE, From_SQ_src_t_TM_ORG_REVISE_STG
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_EXP_SHOKANTEN_CD
+JOIN_TYPE: Master Outer Join
+JOIN_CONDITION: ORG_REVISE__REVISE_YEAR = KIJUN_YYYY AND ORG_REVISE__REVISE_DATA_KBN = DATA_KBN AND ORG_REVISE__REVISE_SHOKANTEN_CD = wk_ORG_REVISE_KEY
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, KIJUN_YYYY, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_CORR_PRE, SHOKANTEN_CD_PRE, SHOKANTEN_CD_PRE_HOSEI_FLG, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, POL_REVISE__SHOKANTEN_CD, POL_REVISE__SLP_EXCLUDE_KBN, wk_ORG_REVISE_KEY, ORG_REVISE__REVISE_YEAR, ORG_REVISE__REVISE_DATA_KBN, ORG_REVISE__REVISE_SHOKANTEN_CD, ORG_REVISE__SHOKANTEN_CD, CLTDOB
+
+EXPRESSION: EXP_SHOKANTEN_CD
+INPUT_LINK: From_JNR_SHOKANTEN_CD__ORG_REVISE
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_SRT_SHOKANTEN_CD_PRE_INFO
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, KIJUN_YYYY, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD, SHOKANTEN_CD_HOSEI_FLG, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_CORR_PRE, SHOKANTEN_CD_PRE, SHOKANTEN_CD_PRE_HOSEI_FLG, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, POL_REVISE__SLP_EXCLUDE_KBN, CLTDOB
+TRANSFORMATION_LOGIC:
+  wk_SHOKANTEN_CD_HOSEI_FLG: iif(length(rtrim(POL_REVISE__SHOKANTEN_CD)) <> 0 and isnull(POL_REVISE__SHOKANTEN_CD)=false,'1',iif(length(rtrim(ORG_REVISE__SHOKANTEN_CD)) <> 0 and isnull(ORG_REVISE__SHOKANTEN_CD)=false,'2','0'))
+  SHOKANTEN_CD: iif(wk_SHOKANTEN_CD_HOSEI_FLG='1',POL_REVISE__SHOKANTEN_CD,iif(wk_SHOKANTEN_CD_HOSEI_FLG='2',ORG_REVISE__SHOKANTEN_CD,wk_ORG_REVISE_KEY))
+  SHOKANTEN_CD_HOSEI_FLG: wk_SHOKANTEN_CD_HOSEI_FLG
+
+SORTER: SRT_SHOKANTEN_CD_PRE_INFO
+INPUT_LINK: From_EXP_SHOKANTEN_CD
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_JNR_SHOKANTEN_CD_PRE_INFO
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, KIJUN_YYYY, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD, SHOKANTEN_CD_HOSEI_FLG, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_CORR_PRE, SHOKANTEN_CD_PRE, SHOKANTEN_CD_PRE_HOSEI_FLG, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, POL_REVISE__SLP_EXCLUDE_KBN, CLTDOB
+SORT_KEYS:
+  SHOKANTEN_CD_PRE: ASCENDING
+
+JOINER: JNR_SHOKANTEN_CD_PRE_INFO
+INPUT_LINK: From_SRT_SHOKANTEN_CD_PRE_INFO, From_SQ_src_t_TM_ORG_STG
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_SRT_HOSHOCD
+JOIN_TYPE: Master Outer Join
+JOIN_CONDITION: ORG_PRE__ORGZN_CD = SHOKANTEN_CD_PRE
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, KIJUN_YYYY, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD, SHOKANTEN_CD_HOSEI_FLG, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_CORR_PRE, SHOKANTEN_CD_PRE, SHOKANTEN_CD_PRE_HOSEI_FLG, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, POL_REVISE__SLP_EXCLUDE_KBN, ORG_PRE__ORGZN_CD, ORG_PRE__CHANNEL_NM, CLTDOB
+
+SORTER: SRT_HOSHOCD
+INPUT_LINK: From_JNR_SHOKANTEN_CD_PRE_INFO
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_JNR_HOSHOCD
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, KIJUN_YYYY, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD, SHOKANTEN_CD_HOSEI_FLG, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_CORR_PRE, SHOKANTEN_CD_PRE, SHOKANTEN_CD_PRE_HOSEI_FLG, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, POL_REVISE__SLP_EXCLUDE_KBN, ORG_PRE__CHANNEL_NM, CLTDOB
+SORT_KEYS:
+  COVER_CD: ASCENDING
+
+JOINER: JNR_HOSHOCD
+INPUT_LINK: From_SRT_HOSHOCD, From_SQ_src_t_TM_HOSYOCD_STG
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_EXPTRANS1
+JOIN_TYPE: Master Outer Join
+JOIN_CONDITION: HOSHOCD__COVER_CD = COVER_CD
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, KIJUN_YYYY, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD, SHOKANTEN_CD_HOSEI_FLG, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_CORR_PRE, SHOKANTEN_CD_PRE, SHOKANTEN_CD_PRE_HOSEI_FLG, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, POL_REVISE__SLP_EXCLUDE_KBN, ORG_PRE__CHANNEL_NM, HOSHOCD__NEW_KEIYAKU_DATE_FROM, HOSHOCD__NEW_KEIYAKU_DATE_TO, HOSHOCD__COVER_CD, HOSHOCD__MAIN_FLG, HOSHOCD__SMC_PRODUCT_ID, HOSHOCD__SLP_PRODUCT_ID, HOSHOCD__SLP_EXCLUDE_KBN, CLTDOB
+
+EXPRESSION: EXPTRANS1
+INPUT_LINK: From_JNR_HOSHOCD
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_SRT_ALL, To_FILTRANS
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, KIJUN_YYYY, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD, SHOKANTEN_CD_HOSEI_FLG, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_CORR_PRE, SHOKANTEN_CD_PRE, SHOKANTEN_CD_PRE_HOSEI_FLG, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, SLP_EXCLUDE_KBN, SLP_EXCLUDE_KBN_HOSEI_FLG, MAIN_FLG
+TRANSFORMATION_LOGIC:
+  SLP_EXCLUDE_KBN: iif(length(rtrim(POL_REVISE__SLP_EXCLUDE_KBN)) <> 0 and isnull(POL_REVISE__SLP_EXCLUDE_KBN)=false, POL_REVISE__SLP_EXCLUDE_KBN, iif(MAIN_COVER_CD='UA1' and to_decimal(substr($$NN_RUN_DT,0,4))-to_decimal(to_char(NEW_KEIYAKU_DATE,'YYYY'))>=15 and to_decimal(substr($$NN_RUN_DT,0,4))-to_decimal(to_char(CLTDOB,'YYYY'))>=66, '07', iif(MAIN_FLG = '0', iif(HOSHOCD__SLP_EXCLUDE_KBN = '04' and NEW_KEIYAKU_DATE >= iif(isnull(HOSHOCD__NEW_KEIYAKU_DATE_FROM), to_date('0001/01/01','yyyy/mm/dd'), HOSHOCD__NEW_KEIYAKU_DATE_FROM) and NEW_KEIYAKU_DATE <= iif(isnull(HOSHOCD__NEW_KEIYAKU_DATE_TO), to_date('9999/12/31','yyyy/mm/dd'), HOSHOCD__NEW_KEIYAKU_DATE_TO), '04', '00'), iif(MAIN_FLG = '1', iif((NOT(SYS_TYP='N' and to_decimal(YOTEI_RIRITU) >= 3.75 and NEW_KEIYAKU_DATE <= to_date('20000101','yyyymmdd') and in(HOSHOCD__SMC_PRODUCT_ID,'060','070','080','300')=1) and in(HOSHOCD__SLP_PRODUCT_ID,'0250','0240','L220','L070')=1 and NEW_KEIYAKU_DATE <= to_date('20010401','yyyymmdd')), '05', iif(HOSHOCD__SLP_EXCLUDE_KBN = '04' and NEW_KEIYAKU_DATE >= iif(isnull(HOSHOCD__NEW_KEIYAKU_DATE_FROM), to_date('0001/01/01','yyyy/mm/dd'), HOSHOCD__NEW_KEIYAKU_DATE_FROM) and NEW_KEIYAKU_DATE <= iif(isnull(HOSHOCD__NEW_KEIYAKU_DATE_TO), to_date('9999/12/31','yyyy/mm/dd'), HOSHOCD__NEW_KEIYAKU_DATE_TO), '04', iif(SYS_TYP='N' and CHANNEL_NM_PRE='CCI' and in(COVER_CD,'048','TP0','TP1','TPA')=1 and (HOKEN_KIKAN_CD='1' or (HOKEN_KIKAN_CD='2' and NEW_KEIYAKU_DATE <> KEIYAKU_DATE)), '03', iif((SYS_TYP='N' and HOSHOCD__SMC_PRODUCT_ID='070' and (SEX='3' or HARAIKATA_CD='10' or in(HANBAI_PLAN_CD,'08','09','10')=1)) or (SYS_TYP='J' and HOSHOCD__SMC_PRODUCT_ID='070' and (SEX='3' or HARAIKATA_CD='10')), '02', iif(SYS_TYP='N' and to_decimal(YOTEI_RIRITU) >= 3.75 and NEW_KEIYAKU_DATE <= to_date('20000101','yyyymmdd') and in(HOSHOCD__SMC_PRODUCT_ID,'060','070','080','300')=1, '01', '00'))))), '00'))))
+  SLP_EXCLUDE_KBN_HOSEI_FLG: iif(length(rtrim(POL_REVISE__SLP_EXCLUDE_KBN)) <> 0 and isnull(POL_REVISE__SLP_EXCLUDE_KBN)=false, '1', '0')
+
+FILTER: FILTRANS
+INPUT_LINK: From_EXPTRANS1
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_SRT_MAIN
+COLUMNS: POLICY_NO, SLP_EXCLUDE_KBN, MAIN_FLG
+FILTER_CONDITION: IIF(MAIN_FLG = '1', TRUE, FALSE)
+
+SORTER: SRT_MAIN
+INPUT_LINK: From_FILTRANS
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_JNR_MAIN
+COLUMNS: POLICY_NO, SLP_EXCLUDE_KBN
+SORT_KEYS:
+  POLICY_NO: ASCENDING
+
+SORTER: SRT_ALL
+INPUT_LINK: From_EXPTRANS1
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_JNR_MAIN
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, SLP_EXCLUDE_KBN, SLP_EXCLUDE_KBN_HOSEI_FLG, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_CORR_PRE, SHOKANTEN_CD_PRE, SHOKANTEN_CD_PRE_LJ, SEX, RUN_DT, MAIN_FLG
+SORT_KEYS:
+  POLICY_NO: ASCENDING
+  COVER_CD: ASCENDING
+
+JOINER: JNR_MAIN
+INPUT_LINK: From_SRT_ALL, From_SRT_MAIN
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_EXPTRANS2
+JOIN_TYPE: Master Outer Join
+JOIN_CONDITION: MAIN__POLICY_NO = POLICY_NO
+COLUMNS: DATA_KBN, SYS_TYP, KIJUN_YYYYMM, SLP_EXCLUDE_KBN, SLP_EXCLUDE_KBN_HOSEI_FLG, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_CORR_PRE, SHOKANTEN_CD_PRE, SHOKANTEN_CD_PRE_LJ, SEX, MAIN__POLICY_NO, MAIN__SLP_EXCLUDE_KBN, MAIN_FLG
+
+EXPRESSION: EXPTRANS2
+INPUT_LINK: From_JNR_MAIN
+PARENT_MAPPING: m_COMM_TT_SL_STG
+OUTPUT_LINK: To_tgt_t_TT_VP_AB_SL_STG_SL_COMM
+COLUMNS: KIJUN_YYYYMM, MAIN_FLG, DATA_KBN, SYS_TYP, SLP_EXCLUDE_KBN, SLP_EXCLUDE_KBN_HOSEI_FLG, POLICY_NO, COVER_CD, ANP, KEIYAKU_DATE, HOKEN_KIKAN_CD, MAIN_COVER_CD, NEW_KEIYAKU_DATE, YOTEI_RIRITU, HARAIKATA_CD, HARAIZUMI_SHIKIBETSU_CD, HANBAI_PLAN_CD, SHOKANTEN_CD_CORR_PRE, SHOKANTEN_CD, SHOKANTEN_CD_LJ, SHOKANTEN_CD_PRE_CORR_PRE, SHOKANTEN_CD_PRE, SHOKANTEN_CD_PRE_LJ, SEX, ENTRY_DATE, RUN_DT
+TRANSFORMATION_LOGIC:
+  SLP_EXCLUDE_KBN: iif(not(isnull(MAIN__SLP_EXCLUDE_KBN)) and iif(isnull(MAIN_FLG), '0', MAIN_FLG) != '1' and SLP_EXCLUDE_KBN_HOSEI_FLG != '1' and wk_SLP_EXCLUDE_KBN < MAIN__SLP_EXCLUDE_KBN, MAIN__SLP_EXCLUDE_KBN, wk_SLP_EXCLUDE_KBN)
+  ENTRY_DATE: sysdate
+  RUN_DT: :UDF.FUNC_DATE_FMT_CHK($$NN_RUN_DT,'yyyymmdd')
+
+TARGET_DEFINITION: tgt_t_TT_VP_AB_SL_STG_SL_COMM
+INPUT_LINK: From_EXPTRANS2
+DATABASE_TYPE: Oracle
+TABLE: TT_VP_AB_SL_STG_SL
+PARENT_MAPPING: m_COMM_TT_SL_STG
+LOAD_TYPE: Normal
+INSERT: YES
+TRUNCATE_TARGET: YES
+REJECT_FILE_DIR: $PMBadFileDir\
+REJECT_FILENAME: tgt_t_tt_vp_ab_sl_stg1.bad
+
+chunk pseudo code ended
+
+SESSION: s_m_TT_VP_AB_SL_STG
+PARENT: WORKFLOW wf_m_COMM_TT_VP_AB_SL_STG
+MAPPING: m_TT_VP_AB_SL_STG
+
+TRANSFORMATION: JNR_AB
+TYPE: Joiner
+INPUT_LINK: SQ_src_t_TT_VP_AB_SL_STG_AB_OUTPUT, SQ_src_t_TT_VP_AB_SL_STG_SL_OUTPUT
+JOIN_CONDITION: AB__POLICY_NO = POLICY_NO AND AB__COVER_CD = COVER_CD
+JOIN_TYPE: Normal Join
+SORTED_INPUT: YES
+CASE_SENSITIVE_STRING_COMPARISON: YES
+MASTER_INPUT_FIELDS:
+  AB__POLICY_NO: string(256)
+  AB__COVER_CD: string(256)
+  AB__ABGROUP: string(256)
+DETAIL_INPUT_FIELDS:
+  POLICY_NO: string(256)
+  COVER_CD: string(256)
+  DATA_KBN: string(256)
+  SYS_TYP: string(256)
+  KIJUN_YYYYMM: string(256)
+  SLP_EXCLUDE_KBN: string(256)
+  SLP_EXCLUDE_KBN_HOSEI_FLG: string(256)
+  MAIN_FLG: string(256)
+  VP_KEISU: string(256)
+  ANP: string(256)
+  VP: string(256)
+  KEIYAKU_DATE: date/time(29,9)
+  HOKEN_KIKAN_CD: string(256)
+  MAIN_COVER_CD: string(256)
+  NEW_KEIYAKU_DATE: date/time(29,9)
+  YOTEI_RIRITU: string(256)
+  ABGROUP: string(256)
+  HARAIKATA_CD: string(256)
+  HARAIZUMI_SHIKIBETSU_CD: string(256)
+  HANBAI_PLAN_CD: string(256)
+  SHOKANTEN_CD_CORR_PRE: string(256)
+  SHOKANTEN_CD: string(256)
+  SHOKANTEN_CD_LJ: string(265)
+  SHOKANTEN_CD_PRE_CORR_PRE: string(256)
+  SHOKANTEN_CD_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  SEX: string(256)
+  ENTRY_DATE: date/time(29,9)
+  RUN_DT: date/time(29,9)
+OUTPUT_FIELDS:
+  POLICY_NO: string(256)
+  COVER_CD: string(256)
+  DATA_KBN: string(256)
+  SYS_TYP: string(256)
+  KIJUN_YYYYMM: string(256)
+  SLP_EXCLUDE_KBN: string(256)
+  SLP_EXCLUDE_KBN_HOSEI_FLG: string(256)
+  MAIN_FLG: string(256)
+  VP_KEISU: string(256)
+  ANP: string(256)
+  VP: string(256)
+  KEIYAKU_DATE: date/time(29,9)
+  HOKEN_KIKAN_CD: string(256)
+  MAIN_COVER_CD: string(256)
+  NEW_KEIYAKU_DATE: date/time(29,9)
+  YOTEI_RIRITU: string(256)
+  ABGROUP: string(256)
+  HARAIKATA_CD: string(256)
+  HARAIZUMI_SHIKIBETSU_CD: string(256)
+  HANBAI_PLAN_CD: string(256)
+  SHOKANTEN_CD_CORR_PRE: string(256)
+  SHOKANTEN_CD: string(256)
+  SHOKANTEN_CD_LJ: string(265)
+  SHOKANTEN_CD_PRE_CORR_PRE: string(256)
+  SHOKANTEN_CD_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  SEX: string(256)
+  ENTRY_DATE: date/time(29,9)
+  RUN_DT: date/time(29,9)
+  AB__POLICY_NO: string(256)
+  AB__COVER_CD: string(256)
+  AB__ABGROUP: string(256)
+OUTPUT_LINK: JNR_AB_OUTPUT
+
+TRANSFORMATION: JNR_VP
+TYPE: Joiner
+INPUT_LINK: JNR_AB_OUTPUT, SQ_src_t_TT_VP_AB_SL_STG_VP_OUTPUT
+JOIN_TYPE: Normal Join
+JOIN_CONDITION: VP__POLICY_NO = POLICY_NO AND VP__COVER_CD = COVER_CD
+SORTED_INPUT: YES
+CASE_SENSITIVE_STRING_COMPARISON: YES
+DETAIL_INPUT_FIELDS:
+  POLICY_NO: string(256)
+  COVER_CD: string(256)
+  DATA_KBN: string(256)
+  SYS_TYP: string(256)
+  KIJUN_YYYYMM: string(256)
+  SLP_EXCLUDE_KBN: string(256)
+  SLP_EXCLUDE_KBN_HOSEI_FLG: string(256)
+  MAIN_FLG: string(256)
+  VP_KEISU: string(256)
+  ANP: string(256)
+  VP: string(256)
+  KEIYAKU_DATE: date/time(29,9)
+  HOKEN_KIKAN_CD: string(256)
+  MAIN_COVER_CD: string(256)
+  NEW_KEIYAKU_DATE: date/time(29,9)
+  YOTEI_RIRITU: string(256)
+  ABGROUP: string(256)
+  HARAIKATA_CD: string(256)
+  HARAIZUMI_SHIKIBETSU_CD: string(256)
+  HANBAI_PLAN_CD: string(256)
+  SHOKANTEN_CD_CORR_PRE: string(256)
+  SHOKANTEN_CD: string(256)
+  SHOKANTEN_CD_LJ: string(265)
+  SHOKANTEN_CD_PRE_CORR_PRE: string(256)
+  SHOKANTEN_CD_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  SEX: string(256)
+  ENTRY_DATE: date/time(29,9)
+  RUN_DT: date/time(29,9)
+  AB__ABGROUP: string(256)
+MASTER_INPUT_FIELDS:
+  VP__POLICY_NO: string(256)
+  VP__COVER_CD: string(256)
+  VP__VP_KEISU: string(256)
+  VP__VP: string(256)
+OUTPUT_FIELDS:
+  POLICY_NO: string(256)
+  COVER_CD: string(256)
+  DATA_KBN: string(256)
+  SYS_TYP: string(256)
+  KIJUN_YYYYMM: string(256)
+  SLP_EXCLUDE_KBN: string(256)
+  SLP_EXCLUDE_KBN_HOSEI_FLG: string(256)
+  MAIN_FLG: string(256)
+  VP_KEISU: string(256)
+  ANP: string(256)
+  VP: string(256)
+  KEIYAKU_DATE: date/time(29,9)
+  HOKEN_KIKAN_CD: string(256)
+  MAIN_COVER_CD: string(256)
+  NEW_KEIYAKU_DATE: date/time(29,9)
+  YOTEI_RIRITU: string(256)
+  ABGROUP: string(256)
+  HARAIKATA_CD: string(256)
+  HARAIZUMI_SHIKIBETSU_CD: string(256)
+  HANBAI_PLAN_CD: string(256)
+  SHOKANTEN_CD_CORR_PRE: string(256)
+  SHOKANTEN_CD: string(256)
+  SHOKANTEN_CD_LJ: string(265)
+  SHOKANTEN_CD_PRE_CORR_PRE: string(256)
+  SHOKANTEN_CD_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  SEX: string(256)
+  ENTRY_DATE: date/time(29,9)
+  RUN_DT: date/time(29,9)
+  AB__ABGROUP: string(256)
+  VP__POLICY_NO: string(256)
+  VP__COVER_CD: string(256)
+  VP__VP_KEISU: string(256)
+  VP__VP: string(256)
+OUTPUT_LINK: JNR_VP_OUTPUT
+
+TRANSFORMATION: EXPTRANS
+TYPE: Expression
+INPUT_LINK: JNR_VP_OUTPUT
+INPUT_FIELDS:
+  DATA_KBN: string(256)
+  SYS_TYP: string(256)
+  KIJUN_YYYYMM: string(256)
+  SLP_EXCLUDE_KBN: string(256)
+  SLP_EXCLUDE_KBN_HOSEI_FLG: string(256)
+  POLICY_NO: string(256)
+  COVER_CD: string(256)
+  MAIN_FLG: string(256)
+  VP_KEISU: string(256)
+  ANP: string(256)
+  VP: string(256)
+  KEIYAKU_DATE: date/time(29,9)
+  HOKEN_KIKAN_CD: string(256)
+  MAIN_COVER_CD: string(256)
+  NEW_KEIYAKU_DATE: date/time(29,9)
+  YOTEI_RIRITU: string(256)
+  ABGROUP: string(256)
+  HARAIKATA_CD: string(256)
+  HARAIZUMI_SHIKIBETSU_CD: string(256)
+  HANBAI_PLAN_CD: string(256)
+  SHOKANTEN_CD_CORR_PRE: string(256)
+  SHOKANTEN_CD: string(256)
+  SHOKANTEN_CD_LJ: string(265)
+  SHOKANTEN_CD_PRE_CORR_PRE: string(256)
+  SHOKANTEN_CD_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  SEX: string(256)
+  ENTRY_DATE: date/time(29,9)
+  AB__ABGROUP: string(256)
+  VP__VP_KEISU: string(256)
+  VP__VP: string(256)
+OUTPUT_FIELDS:
+  DATA_KBN: string(256)
+  SYS_TYP: string(256)
+  KIJUN_YYYYMM: string(256)
+  SLP_EXCLUDE_KBN: string(256)
+  SLP_EXCLUDE_KBN_HOSEI_FLG: string(256)
+  POLICY_NO: string(256)
+  COVER_CD: string(256)
+  MAIN_FLG: string(256)
+  VP_KEISU: string(256)
+  ANP: string(256)
+  VP: string(256)
+  KEIYAKU_DATE: date/time(29,9)
+  HOKEN_KIKAN_CD: string(256)
+  MAIN_COVER_CD: string(256)
+  NEW_KEIYAKU_DATE: date/time(29,9)
+  YOTEI_RIRITU: string(256)
+  ABGROUP: string(256)
+  HARAIKATA_CD: string(256)
+  HARAIZUMI_SHIKIBETSU_CD: string(256)
+  HANBAI_PLAN_CD: string(256)
+  SHOKANTEN_CD_CORR_PRE: string(256)
+  SHOKANTEN_CD: string(256)
+  SHOKANTEN_CD_LJ: string(265)
+  SHOKANTEN_CD_PRE_CORR_PRE: string(256)
+  SHOKANTEN_CD_PRE: string(256)
+  SHOKANTEN_CD_PRE_LJ: string(256)
+  SEX: string(256)
+  ENTRY_DATE: date/time(29,9)
+  RUN_DT: date/time(29,9)
+EXPRESSION_LOGIC:
+  VP_KEISU: VP__VP_KEISU
+  VP: VP__VP
+  ABGROUP: AB__ABGROUP
+  RUN_DT: :UDF.FUNC_DATE_FMT_CHK($$NN_RUN_DT,'yyyymmdd')
+UDF_DEPENDENCY: func_DATE_FMT_CHK
+TRACING_LEVEL: Normal
+OUTPUT_LINK: EXPTRANS_OUTPUT
+
+TARGET_DEFINITION: tgt_t_TT_VP_AB_SL_STG
+INPUT_LINK: EXPTRANS_OUTPUT
+DATABASE_TYPE: Oracle
+LOAD_ORDER: 1
+TARGET_FIELDS:
+  DATA_KBN: varchar2(256), NOT NULL, PRIMARY KEY
+  SYS_TYP: varchar2(256), NOT NULL
+  KIJUN_YYYYMM: varchar2(256), NOT NULL
+  SLP_EXCLUDE_KBN: varchar2(256), NULLABLE
+  SLP_EXCLUDE_KBN_HOSEI_FLG: varchar2(256), NULLABLE
+  POLICY_NO: varchar2(256), NOT NULL, PRIMARY KEY
+  COVER_CD: varchar2(256), NOT NULL, PRIMARY KEY
+  MAIN_FLG: varchar2(256), NULLABLE
+  VP_KEISU: varchar2(256), NULLABLE
+  ANP: varchar2(256), NULLABLE
+  VP: varchar2(256), NULLABLE
+  KEIYAKU_DATE: date, NULLABLE
+  HOKEN_KIKAN_CD: varchar2(256), NULLABLE
+  MAIN_COVER_CD: varchar2(256), NULLABLE
+  NEW_KEIYAKU_DATE: date, NULLABLE
+  YOTEI_RIRITU: varchar2(256), NULLABLE
+  ABGROUP: varchar2(256), NULLABLE
+  HARAIKATA_CD: varchar2(256), NULLABLE
+  HARAIZUMI_SHIKIBETSU_CD: varchar2(256), NULLABLE
+  HANBAI_PLAN_CD: varchar2(256), NULLABLE
+  SHOKANTEN_CD_CORR_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD: varchar2(256), NULLABLE
+  SHOKANTEN_CD_LJ: varchar2(256), NULLABLE
+  SHOKANTEN_CD_PRE_CORR_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD_PRE: varchar2(256), NULLABLE
+  SHOKANTEN_CD_PRE_LJ: varchar2(256), NULLABLE
+  SEX: varchar2(256), NULLABLE
+  ENTRY_DATE: date, NULLABLE
+  RUN_DT: date, NULLABLE
+PRIMARY_KEYS: DATA_KBN, POLICY_NO, COVER_CD
+REJECT_TRUNCATED_OVERFLOWED_ROWS: YES
+
+chunk pseudo code ended
+
+POWERMART_REPOSITORY_SYSTEM:
+REPOSITORY: PCRS
+VERSION: 188
+DATABASE_TYPE: Oracle
+CODEPAGE: UTF-8
+
+FOLDER_STRUCTURE:
+PARENT_FOLDER: APL_GZ
+OWNER: Administrator
+PERMISSIONS: rwx---r--
+SHARED_STATUS: SHARED
+
+DATA_FLOW:
+WORKFLOW_LEVEL:
+  wf_m_COMM_TT_VP_AB_SL_STG -> s_m_COMM_TT_AB_STG -> s_m_COMM_TT_VP_STG -> s_m_COMM_TT_SL_STG -> s_m_TT_VP_AB_SL_STG
+
+SESSION_LEVEL_AB:
+  src_t_TT_VP_AB_SL_STG_IN_AB -> SQ_src_t_TT_VP_AB_SL_STG_IN_AB -> EXPTRANS_AB -> JNR_MAIN_COVER_CD_AB
+  src_t_TM_HOSYOCD_STG_AB -> SQ_src_t_TM_HOSYOCD_STG_AB -> JNR_MAIN_COVER_CD_AB
+  JNR_MAIN_COVER_CD_AB -> EXPTRANS_AB_FINAL -> tgt_t_TT_VP_AB_SL_STG_AB
+
+SESSION_LEVEL_VP:
+  src_t_TT_VP_AB_SL_STG_IN_VP -> SQ_src_t_TT_VP_AB_SL_STG_IN_VP -> JNR_COVER_CD
+  src_t_TM_HOSYOCD_STG_VP -> SQ_src_t_TM_HOSYOCD_STG_VP -> JNR_COVER_CD
+  src_t_TM_VP_STG_VP -> SQ_src_t_TM_VP_STG_VP -> JNR_VP_COMM
+  JNR_COVER_CD -> EXP_VP_KEY -> SRT_VP -> JNR_VP_COMM
+  JNR_VP_COMM -> EXPTRANS_COMM_VP -> SRT_VP_COMM -> tgt_t_TT_VP_AB_SL_STG_VP_COMM
+
+SESSION_LEVEL_SL:
+  src_t_TT_VP_AB_SL_STG_IN -> SQ_src_t_TT_VP_AB_SL_STG_IN -> EXPTRANS -> SRT_SHOKANTEN_CD_PRE__POL_REVISE -> JNR_SHOKANTEN_CD_PRE__POL_REVISE
+  src_t_TM_POL_REVISE_STG -> SQ_src_t_TM_POL_REVISE_STG -> JNR_SHOKANTEN_CD_PRE__POL_REVISE
+  JNR_SHOKANTEN_CD_PRE__POL_REVISE -> SRT_SHOKANTEN_CD_PRE__PRE_CSC -> JNR_SHOKANTEN_CD_PRE__PRE_CSC
+  src_t_TT_PRE_CSC_STG -> SQ_src_t_TT_PRE_CSC_STG -> JNR_SHOKANTEN_CD_PRE__PRE_CSC
+  JNR_SHOKANTEN_CD_PRE__PRE_CSC -> SRT_SHOKANTEN_CD_PRE__ORG -> JNR_SHOKANTEN_CD_PRE__ORG
+  src_t_TM_ORG_STG -> SQ_src_t_TM_ORG_STG -> JNR_SHOKANTEN_CD_PRE__ORG
+  JNR_SHOKANTEN_CD_PRE__ORG -> EXP_SHOKANTEN_CD_PRE__KEY -> SRT_SHOKANTEN_CD_PRE__ORG_REVISE -> JNR_SHOKANTEN_CD_PRE__ORG_REVISE
+  src_t_TM_ORG_REVISE_STG -> SQ_src_t_TM_ORG_REVISE_STG -> JNR_SHOKANTEN_CD_PRE__ORG_REVISE
+  JNR_SHOKANTEN_CD_PRE__ORG_REVISE -> EXP_SHOKANTEN_CD_PRE -> SRT_SHOKANTEN_CD__ORG -> JNR_SHOKANTEN_CD__ORG
+  JNR_SHOKANTEN_CD__ORG -> EXP_SHOKANTEN_CD__KEY -> SRT_SHOKANTEN_CD__ORG_REVISE -> JNR_SHOKANTEN_CD__ORG_REVISE
+  JNR_SHOKANTEN_CD__ORG_REVISE -> EXP_SHOKANTEN_CD -> SRT_SHOKANTEN_CD_PRE_INFO -> JNR_SHOKANTEN_CD_PRE_INFO
+  JNR_SHOKANTEN_CD_PRE_INFO -> SRT_HOSHOCD -> JNR_HOSHOCD
+  src_t_TM_HOSYOCD_STG -> SQ_src_t_TM_HOSYOCD_STG -> JNR_HOSHOCD
+  JNR_HOSHOCD -> EXPTRANS1 -> SRT_ALL -> JNR_MAIN
+  EXPTRANS1 -> FILTRANS -> SRT_MAIN -> JNR_MAIN
+  JNR_MAIN -> EXPTRANS2 -> tgt_t_TT_VP_AB_SL_STG_SL_COMM
+
+SESSION_LEVEL_MAIN:
+  src_t_TT_VP_AB_SL_STG_AB -> SQ_src_t_TT_VP_AB_SL_STG_AB -> JNR_AB
+  src_t_TT_VP_AB_SL_STG_SL -> SQ_src_t_TT_VP_AB_SL_STG_SL -> JNR_AB
+  src_t_TT_VP_AB_SL_STG_VP -> SQ_src_t_TT_VP_AB_SL_STG_VP -> JNR_VP
+  JNR_AB -> JNR_VP -> EXPTRANS -> tgt_t_TT_VP_AB_SL_STG
+
+EXECUTION_FLOW:
+  1. START: Start
+  2. EXECUTE: s_m_COMM_TT_AB_STG
+    2.1. EXTRACT: src_t_TM_HOSYOCD_STG_AB -> SQ_src_t_TM_HOSYOCD_STG_AB
+    2.2. EXTRACT: src_t_TT_VP_AB_SL_STG_IN_AB -> SQ_src_t_TT_VP_AB_SL_STG_IN_AB
+    2.3. TRANSFORM: SQ_src_t_TT_VP_AB_SL_STG_IN_AB -> EXPTRANS_AB
+    2.4. JOIN: SQ_src_t_TM_HOSYOCD_STG_AB + EXPTRANS_AB -> JNR_MAIN_COVER_CD_AB
+    2.5. TRANSFORM: JNR_MAIN_COVER_CD_AB -> EXPTRANS_AB_FINAL
+    2.6. LOAD: EXPTRANS_AB_FINAL -> tgt_t_TT_VP_AB_SL_STG_AB
+  3. EXECUTE: s_m_COMM_TT_VP_STG
+    3.1. EXTRACT: src_t_TT_VP_AB_SL_STG_IN_VP -> SQ_src_t_TT_VP_AB_SL_STG_IN_VP
+    3.2. EXTRACT: src_t_TM_HOSYOCD_STG_VP -> SQ_src_t_TM_HOSYOCD_STG_VP
+    3.3. EXTRACT: src_t_TM_VP_STG_VP -> SQ_src_t_TM_VP_STG_VP
+    3.4. JOIN: SQ_src_t_TT_VP_AB_SL_STG_IN_VP + SQ_src_t_TM_HOSYOCD_STG_VP -> JNR_COVER_CD
+    3.5. TRANSFORM: JNR_COVER_CD -> EXP_VP_KEY
+    3.6. SORT: EXP_VP_KEY -> SRT_VP
+    3.7. JOIN: SRT_VP + SQ_src_t_TM_VP_STG_VP -> JNR_VP_COMM
+    3.8. TRANSFORM: JNR_VP_COMM -> EXPTRANS_COMM_VP
+    3.9. SORT: EXPTRANS_COMM_VP -> SRT_VP_COMM
+    3.10. LOAD: SRT_VP_COMM -> tgt_t_TT_VP_AB_SL_STG_VP_COMM
+  4. EXECUTE: s_m_COMM_TT_SL_STG
+    4.1. EXTRACT: src_t_TT_VP_AB_SL_STG_IN -> SQ_src_t_TT_VP_AB_SL_STG_IN
+    4.2. TRANSFORM: SQ_src_t_TT_VP_AB_SL_STG_IN -> EXPTRANS
+    4.3. SORT: EXPTRANS -> SRT_SHOKANTEN_CD_PRE__POL_REVISE
+    4.4. JOIN: SRT_SHOKANTEN_CD_PRE__POL_REVISE + SQ_src_t_TM_POL_REVISE_STG -> JNR_SHOKANTEN_CD_PRE__POL_REVISE
+    4.5. SORT: JNR_SHOKANTEN_CD_PRE__POL_REVISE -> SRT_SHOKANTEN_CD_PRE__PRE_CSC
+    4.6. JOIN: SRT_SHOKANTEN_CD_PRE__PRE_CSC + SQ_src_t_TT_PRE_CSC_STG -> JNR_SHOKANTEN_CD_PRE__PRE_CSC
+    4.7. SORT: JNR_SHOKANTEN_CD_PRE__PRE_CSC -> SRT_SHOKANTEN_CD_PRE__ORG
+    4.8. JOIN: SRT_SHOKANTEN_CD_PRE__ORG + SQ_src_t_TM_ORG_STG -> JNR_SHOKANTEN_CD_PRE__ORG
+    4.9. TRANSFORM: JNR_SHOKANTEN_CD_PRE__ORG -> EXP_SHOKANTEN_CD_PRE__KEY
+    4.10. SORT: EXP_SHOKANTEN_CD_PRE__KEY -> SRT_SHOKANTEN_CD_PRE__ORG_REVISE
+    4.11. JOIN: SRT_SHOKANTEN_CD_PRE__ORG_REVISE + SQ_src_t_TM_ORG_REVISE_STG -> JNR_SHOKANTEN_CD_PRE__ORG_REVISE
+    4.12. TRANSFORM: JNR_SHOKANTEN_CD_PRE__ORG_REVISE -> EXP_SHOKANTEN_CD_PRE
+    4.13. SORT: EXP_SHOKANTEN_CD_PRE -> SRT_SHOKANTEN_CD__ORG
+    4.14. JOIN: SRT_SHOKANTEN_CD__ORG + SQ_src_t_TM_ORG_STG -> JNR_SHOKANTEN_CD__ORG
+    4.15. TRANSFORM: JNR_SHOKANTEN_CD__ORG -> EXP_SHOKANTEN_CD__KEY
+    4.16. SORT: EXP_SHOKANTEN_CD__KEY -> SRT_SHOKANTEN_CD__ORG_REVISE
+    4.17. JOIN: SRT_SHOKANTEN_CD__ORG_REVISE + SQ_src_t_TM_ORG_REVISE_STG -> JNR_SHOKANTEN_CD__ORG_REVISE
+    4.18. TRANSFORM: JNR_SHOKANTEN_CD__ORG_REVISE -> EXP_SHOKANTEN_CD
+    4.19. SORT: EXP_SHOKANTEN_CD -> SRT_SHOKANTEN_CD_PRE_INFO
+    4.20. JOIN: SRT_SHOKANTEN_CD_PRE_INFO + SQ_src_t_TM_ORG_STG -> JNR_SHOKANTEN_CD_PRE_INFO
+    4.21. SORT: JNR_SHOKANTEN_CD_PRE_INFO -> SRT_HOSHOCD
+    4.22. JOIN: SRT_HOSHOCD + SQ_src_t_TM_HOSYOCD_STG -> JNR_HOSHOCD
+    4.23. TRANSFORM: JNR_HOSHOCD -> EXPTRANS1
+    4.24. SORT: EXPTRANS1 -> SRT_ALL
+    4.25. FILTER: EXPTRANS1 -> FILTRANS
+    4.26. SORT: FILTRANS -> SRT_MAIN
+    4.27. JOIN: SRT_ALL + SRT_MAIN -> JNR_MAIN
+    4.28. TRANSFORM: JNR_MAIN -> EXPTRANS2
+    4.29. LOAD: EXPTRANS2 -> tgt_t_TT_VP_AB_SL_STG_SL_COMM
+  5. EXECUTE: s_m_TT_VP_AB_SL_STG
+    5.1. EXTRACT: src_t_TT_VP_AB_SL_STG_AB -> SQ_src_t_TT_VP_AB_SL_STG_AB
+    5.2. EXTRACT: src_t_TT_VP_AB_SL_STG_SL -> SQ_src_t_TT_VP_AB_SL_STG_SL
+    5.3. EXTRACT: src_t_TT_VP_AB_SL_STG_VP -> SQ_src_t_TT_VP_AB_SL_STG_VP
+    5.4. JOIN: SQ_src_t_TT_VP_AB_SL_STG_AB + SQ_src_t_TT_VP_AB_SL_STG_SL -> JNR_AB
+    5.5. JOIN: JNR_AB + SQ_src_t_TT_VP_AB_SL_STG_VP -> JNR_VP
+    5.6. TRANSFORM: JNR_VP -> EXPTRANS
+    5.7. LOAD: EXPTRANS -> tgt_t_TT_VP_AB_SL_STG
+  6. END_WORKFLOW
+
+chunk pseudo code ended
+```

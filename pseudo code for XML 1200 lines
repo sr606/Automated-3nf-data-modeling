@@ -1,0 +1,1670 @@
+```
+// Parent: POWERMART.REPOSITORY.FOLDER
+// Source Definition: src_f_PM_EMPLOYEE_D
+SOURCE_DEFINITION src_f_PM_EMPLOYEE_D:
+    Type: Flat File Source
+    Database Type: Flat File
+    Description: Employee Information IF File
+    File Configuration:
+        Codepage: UTF-8
+        Delimited: YES
+        Delimiter: ","
+        Quote Character: DOUBLE
+        Null Character: "*"
+        Row Delimiter: 10
+        Skip Rows: 0
+    
+    Column Definitions:
+        EMPLID: string(256) - Employee Code
+        JOBCODE: string(256) - JG/Qualification Code  
+        DEPTID: string(256) - Department Code
+        LAST_NAME: string(256) - Employee Last Name
+        FIRST_NAME: string(256) - Employee First Name
+        EMAIL_ADDR: string(256) - Email Address
+        AX_FM_CD: string(256) - Responsible FM
+        AX_SM_CD: string(256) - Responsible SM
+        ORIG_HIRE_DT: string(256) - Deemed Initial Hire Date
+        TERMINATION_DT: string(256) - Termination Date
+        AX_MOF_NO: string(256) - MOF Registration Number
+    
+    Output Link: src_f_PM_EMPLOYEE_D_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ
+// Source Definition: src_t_TM_SIKAKU_STG
+SOURCE_DEFINITION src_t_TM_SIKAKU_STG:
+    Type: Oracle Database Source
+    Database Type: Oracle
+    Description: ND資格マッピング情報_STG
+    
+    Column Definitions:
+        NN_run_dt: varchar2(256) - 処理日, NULLABLE
+        PS_SIKAKU_CD: varchar2(256) - PS資格コード, PRIMARY KEY, NOT NULL
+        ND_SIKAKU_CD: varchar2(256) - ND資格コード, NULLABLE
+        ND_YAKUSHOKU_CD: varchar2(256) - ND役職コード, NULLABLE
+    
+    Configuration:
+        Source Table Name: TM_SIKAKU_STG
+    
+    Output Link: src_t_TM_SIKAKU_STG_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ
+// Source Definition: src_t_TM_NM_CCIORG_STG
+SOURCE_DEFINITION src_t_TM_NM_CCIORG_STG:
+    Type: Oracle Database Source
+    Database Type: Oracle
+    Description: 組織所マスタ_STG
+    
+    Column Definitions:
+        NN_run_dt: varchar2(256) - 処理日, NULLABLE
+        SALES_CD: varchar2(256) - 営業所コード, PRIMARY KEY, NOT NULL
+        ORG_SIBU: varchar2(256) - 支部番号, PRIMARY KEY, NOT NULL
+        ORG_NBR_NO: varchar2(256) - 組織所番号, PRIMARY KEY, NOT NULL
+        IN_OUT_CD: varchar2(256) - 営－内外籍コード, NULLABLE
+        SHIBUTYO_EMPID: varchar2(256) - 支部長番号, NULLABLE
+        SALES_BOSS_NO: varchar2(256) - 営業主任番号, NULLABLE
+        SHIBU_NM: varchar2(256) - 支部名, NULLABLE
+        SOSIKIJYO_NM: varchar2(256) - 組織所名, NULLABLE
+        OPN_YYMMDD: date(19) - 支部組織所開設年月日, NULLABLE
+        ERS_YYMMDD: date(19) - 支部組織所閉鎖年月日, NULLABLE
+    
+    Configuration:
+        Source Table Name: TM_NM_CCIORG_STG
+    
+    Output Link: src_t_TM_NM_CCIORG_STG_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ
+// Source Definition: src_t_TM_SOSIKI_STG
+SOURCE_DEFINITION src_t_TM_SOSIKI_STG:
+    Type: Oracle Database Source
+    Database Type: Oracle
+    Description: ND組織マッピング情報_STG
+    
+    Column Definitions:
+        NN_run_dt: varchar2(256) - 処理日, NULLABLE
+        START_DAY: date(19) - 適用開始年月日, NULLABLE
+        END_DAY: date(19) - 適用終了年月日, NULLABLE
+        DEPTID: varchar2(256) - 所属コード, PRIMARY KEY, NOT NULL
+        DEPTNM: varchar2(256) - 所属名, NULLABLE
+        Orgzn_CD: varchar2(256) - ND組織コード, NULLABLE
+        ChannelID: varchar2(256) - チャネルID, NULLABLE
+    
+    Configuration:
+        Source Table Name: TM_SOSIKI_STG
+    
+    Output Link: src_t_TM_SOSIKI_STG_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING.m_TM_SEC_STG
+// Source Definition: src_t_TM_ORGZN_STG
+SOURCE_DEFINITION src_t_TM_ORGZN_STG:
+    Type: Oracle Database Source
+    Database Type: Oracle
+    Description: 組織マスタテーブル
+    
+    Column Definitions:
+        UK_ORGZN_ID: varchar2(256) - 組織ID, PRIMARY KEY, NOT NULL
+        NN_run_dt: varchar2(256) - 処理日, NOT NULL
+        ORGZN_NM: varchar2(256) - 組織名(和名), NOT NULL
+        ORGZN_NM_E: varchar2(256) - 組織名(英名), NULLABLE
+        ORGZN_rNM: varchar2(256) - 組織名略称, NULLABLE
+        Sort_No: varchar2(256) - 表示順, NULLABLE
+        ChannelID: varchar2(256) - チャネル, NOT NULL
+        ClassNo: varchar2(256) - 階層番号, NOT NULL
+        ORGZN_CD: varchar2(256) - 組織コード, NOT NULL
+        LJ_ORGZN_CD: varchar2(256) - LifeJ組織コード, NULLABLE
+        Class1_CD: varchar2(256) - 第一階層コード, NULLABLE
+        Class2_CD: varchar2(256) - 第二階層コード, NULLABLE
+        Class3_CD: varchar2(256) - 第三階層コード, NULLABLE
+        Del_FLG: varchar2(256) - 集計除外判定フラグ, NULLABLE
+        ers_yymmdd: varchar2(256) - 対象組織閉鎖日, NULLABLE
+    
+    Configuration:
+        Source Table Name: TM_ORGZN_STG
+    
+    Output Link: src_t_TM_ORGZN_STG_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING.m_TM_SEC_STG
+// Source Definition: src_t_TM_Channel
+SOURCE_DEFINITION src_t_TM_Channel:
+    Type: Oracle Database Source
+    Database Type: Oracle
+    Description: チャネルマスタ
+    
+    Column Definitions:
+        UK_ChannelID: varchar2(256) - チャネルID, NULLABLE
+        NN_run_dt: varchar2(256) - 処理日, NULLABLE
+        LJ_ChannelCD: varchar2(256) - LifeJ側チャネルコード, NULLABLE
+        ChannelNM: varchar2(256) - チャネル名, NULLABLE
+        CannelNM_E: varchar2(256) - チャネル名英名, NULLABLE
+        CannelNM_R: varchar2(256) - チャネル名略称, NULLABLE
+    
+    Configuration:
+        Source Table Name: TM_CHANNEL
+    
+    Output Link: src_t_TM_Channel_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING.m_TM_SEC_STG
+// Source Definition: src_t_TM_PM_EMPLOYEE_D_ORG
+SOURCE_DEFINITION src_t_TM_PM_EMPLOYEE_D_ORG:
+    Type: Oracle Database Source
+    Database Type: Oracle
+    Description: 社員マスタ(日次) ORGテーブル
+    
+    Column Definitions:
+        TARGET_DAY: varchar2(256) - 処理日, NULLABLE
+        EMPLID: varchar2(256) - 社員コード, NULLABLE
+        JOBCODE: varchar2(256) - JG/資格コード, NULLABLE
+        DEPTID: varchar2(256) - 所属コード, NULLABLE
+        LAST_NAME: varchar2(256) - 従業員姓, NULLABLE
+        FIRST_NAME: varchar2(256) - 従業員名, NULLABLE
+        EMAIL_ADDR: varchar2(256) - 電子メールアドレス, NULLABLE
+        AX_FM_CD: varchar2(256) - 担当FM, NULLABLE
+        AX_SM_CD: varchar2(256) - 担当SM, NULLABLE
+        ORIG_HIRE_DT: varchar2(256) - みなし初回採用日, NULLABLE
+        TERMINATION_DT: varchar2(256) - 退職日, NULLABLE
+        AX_MOF_NO: varchar2(256) - MOF登録番号, NULLABLE
+    
+    Configuration:
+        Source Table Name: TM_PM_EMPLOYEE_D_ORG
+    
+    Output Link: src_t_TM_PM_EMPLOYEE_D_ORG_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING.m_TM_SEC_STG
+// Source Definition: src_t_TM_EMP_STG
+SOURCE_DEFINITION src_t_TM_EMP_STG:
+    Type: Oracle Database Source
+    Database Type: Oracle
+    Description: 社員マスタ STGテーブル
+    
+    Column Definitions:
+        UK_EmpID: varchar2(256) - 社員ID, NULLABLE
+        NN_run_dt: varchar2(256) - 処理日, NULLABLE
+        ORGZN_ID: varchar2(256) - 所管店情報(4), NULLABLE
+        Org_Sibu: varchar2(256) - 支部番号, NULLABLE
+        org_nbr: varchar2(256) - 所属組織所, NULLABLE
+        EmpTyp: varchar2(256) - 取扱者タイプ, NULLABLE
+        FB_EmpID: varchar2(256) - 所属支社長, NULLABLE
+        FM_EmpID: varchar2(256) - 所属FM, NULLABLE
+        EmpNM: varchar2(256) - 社員名, NULLABLE
+        EmpCode: varchar2(256) - ＡＤ社員番号, NULLABLE
+        LoginID: varchar2(256) - ＡＤログインＩＤ, NULLABLE
+        cmpny_jwng_dt: varchar2(256) - 入社日, NULLABLE
+        ers_yymmdd: varchar2(256) - 退職、抹消日, NULLABLE
+    
+    Configuration:
+        Source Table Name: TM_EMP_STG
+    
+    Output Link: src_t_TM_EMP_STG_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING
+// Source Qualifier Transformation: SQ_src_f_PM_EMPLOYEE_D
+TRANSFORMATION SQ_src_f_PM_EMPLOYEE_D:
+    Type: Source Qualifier
+    Description: Source Qualifier for src_f_PM_EMPLOYEE_D
+    Associated Source: src_f_PM_EMPLOYEE_D
+    
+    Column Definitions:
+        EMPLID: string(256) - 社員コード
+        JOBCODE: string(256) - JG/資格コード
+        DEPTID: string(256) - 所属コード
+        LAST_NAME: string(256) - 従業員姓
+        FIRST_NAME: string(256) - 従業員名
+        EMAIL_ADDR: string(256) - 電子メールアドレス
+        AX_FM_CD: string(256) - 担当FM
+        AX_SM_CD: string(256) - 担当SM
+        ORIG_HIRE_DT: string(256) - みなし初回採用日
+        TERMINATION_DT: string(256) - 退職日
+        AX_MOF_NO: string(256) - MOF登録番号
+    
+    Configuration:
+        Sql Query: ""
+        User Defined Join: ""
+        Source Filter: ""
+        Number Of Sorted Ports: 0
+        Tracing Level: Normal
+        Select Distinct: NO
+        Is Partitionable: NO
+        Pre SQL: ""
+        Post SQL: ""
+        Output is deterministic: NO
+        Output is repeatable: Never
+    
+    Input Link: src_f_PM_EMPLOYEE_D_OUT
+    Output Link: SQ_src_f_PM_EMPLOYEE_D_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING.m_TM_SEC_STG
+// Source Qualifier Transformation: SQ_src_t_TM_PM_EMPLOYEE_D_ORG
+TRANSFORMATION SQ_src_t_TM_PM_EMPLOYEE_D_ORG:
+    Type: Source Qualifier
+    Description: Source Qualifier for src_t_TM_PM_EMPLOYEE_D_ORG
+    Associated Source: src_t_TM_PM_EMPLOYEE_D_ORG
+    
+    Column Definitions:
+        DEPTID: string(256) - 所属コード
+        TARGET_DAY: string(256) - 処理日
+        EMPLID: string(256) - 社員コード
+        JOBCODE: string(256) - JG/資格コード
+        LAST_NAME: string(256) - 従業員姓
+        FIRST_NAME: string(256) - 従業員名
+        EMAIL_ADDR: string(256) - 電子メールアドレス
+        AX_FM_CD: string(256) - 担当FM
+        AX_SM_CD: string(256) - 担当SM
+        ORIG_HIRE_DT: string(256) - みなし初回採用日
+        TERMINATION_DT: string(256) - 退職日
+        AX_MOF_NO: string(256) - MOF登録番号
+    
+    Configuration:
+        Sql Query: (select
+    DEPTID,
+    EMPLID,
+    JOBCODE,
+    EMAIL_ADDR
+from
+    (
+        select
+            DEPTID,
+            TARGET_DAY,
+            EMPLID,
+            JOBCODE,
+            LAST_NAME,
+            FIRST_NAME,
+            EMAIL_ADDR,
+            AX_FM_CD,
+            AX_SM_CD,
+            ORIG_HIRE_DT,
+            trim(TERMINATION_DT) TERMINATION_DT,
+            AX_MOF_NO,
+            row_number() over(partition by EMAIL_ADDR order by trim(TERMINATION_DT) desc nulls first) R
+        from
+            $PMsrc_t_TM_PM_EMPLOYEE_D_ORG@TableName
+        where
+            TARGET_DAY='$$NN_RUN_DT'
+        and
+            trim(EMAIL_ADDR) is not null
+    )
+where r=1)
+union
+(select
+    DEPTID,
+    EMPLID,
+    JOBCODE,
+    EMAIL_ADDR
+from
+    (
+        select
+            DEPTID,
+            TARGET_DAY,
+            EMPLID,
+            JOBCODE,
+            LAST_NAME,
+            FIRST_NAME,
+            EMAIL_ADDR,
+            AX_FM_CD,
+            AX_SM_CD,
+            ORIG_HIRE_DT,
+            trim(TERMINATION_DT) TERMINATION_DT,
+            AX_MOF_NO
+        from
+            $PMsrc_t_TM_PM_EMPLOYEE_D_ORG@TableName
+        where
+            TARGET_DAY='$$NN_RUN_DT'
+        and
+            trim(EMAIL_ADDR) is null
+    )
+    )
+order by DEPTID
+        User Defined Join: ""
+        Source Filter: ""
+        Number Of Sorted Ports: 0
+        Tracing Level: Normal
+        Select Distinct: NO
+        Is Partitionable: NO
+        Pre SQL: ""
+        Post SQL: ""
+        Output is deterministic: NO
+        Output is repeatable: Never
+    
+    Input Link: src_t_TM_PM_EMPLOYEE_D_ORG_OUT
+    Output Link: SQ_src_t_TM_PM_EMPLOYEE_D_ORG_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING.m_TM_SEC_STG
+// Source Qualifier Transformation: SQ_src_t_TM_SOSIKI_STG
+TRANSFORMATION SQ_src_t_TM_SOSIKI_STG:
+    Type: Source Qualifier
+    Description: Source Qualifier for src_t_TM_SOSIKI_STG
+    Associated Source: src_t_TM_SOSIKI_STG
+    Reusable: NO
+    
+    Column Definitions:
+        DEPTID: string(256) - 所属コード
+        NN_run_dt: string(256) - 処理日
+        START_DAY: date/time(29) - 適用開始年月日
+        END_DAY: date/time(29) - 適用終了年月日
+        DEPTNM: string(256) - 所属名
+        Orgzn_CD: string(256) - ND組織コード
+        ChannelID: string(256) - チャネルID
+    
+    Configuration:
+        Sql Query: ""
+        User Defined Join: ""
+        Source Filter: ""
+        Number Of Sorted Ports: 1
+        Tracing Level: Normal
+        Select Distinct: NO
+        Is Partitionable: NO
+        Pre SQL: ""
+        Post SQL: ""
+        Output is deterministic: NO
+        Output is repeatable: Never
+    
+    Input Link: src_t_TM_SOSIKI_STG_OUT
+    Output Link: SQ_src_t_TM_SOSIKI_STG_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING.m_TM_SEC_STG
+// Source Qualifier Transformation: SQ_src_t_TM_Channel
+TRANSFORMATION SQ_src_t_TM_Channel:
+    Type: Source Qualifier
+    Description: Source Qualifier for src_t_TM_Channel
+    Associated Source: src_t_TM_Channel
+    
+    Column Definitions:
+        UK_ChannelID: string(256) - チャネルID
+        NN_run_dt: string(256) - 処理日
+        LJ_ChannelCD: string(256) - LifeJ側チャネルコード
+        ChannelNM: string(256) - チャネル名
+        CannelNM_E: string(256) - チャネル名英名
+        CannelNM_R: string(256) - チャネル名略称
+    
+    Configuration:
+        Sql Query: ""
+        User Defined Join: ""
+        Source Filter: ""
+        Number Of Sorted Ports: 0
+        Tracing Level: Normal
+        Select Distinct: NO
+        Is Partitionable: NO
+        Pre SQL: ""
+        Post SQL: ""
+        Output is deterministic: NO
+        Output is repeatable: Never
+    
+    Input Link: src_t_TM_Channel_OUT
+    Output Link: SQ_src_t_TM_Channel_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING.m_TM_SEC_STG
+// Source Qualifier Transformation: SQ_src_t_TM_ORGZN_STG
+TRANSFORMATION SQ_src_t_TM_ORGZN_STG:
+    Type: Source Qualifier
+    Description: Source Qualifier for src_t_TM_ORGZN_STG
+    Associated Source: src_t_TM_ORGZN_STG
+    Reusable: NO
+    
+    Column Definitions:
+        UK_ORGZN_ID: string(256) - 組織ID
+        NN_run_dt: string(256) - 処理日
+        ORGZN_NM: string(256) - 組織名(和名)
+        ORGZN_NM_E: string(256) - 組織名(英名)
+        ORGZN_rNM: string(256) - 組織名略称
+        Sort_No: string(256) - 表示順
+        ChannelID: string(256) - チャネル
+        ClassNo: string(256) - 階層番号
+        ORGZN_CD: string(256) - 組織コード
+        LJ_ORGZN_CD: string(256) - LifeJ組織コード
+        Class1_CD: string(256) - 第一階層コード
+        Class2_CD: string(256) - 第二階層コード
+        Class3_CD: string(256) - 第三階層コード
+        Del_FLG: string(256) - 集計除外判定フラグ
+        ers_yymmdd: string(256) - 対象組織閉鎖日
+    
+    Configuration:
+        Sql Query: ""
+        User Defined Join: ""
+        Source Filter: ""
+        Number Of Sorted Ports: 0
+        Tracing Level: Normal
+        Select Distinct: NO
+        Is Partitionable: NO
+        Pre SQL: ""
+        Post SQL: ""
+        Output is deterministic: NO
+        Output is repeatable: Never
+    
+    Input Link: src_t_TM_ORGZN_STG_OUT
+    Output Link: SQ_src_t_TM_ORGZN_STG_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING.m_TM_SEC_STG
+// Source Qualifier Transformation: SQ_src_t_TM_SIKAKU_STG
+TRANSFORMATION SQ_src_t_TM_SIKAKU_STG:
+    Type: Source Qualifier
+    Description: Source Qualifier for src_t_TM_SIKAKU_STG
+    Associated Source: src_t_TM_SIKAKU_STG
+    Reusable: NO
+    
+    Column Definitions:
+        NN_run_dt: string(256) - 処理日
+        PS_SIKAKU_CD: string(256) - PS資格コード
+        ND_SIKAKU_CD: string(256) - ND資格コード
+        ND_YAKUSHOKU_CD: string(256) - ND役職コード
+    
+    Configuration:
+        Sql Query: ""
+        User Defined Join: ""
+        Source Filter: ""
+        Number Of Sorted Ports: 0
+        Tracing Level: Normal
+        Select Distinct: NO
+        Is Partitionable: NO
+        Pre SQL: ""
+        Post SQL: ""
+        Output is deterministic: NO
+        Output is repeatable: Never
+    
+    Input Link: src_t_TM_SIKAKU_STG_OUT
+    Output Link: SQ_src_t_TM_SIKAKU_STG_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING.m_TM_SEC_STG
+// Source Qualifier Transformation: SQ_src_t_TM_NM_CCIORG_STG
+TRANSFORMATION SQ_src_t_TM_NM_CCIORG_STG:
+    Type: Source Qualifier
+    Description: Source Qualifier for src_t_TM_NM_CCIORG_STG
+    Associated Source: src_t_TM_NM_CCIORG_STG
+    Reusable: NO
+    
+    Column Definitions:
+        NN_run_dt: string(256) - 処理日
+        SALES_CD: string(256) - 営業所コード
+        ORG_SIBU: string(256) - 支部番号
+        ORG_NBR_NO: string(256) - 組織所番号
+        IN_OUT_CD: string(256) - 営－内外籍コード
+        SHIBUTYO_EMPID: string(256) - 支部長番号
+        SALES_BOSS_NO: string(256) - 営業主任番号
+        SHIBU_NM: string(256) - 支部名
+        SOSIKIJYO_NM: string(256) - 組織所名
+        OPN_YYMMDD: date/time(29) - 支部組織所開設年月日
+        ERS_YYMMDD: date/time(29) - 支部組織所閉鎖年月日
+    
+    Configuration:
+        Sql Query: ""
+        User Defined Join: ""
+        Source Filter: ""
+        Number Of Sorted Ports: 0
+        Tracing Level: Normal
+        Select Distinct: NO
+        Is Partitionable: NO
+        Pre SQL: ""
+        Post SQL: ""
+        Output is deterministic: NO
+        Output is repeatable: Never
+    
+    Input Link: src_t_TM_NM_CCIORG_STG_OUT
+    Output Link: SQ_src_t_TM_NM_CCIORG_STG_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING.m_TM_SEC_STG
+// Source Qualifier Transformation: SQ_src_t_TM_EMP_STG
+TRANSFORMATION SQ_src_t_TM_EMP_STG:
+    Type: Source Qualifier
+    Description: Source Qualifier for src_t_TM_EMP_STG
+    Associated Source: src_t_TM_EMP_STG
+    Reusable: NO
+    
+    Column Definitions:
+        UK_EmpID: string(256) - 社員ID
+        NN_run_dt: string(256) - 処理日
+        ORGZN_ID: string(256) - 所管店情報(4)
+        Org_Sibu: string(256) - 支部番号
+        org_nbr: string(256) - 所属組織所
+        EmpTyp: string(256) - 取扱者タイプ
+        FB_EmpID: string(256) - 所属支社長
+        FM_EmpID: string(256) - 所属FM
+        EmpNM: string(256) - 社員名
+        EmpCode: string(256) - ＡＤ社員番号
+        LoginID: string(256) - ＡＤログインＩＤ
+        cmpny_jwng_dt: string(256) - 入社日
+        ers_yymmdd: string(256) - 退職、抹消日
+    
+    Configuration:
+        Sql Query: ""
+        User Defined Join: ""
+        Source Filter: ""
+        Number Of Sorted Ports: 0
+        Tracing Level: Normal
+        Select Distinct: NO
+        Is Partitionable: NO
+        Pre SQL: ""
+        Post SQL: ""
+        Output is deterministic: NO
+        Output is repeatable: Never
+    
+    Input Link: src_t_TM_EMP_STG_OUT
+    Output Link: SQ_src_t_TM_EMP_STG_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING
+// Expression Transformation: EXPTRANS (Employee Data Processing)
+TRANSFORMATION EXPTRANS:
+    Type: Expression
+    Description: Expression transformation for data processing
+    
+    Column Definitions:
+        TARGET_DAY: string(256) - 処理日, OUTPUT, EXPRESSION: $$NN_RUN_DT
+        EMPLID: string(256) - 社員コード, INPUT/OUTPUT, EXPRESSION: EMPLID
+        JOBCODE: string(256) - JG/資格コード, INPUT/OUTPUT, EXPRESSION: JOBCODE
+        DEPTID: string(256) - 所属コード, INPUT/OUTPUT, EXPRESSION: DEPTID
+        LAST_NAME: string(256) - 従業員姓, INPUT/OUTPUT, EXPRESSION: LAST_NAME
+        FIRST_NAME: string(256) - 従業員名, INPUT/OUTPUT, EXPRESSION: FIRST_NAME
+        EMAIL_ADDR: string(256) - 電子メールアドレス, INPUT/OUTPUT, EXPRESSION: EMAIL_ADDR
+        AX_FM_CD: string(256) - 担当FM, INPUT/OUTPUT, EXPRESSION: AX_FM_CD
+        AX_SM_CD: string(256) - 担当SM, INPUT/OUTPUT, EXPRESSION: AX_SM_CD
+        ORIG_HIRE_DT: string(256) - みなし初回採用日, INPUT/OUTPUT, EXPRESSION: ORIG_HIRE_DT
+        TERMINATION_DT: string(256) - 退職日, INPUT/OUTPUT, EXPRESSION: TERMINATION_DT
+        AX_MOF_NO: string(256) - MOF登録番号, INPUT/OUTPUT, EXPRESSION: AX_MOF_NO
+    
+    Configuration:
+        Tracing Level: Normal
+    
+    Input Link: SQ_src_f_PM_EMPLOYEE_D_OUT
+    Output Link: EXPTRANS_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING.m_TM_SEC_STG
+// Joiner Transformation: JNRTRANS_SOSIKI
+TRANSFORMATION JNRTRANS_SOSIKI:
+    Type: Joiner
+    Description: 所属変換マスタとの結合
+    
+    Column Definitions:
+        EMPLID: string(256) - 社員コード, INPUT/OUTPUT
+        JOBCODE: string(256) - JG/資格コード, INPUT/OUTPUT
+        DEPTID: string(256) - 所属コード, INPUT/OUTPUT
+        EMAIL_ADDR: string(256) - 電子メールアドレス, INPUT/OUTPUT
+        SOSIKI_DEPTID: string(256) - 所属コード, INPUT/OUTPUT/MASTER
+        SOSIKI_Orgzn_CD: string(256) - ND組織コード, INPUT/OUTPUT/MASTER
+        SOSIKI_ChannelID: string(256) - チャネルID, INPUT/OUTPUT/MASTER
+    
+    Configuration:
+        Case Sensitive String Comparison: YES
+        Cache Directory: $PMCacheDir
+        Join Condition: SOSIKI_DEPTID = DEPTID
+        Join Type: Master Outer Join
+        Null ordering in master: Null Is Highest Value
+        Null ordering in detail: Null Is Highest Value
+        Tracing Level: Normal
+        Joiner Data Cache Size: Auto
+        Joiner Index Cache Size: Auto
+        Sorted Input: YES
+        Master Sort Order: Auto
+        Transformation Scope: All Input
+    
+    Input Link: SQ_src_t_TM_PM_EMPLOYEE_D_ORG_OUT
+    Input Link: SQ_src_t_TM_SOSIKI_STG_OUT
+    Output Link: JNRTRANS_SOSIKI_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING.m_TM_SEC_STG
+// Joiner Transformation: JNRTRANS_CHANNEL
+TRANSFORMATION JNRTRANS_CHANNEL:
+    Type: Joiner
+    Description: チャネルマスタとの結合
+    Reusable: NO
+    
+    Column Definitions:
+        EMPLID: string(256) - 社員コード, INPUT/OUTPUT
+        JOBCODE: string(256) - JG/資格コード, INPUT/OUTPUT
+        EMAIL_ADDR: string(256) - 電子メールアドレス, INPUT/OUTPUT
+        SOSIKI_Orgzn_CD: string(256) - ND組織コード, INPUT/OUTPUT
+        SOSIKI_ChannelID: string(256) - チャネルID, INPUT/OUTPUT
+        CHANNEL_UK_CHANNELID: string(256) - チャネルID, INPUT/OUTPUT/MASTER
+        CHANNEL_CHANNELNM: string(256) - チャネル名, INPUT/OUTPUT/MASTER
+    
+    Configuration:
+        Case Sensitive String Comparison: YES
+        Cache Directory: $PMCacheDir
+        Join Condition: CHANNEL_UK_CHANNELID = SOSIKI_ChannelID
+        Join Type: Master Outer Join
+        Null ordering in master: Null Is Highest Value
+        Null ordering in detail: Null Is Highest Value
+        Tracing Level: Normal
+        Joiner Data Cache Size: Auto
+        Joiner Index Cache Size: Auto
+        Sorted Input: NO
+        Master Sort Order: Auto
+        Transformation Scope: All Input
+    
+    Input Link: JNRTRANS_SOSIKI_OUT
+    Input Link: SQ_src_t_TM_Channel_OUT
+    Output Link: JNRTRANS_CHANNEL_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING.m_TM_SEC_STG
+// Joiner Transformation: JNRTRANS_ORGZN
+TRANSFORMATION JNRTRANS_ORGZN:
+    Type: Joiner
+    Description: 組織マスタとの結合
+    
+    Column Definitions:
+        EMPLID: string(256) - 社員コード, INPUT/OUTPUT
+        JOBCODE: string(256) - JG/資格コード, INPUT/OUTPUT
+        EMAIL_ADDR: string(256) - 電子メールアドレス, INPUT/OUTPUT
+        SOSIKI_Orgzn_CD: string(256) - ND組織コード, INPUT/OUTPUT
+        CHANNEL_CHANNELNM: string(256) - チャネル名, INPUT/OUTPUT
+        ORGZN_ORGZN_CD: string(256) - 組織コード, INPUT/OUTPUT/MASTER
+        ORGZN_CLASS1_CD: string(256) - 第一階層コード, INPUT/OUTPUT/MASTER
+        ORGZN_CLASS2_CD: string(256) - 第二階層コード, INPUT/OUTPUT/MASTER
+        ORGZN_CLASS3_CD: string(256) - 第三階層コード, INPUT/OUTPUT/MASTER
+    
+    Configuration:
+        Case Sensitive String Comparison: YES
+        Cache Directory: $PMCacheDir
+        Join Condition: ORGZN_ORGZN_CD = SOSIKI_Orgzn_CD
+        Join Type: Master Outer Join
+        Null ordering in master: Null Is Highest Value
+        Null ordering in detail: Null Is Highest Value
+        Tracing Level: Normal
+        Joiner Data Cache Size: Auto
+        Joiner Index Cache Size: Auto
+        Sorted Input: NO
+        Master Sort Order: Auto
+        Transformation Scope: All Input
+    
+    Input Link: JNRTRANS_CHANNEL_OUT
+    Input Link: SQ_src_t_TM_ORGZN_STG_OUT
+    Output Link: JNRTRANS_ORGZN_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING.m_TM_SEC_STG
+// Joiner Transformation: JNRTRANS_EMP
+TRANSFORMATION JNRTRANS_EMP:
+    Type: Joiner
+    Description: 社員マスタとの結合
+    Reusable: NO
+    
+    Column Definitions:
+        EMPLID: string(256) - 社員コード, INPUT/OUTPUT
+        JOBCODE: string(256) - JG/資格コード, INPUT/OUTPUT
+        EMAIL_ADDR: string(256) - 電子メールアドレス, INPUT/OUTPUT
+        SOSIKI_Orgzn_CD: string(256) - ND組織コード, INPUT/OUTPUT
+        CHANNEL_CHANNELNM: string(256) - チャネル名, INPUT/OUTPUT
+        ORGZN_CLASS1_CD: string(256) - 第一階層コード, INPUT/OUTPUT
+        ORGZN_CLASS2_CD: string(256) - 第二階層コード, INPUT/OUTPUT
+        ORGZN_CLASS3_CD: string(256) - 第三階層コード, INPUT/OUTPUT
+        EMP_UK_EMPID: string(256) - 社員ID, INPUT/OUTPUT/MASTER
+        EMP_ORG_NBR: string(256) - 所属組織所, INPUT/OUTPUT/MASTER
+        EMP_FB_EMPID: string(256) - 所属支社長, INPUT/OUTPUT/MASTER
+        EMP_FM_EMPID: string(256) - 所属FM, INPUT/OUTPUT/MASTER
+    
+    Configuration:
+        Case Sensitive String Comparison: YES
+        Cache Directory: $PMCacheDir
+        Join Condition: EMP_UK_EMPID = EMPLID
+        Join Type: Master Outer Join
+        Null ordering in master: Null Is Highest Value
+        Null ordering in detail: Null Is Highest Value
+        Tracing Level: Normal
+        Joiner Data Cache Size: Auto
+        Joiner Index Cache Size: Auto
+        Sorted Input: NO
+        Master Sort Order: Auto
+        Transformation Scope: All Input
+    
+    Input Link: JNRTRANS_ORGZN_OUT
+    Input Link: SQ_src_t_TM_EMP_STG_OUT
+    Output Link: JNRTRANS_EMP_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING.m_TM_SEC_STG
+// Joiner Transformation: JNRTRANS_ORGZN_1
+TRANSFORMATION JNRTRANS_ORGZN_1:
+    Type: Joiner
+    Description: 組織マスタとの結合(第一階層コード)
+    
+    Column Definitions:
+        EMPLID: string(256) - 社員コード, INPUT/OUTPUT
+        JOBCODE: string(256) - JG/資格コード, INPUT/OUTPUT
+        EMAIL_ADDR: string(256) - 電子メールアドレス, INPUT/OUTPUT
+        SOSIKI_Orgzn_CD: string(256) - ND組織コード, INPUT/OUTPUT
+        CHANNEL_CHANNELNM: string(256) - チャネル名, INPUT/OUTPUT
+        ORGZN_CLASS1_CD: string(256) - 第一階層コード, INPUT/OUTPUT
+        ORGZN_CLASS2_CD: string(256) - 第二階層コード, INPUT/OUTPUT
+        ORGZN_CLASS3_CD: string(256) - 第三階層コード, INPUT/OUTPUT
+        EMP_ORG_NBR: string(256) - 所属組織所, INPUT/OUTPUT
+        EMP_FB_EMPID: string(256) - 所属支社長, INPUT/OUTPUT
+        EMP_FM_EMPID: string(256) - 所属FM, INPUT/OUTPUT
+        ORGZN_lv_CLASS1_CD: string(256) - 第一階層コード, INPUT/OUTPUT/MASTER
+    
+    Configuration:
+        Case Sensitive String Comparison: YES
+        Cache Directory: $PMCacheDir
+        Join Condition: ORGZN_lv_CLASS1_CD = ORGZN_CLASS1_CD
+        Join Type: Master Outer Join
+        Null ordering in master: Null Is Highest Value
+        Null ordering in detail: Null Is Highest Value
+        Tracing Level: Normal
+        Joiner Data Cache Size: Auto
+        Joiner Index Cache Size: Auto
+        Sorted Input: NO
+        Master Sort Order: Auto
+        Transformation Scope: All Input
+    
+    Input Link: JNRTRANS_EMP_OUT
+    Input Link: SQ_src_t_TM_ORGZN_STG_OUT
+    Output Link: JNRTRANS_ORGZN_1_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING.m_TM_SEC_STG
+// Joiner Transformation: JNRTRANS_ORGZN_2
+TRANSFORMATION JNRTRANS_ORGZN_2:
+    Type: Joiner
+    Description: 組織マスタとの結合(第二階層コード)
+    
+    Column Definitions:
+        EMPLID: string(256) - 社員コード, INPUT/OUTPUT
+        JOBCODE: string(256) - JG/資格コード, INPUT/OUTPUT
+        EMAIL_ADDR: string(256) - 電子メールアドレス, INPUT/OUTPUT
+        SOSIKI_Orgzn_CD: string(256) - ND組織コード, INPUT/OUTPUT
+        CHANNEL_CHANNELNM: string(256) - チャネル名, INPUT/OUTPUT
+        ORGZN_CLASS1_CD: string(256) - 第一階層コード, INPUT/OUTPUT
+        ORGZN_CLASS2_CD: string(256) - 第二階層コード, INPUT/OUTPUT
+        ORGZN_CLASS3_CD: string(256) - 第三階層コード, INPUT/OUTPUT
+        EMP_ORG_NBR: string(256) - 所属組織所, INPUT/OUTPUT
+        EMP_FB_EMPID: string(256) - 所属支社長, INPUT/OUTPUT
+        EMP_FM_EMPID: string(256) - 所属FM, INPUT/OUTPUT
+        ORGZN_lv_CLASS1_CD: string(256) - 第一階層コード, INPUT/OUTPUT
+        ORGZN_lv_CLASS2_CD: string(256) - 第二階層コード, INPUT/OUTPUT/MASTER
+    
+    Configuration:
+        Case Sensitive String Comparison: YES
+        Cache Directory: $PMCacheDir
+        Join Condition: ORGZN_lv_CLASS2_CD = ORGZN_CLASS2_CD
+        Join Type: Master Outer Join
+        Null ordering in master: Null Is Highest Value
+        Null ordering in detail: Null Is Highest Value
+        Tracing Level: Normal
+        Joiner Data Cache Size: Auto
+        Joiner Index Cache Size: Auto
+        Sorted Input: NO
+        Master Sort Order: Auto
+        Transformation Scope: All Input
+    
+    Input Link: JNRTRANS_ORGZN_1_OUT
+    Input Link: SQ_src_t_TM_ORGZN_STG_OUT
+    Output Link: JNRTRANS_ORGZN_2_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING.m_TM_SEC_STG
+// Joiner Transformation: JNRTRANS_ORGZN_3
+TRANSFORMATION JNRTRANS_ORGZN_3:
+    Type: Joiner
+    Description: 組織マスタとの結合(第三階層コード)
+    
+    Column Definitions:
+        EMPLID: string(256) - 社員コード, INPUT/OUTPUT
+        JOBCODE: string(256) - JG/資格コード, INPUT/OUTPUT
+        EMAIL_ADDR: string(256) - 電子メールアドレス, INPUT/OUTPUT
+        SOSIKI_Orgzn_CD: string(256) - ND組織コード, INPUT/OUTPUT
+        CHANNEL_CHANNELNM: string(256) - チャネル名, INPUT/OUTPUT
+        ORGZN_CLASS1_CD: string(256) - 第一階層コード, INPUT/OUTPUT
+        ORGZN_CLASS2_CD: string(256) - 第二階層コード, INPUT/OUTPUT
+        ORGZN_CLASS3_CD: string(256) - 第三階層コード, INPUT/OUTPUT
+        EMP_ORG_NBR: string(256) - 所属組織所, INPUT/OUTPUT
+        EMP_FB_EMPID: string(256) - 所属支社長, INPUT/OUTPUT
+        EMP_FM_EMPID: string(256) - 所属FM, INPUT/OUTPUT
+        ORGZN_lv_CLASS1_CD: string(256) - 第一階層コード, INPUT/OUTPUT
+        ORGZN_lv_CLASS2_CD: string(256) - 第二階層コード, INPUT/OUTPUT
+        ORGZN_lv_CLASS3_CD: string(256) - 第三階層コード, INPUT/OUTPUT/MASTER
+    
+    Configuration:
+        Case Sensitive String Comparison: YES
+        Cache Directory: $PMCacheDir
+        Join Condition: ORGZN_lv_CLASS3_CD = ORGZN_CLASS3_CD
+        Join Type: Master Outer Join
+        Null ordering in master: Null Is Highest Value
+        Null ordering in detail: Null Is Highest Value
+        Tracing Level: Normal
+        Joiner Data Cache Size: Auto
+        Joiner Index Cache Size: Auto
+        Sorted Input: NO
+        Master Sort Order: Auto
+        Transformation Scope: All Input
+    
+    Input Link: JNRTRANS_ORGZN_2_OUT
+    Input Link: SQ_src_t_TM_ORGZN_STG_OUT
+    Output Link: JNRTRANS_ORGZN_3_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING.m_TM_SEC_STG
+// Joiner Transformation: JNRTRANS_SIKAKU
+TRANSFORMATION JNRTRANS_SIKAKU:
+    Type: Joiner
+    Description: ND資格マッピング情報との結合
+    
+    Column Definitions:
+        EMPLID: string(256) - 社員コード, INPUT/OUTPUT
+        JOBCODE: string(256) - JG/資格コード, INPUT/OUTPUT
+        EMAIL_ADDR: string(256) - 電子メールアドレス, INPUT/OUTPUT
+        SOSIKI_Orgzn_CD: string(256) - ND組織コード, INPUT/OUTPUT
+        CHANNEL_CHANNELNM: string(256) - チャネル名, INPUT/OUTPUT
+        ORGZN_CLASS1_CD: string(256) - 第一階層コード, INPUT/OUTPUT
+        ORGZN_CLASS2_CD: string(256) - 第二階層コード, INPUT/OUTPUT
+        ORGZN_CLASS3_CD: string(256) - 第三階層コード, INPUT/OUTPUT
+        EMP_ORG_NBR: string(256) - 所属組織所, INPUT/OUTPUT
+        EMP_FB_EMPID: string(256) - 所属支社長, INPUT/OUTPUT
+        EMP_FM_EMPID: string(256) - 所属FM, INPUT/OUTPUT
+        ORGZN_lv_CLASS1_CD: string(256) - 第一階層コード, INPUT/OUTPUT
+        ORGZN_lv_CLASS2_CD: string(256) - 第二階層コード, INPUT/OUTPUT
+        ORGZN_lv_CLASS3_CD: string(256) - 第三階層コード, INPUT/OUTPUT
+        SIKAKU_PS_SIKAKU_CD: string(256) - PS資格コード, INPUT/OUTPUT/MASTER
+        SIKAKU_ND_SIKAKU_CD: string(256) - ND資格コード, INPUT/OUTPUT/MASTER
+        SIKAKU_ND_YAKUSHOKU_CD: string(256) - ND役職コード, INPUT/OUTPUT/MASTER
+    
+    Configuration:
+        Case Sensitive String Comparison: YES
+        Cache Directory: $PMCacheDir
+        Join Condition: SIKAKU_PS_SIKAKU_CD = JOBCODE
+        Join Type: Master Outer Join
+        Null ordering in master: Null Is Highest Value
+        Null ordering in detail: Null Is Highest Value
+        Tracing Level: Normal
+        Joiner Data Cache Size: Auto
+        Joiner Index Cache Size: Auto
+        Sorted Input: NO
+        Master Sort Order: Auto
+        Transformation Scope: All Input
+    
+    Input Link: JNRTRANS_ORGZN_3_OUT
+    Input Link: SQ_src_t_TM_SIKAKU_STG_OUT
+    Output Link: JNRTRANS_SIKAKU_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING.m_TM_SEC_STG
+// Joiner Transformation: JNRTRANS_CCIORG
+TRANSFORMATION JNRTRANS_CCIORG:
+    Type: Joiner
+    Description: 組織所マスタとの結合
+    
+    Column Definitions:
+        EMPLID: string(256) - 社員コード, INPUT/OUTPUT
+        EMAIL_ADDR: string(256) - 電子メールアドレス, INPUT/OUTPUT
+        SOSIKI_Orgzn_CD: string(256) - ND組織コード, INPUT/OUTPUT
+        CHANNEL_CHANNELNM: string(256) - チャネル名, INPUT/OUTPUT
+        ORGZN_CLASS1_CD: string(256) - 第一階層コード, INPUT/OUTPUT
+        ORGZN_CLASS2_CD: string(256) - 第二階層コード, INPUT/OUTPUT
+        ORGZN_CLASS3_CD: string(256) - 第三階層コード, INPUT/OUTPUT
+        EMP_ORG_NBR: string(256) - 所属組織所, INPUT/OUTPUT
+        EMP_FB_EMPID: string(256) - 所属支社長, INPUT/OUTPUT
+        EMP_FM_EMPID: string(256) - 所属FM, INPUT/OUTPUT
+        ORGZN_lv_CLASS1_CD: string(256) - 第一階層コード, INPUT/OUTPUT
+        ORGZN_lv_CLASS2_CD: string(256) - 第二階層コード, INPUT/OUTPUT
+        ORGZN_lv_CLASS3_CD: string(256) - 第三階層コード, INPUT/OUTPUT
+        SIKAKU_ND_SIKAKU_CD: string(256) - ND資格コード, INPUT/OUTPUT
+        SIKAKU_ND_YAKUSHOKU_CD: string(256) - ND役職コード, INPUT/OUTPUT
+        CCIORG_SALES_BOSS_NO: string(256) - 営業主任番号, INPUT/OUTPUT/MASTER
+    
+    Configuration:
+        Case Sensitive String Comparison: YES
+        Cache Directory: $PMCacheDir
+        Join Condition: CCIORG_SALES_BOSS_NO = EMPLID
+        Join Type: Master Outer Join
+        Null ordering in master: Null Is Highest Value
+        Null ordering in detail: Null Is Highest Value
+        Tracing Level: Normal
+        Joiner Data Cache Size: Auto
+        Joiner Index Cache Size: Auto
+        Sorted Input: NO
+        Master Sort Order: Auto
+        Transformation Scope: All Input
+    
+    Input Link: JNRTRANS_SIKAKU_OUT
+    Input Link: SQ_src_t_TM_NM_CCIORG_STG_OUT
+    Output Link: JNRTRANS_CCIORG_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING.m_TM_SEC_STG
+// Expression Transformation: EXPTRANS (Security Processing)
+TRANSFORMATION EXPTRANS:
+    Type: Expression
+    Description: Security data processing and level calculation
+    Reusable: NO
+    
+    Column Definitions:
+        EMP_ID: string(256) - 社員コード, INPUT/OUTPUT, EXPRESSION: EMP_ID
+        EMAIL_ADDR: string(256) - 電子メールアドレス, INPUT
+        EMP_WIN_ID: string(256) - WindowsID, OUTPUT, EXPRESSION: iif(instr(EMAIL_ADDR,'@') = 0,EMAIL_ADDR,substr(EMAIL_ADDR,0,instr(EMAIL_ADDR,'@')-1))
+        CHANNEL_NM: string(256) - チャネル名, INPUT/OUTPUT, EXPRESSION: CHANNEL_NM
+        CLASS1_CD: string(256) - 第一階層コード, INPUT/OUTPUT, EXPRESSION: CLASS1_CD
+        CLASS2_CD: string(256) - 第二階層コード, INPUT/OUTPUT, EXPRESSION: CLASS2_CD
+        CLASS3_CD: string(256) - 第三階層コード, INPUT/OUTPUT, EXPRESSION: CLASS3_CD
+        CLASS5_CD: string(256) - 所属組織所, INPUT/OUTPUT, EXPRESSION: CLASS5_CD
+        FB_EMPID: string(256) - 所属支社長, INPUT/OUTPUT, EXPRESSION: FB_EMPID
+        wk_FM_EMPID: string(256) - 所属FM, INPUT
+        FM_EMPID: string(256) - 所属FM, OUTPUT, EXPRESSION: V_FM_EMPID
+        lv_CLASS1_CD: string(256) - 第一階層コード, INPUT
+        lv_CLASS2_CD: string(256) - 第二階層コード, INPUT
+        lv_CLASS3_CD: string(256) - 第三階層コード, INPUT
+        ND_SIKAKU_CD: string(256) - ND資格コード, INPUT
+        ND_YAKUSHOKU_CD: string(256) - ND役職コード, INPUT
+        SALES_BOSS_NO: string(256) - 営業主任番号, INPUT
+        wk_Level: string(256) - 役職レベル計算, LOCAL VARIABLE, EXPRESSION: iif((CHANNEL_NM = 'CCI' and isnull(lv_CLASS1_CD) = false and ND_YAKUSHOKU_CD <> 'V1') or (CHANNEL_NM = 'FA' and isnull(lv_CLASS1_CD) = false and in(ND_YAKUSHOKU_CD,'LM','LA') = 0),2,iif((CHANNEL_NM = 'CCI' and isnull(lv_CLASS2_CD) = false and (ND_YAKUSHOKU_CD <> 'V1' or (ND_YAKUSHOKU_CD = 'V1' and ND_SIKAKU_CD = 'AB'))) or (CHANNEL_NM = 'FA' and isnull(lv_CLASS2_CD) = false and in(ND_YAKUSHOKU_CD,'LM','LA') = 0),3,iif(CHANNEL_NM = 'CCI' and isnull(lv_CLASS3_CD) = false and (ND_YAKUSHOKU_CD <> 'V1' or (ND_YAKUSHOKU_CD = 'V1' and ND_SIKAKU_CD = 'AB')),4,iif(CHANNEL_NM = 'CCI' and isnull(SALES_BOSS_NO) = false,6,iif(CHANNEL_NM = 'FA' and ND_YAKUSHOKU_CD = 'LM',8,iif((CHANNEL_NM = 'CCI' and ND_YAKUSHOKU_CD = 'V1') or (CHANNEL_NM = 'FA' and ND_YAKUSHOKU_CD = 'LA'),9,0))))))
+        V_FM_EMPID: string(256) - 所属FM処理, LOCAL VARIABLE, EXPRESSION: iif(wk_Level='8' and (isnull(wk_FM_EMPID)=true or length(rtrim(wk_FM_EMPID)) <= 0),EMP_ID,wk_FM_EMPID)
+        Level: string(256) - 役職レベル, OUTPUT, EXPRESSION: wk_Level
+        Sec_CD: string(256) - セキュリティコード, OUTPUT, EXPRESSION: iif(wk_Level = '2',CLASS1_CD,iif(wk_Level = '3',CLASS2_CD,iif(wk_Level = '4',CLASS3_CD,iif(wk_Level = '6',CLASS5_CD,iif(wk_Level = '7',FB_EMPID,iif(wk_Level = '8',V_FM_EMPID,iif(wk_Level = '9',EMP_ID,'-')))))))
+    
+    Configuration:
+        Tracing Level: Normal
+    
+    Input Link: JNRTRANS_CCIORG_OUT
+    Output Link: EXPTRANS_SEC_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ
+// Session Configuration: default_session_config
+SESSION_CONFIG default_session_config:
+    Type: Default Session Configuration
+    Description: Default session configuration object
+    Is Default: YES
+    Version Number: 1
+    
+    Configuration Attributes:
+        Advanced: ""
+        Constraint based load ordering: NO
+        Cache LOOKUP() function: YES
+        Default buffer block size: Auto
+        Line Sequential buffer length: 1024
+        Maximum Memory Allowed For Auto Memory Attributes: 512MB
+        Maximum Percentage of Total Memory Allowed For Auto Memory Attributes: 5
+        Additional Concurrent Pipelines for Lookup Cache Creation: Auto
+        Custom Properties: ""
+        Pre-build lookup cache: Auto
+        Optimization Level: Medium
+        DateTime Format String: MM/DD/YYYY HH24:MI:SS.US
+        Pre 85 Timestamp Compatibility: NO
+        Log Options: 0
+        Save session log by: Session runs
+        Save session log for these runs: 0
+        Session Log File Max Size: 0
+        Session Log File Max Time Period: 0
+        Maximum Partial Session Log Files: 1
+        Writer Commit Statistics Log Frequency: 1
+        Writer Commit Statistics Log Interval: 0
+        Error handling: ""
+        Stop on errors: 0
+        Override tracing: None
+        On Stored Procedure error: Stop
+        On Pre-session command task error: Stop
+        On Pre-Post SQL error: Stop
+        Enable Recovery: NO
+        Error Log Type: None
+        Error Log Table Name Prefix: ""
+        Error Log File Name: PMError.log
+        Log Source Row Data: NO
+        Data Column Delimiter: |
+        Partitioning Options: ""
+        Dynamic Partitioning: Disabled
+        Number of Partitions: 1
+        Multiplication Factor: Auto
+        Session on Grid: ""
+        Is Enabled: NO
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ
+// Target Definition: tgt_t_TM_PM_EMPLOYEE_D_ORG
+TARGET_DEFINITION tgt_t_TM_PM_EMPLOYEE_D_ORG:
+    Type: Oracle Database Target
+    Database Type: Oracle
+    Description: 社員マスタ(日次) ORGテーブル
+    
+    Column Definitions:
+        TARGET_DAY: varchar2(256) - 処理日, NULLABLE
+        EMPLID: varchar2(256) - 社員コード, NULLABLE
+        JOBCODE: varchar2(256) - JG/資格コード, NULLABLE
+        DEPTID: varchar2(256) - 所属コード, NULLABLE
+        LAST_NAME: varchar2(256) - 従業員姓, NULLABLE
+        FIRST_NAME: varchar2(256) - 従業員名, NULLABLE
+        EMAIL_ADDR: varchar2(256) - 電子メールアドレス, NULLABLE
+        AX_FM_CD: varchar2(256) - 担当FM, NULLABLE
+        AX_SM_CD: varchar2(256) - 担当SM, NULLABLE
+        ORIG_HIRE_DT: varchar2(256) - みなし初回採用日, NULLABLE
+        TERMINATION_DT: varchar2(256) - 退職日, NULLABLE
+        AX_MOF_NO: varchar2(256) - MOF登録番号, NULLABLE
+    
+    Configuration:
+        Reject Truncated/Overflowed rows: YES
+        Pre SQL: delete from $PMtgt_t_TM_PM_EMPLOYEE_D_ORG@TableName where TARGET_DAY='$$NN_RUN_DT';
+        Target Table Name: TM_PM_EMPLOYEE_D_ORG
+    
+    Input Link: EXPTRANS_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING.m_TM_SEC_STG
+// Target Definition: tgt_t_TM_SEC_STG
+TARGET_DEFINITION tgt_t_TM_SEC_STG:
+    Type: Oracle Database Target
+    Database Type: Oracle
+    Description: セキュリティSTG作成
+    
+    Column Definitions:
+        EMP_ID: varchar2(256) - 社員ID, PRIMARY KEY, NOT NULL
+        EMP_WIN_ID: varchar2(256) - WindowsID(ログインアカウント), NOT NULL
+        CHANNEL_NM: varchar2(256) - チャネル名, NULLABLE
+        CLASS1_CD: varchar2(256) - 第1階層コード, NULLABLE
+        CLASS2_CD: varchar2(256) - 第2階層コード, NULLABLE
+        CLASS3_CD: varchar2(256) - 第3階層コード, NULLABLE
+        CLASS5_CD: varchar2(256) - 組織所階層コード, NULLABLE
+        FB_EMPID: varchar2(256) - 所属FB_ID, NULLABLE
+        FM_EMPID: varchar2(256) - 所属FM_ID, NULLABLE
+        Level: varchar2(256) - 役職レベル, NOT NULL
+        SEC_CD: varchar2(256) - セキュリティコード, NOT NULL
+    
+    Configuration:
+        Reject Truncated/Overflowed rows: YES
+        Target Table Name: TM_SEC_STG
+    
+    Input Link: EXPTRANS_SEC_OUT
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ
+// Workflow: wf_m_TM_SEC_STG
+WORKFLOW wf_m_TM_SEC_STG:
+    Type: Workflow
+    Description: セキュリティSTG作成
+    Version Number: 1
+    
+    Configuration:
+        Is Enabled: YES
+        Is Runnable Service: NO
+        Is Service: NO
+        Is Valid: YES
+        Reusable Scheduler: NO
+        Scheduler Name: スケジューラ
+        Suspend On Error: NO
+        Tasks Must Run On Server: NO
+    
+    Scheduler Configuration:
+        Name: スケジューラ
+        Description: ""
+        Reusable: NO
+        Version Number: 1
+        Schedule Type: ONDEMAND
+    
+    Task Configuration:
+        Start Task: 開始
+        Session Task: s_m_TM_SEC_STG
+            Mapping Name: m_TM_SEC_STG
+            Is Valid: NO
+            Sort Order: Binary
+            Version Number: 1
+            
+            Session Transformation Instances:
+                Pipeline 0 (Stage 0):
+                    - src_t_TM_PM_EMPLOYEE_D_ORG (Source Definition)
+                    - src_t_TM_Channel (Source Definition)
+                    - src_t_TM_ORGZN_STG (Source Definition)
+                    - src_t_TM_SIKAKU_STG (Source Definition)
+                    - src_t_TM_SOSIKI_STG (Source Definition)
+                    - src_t_TM_NM_CCIORG_STG (Source Definition)
+                    - src_t_TM_EMP_STG (Source Definition)
+                
+                Pipeline 1 (Stage 1):
+                    - tgt_t_TM_SEC_STG (Target Definition) - REPARTITION POINT
+                
+                Pipeline 1 (Stage 2):
+                    - SQ_src_t_TM_PM_EMPLOYEE_D_ORG (Source Qualifier) - REPARTITION POINT
+                    - EXPTRANS (Expression)
+                    - JNRTRANS_ORGZN_1 (Joiner)
+                    - JNRTRANS_ORGZN_2 (Joiner)
+                    - JNRTRANS_ORGZN_3 (Joiner)
+                    - JNRTRANS_SIKAKU (Joiner)
+                    - JNRTRANS_CCIORG (Joiner)
+                    - JNRTRANS_SOSIKI (Joiner)
+                    - JNRTRANS_ORGZN (Joiner)
+                    - JNRTRANS_CHANNEL (Joiner)
+                    - JNRTRANS_EMP (Joiner)
+                
+                Pipeline 2 (Stage 3):
+                    - SQ_src_t_TM_Channel (Source Qualifier) - REPARTITION POINT
+                
+                Pipeline 3 (Stage 4):
+                    - SQ_src_t_TM_ORGZN_STG (Source Qualifier) - REPARTITION POINT
+                
+                Pipeline 4 (Stage 5):
+                    - SQ_src_t_TM_SIKAKU_STG (Source Qualifier) - REPARTITION POINT
+                
+                Pipeline 5 (Stage 6):
+                    - SQ_src_t_TM_SOSIKI_STG (Source Qualifier) - REPARTITION POINT
+                
+                Pipeline 6 (Stage 7):
+                    - SQ_src_t_TM_NM_CCIORG_STG (Source Qualifier) - REPARTITION POINT
+                
+                Pipeline 7 (Stage 8):
+                    - SQ_src_t_TM_EMP_STG (Source Qualifier) - REPARTITION POINT
+            
+            Session Extensions:
+                Relational Writer (tgt_t_TM_SEC_STG):
+                    Connection Reference: DB Connection
+                    Target Load Type: Normal
+                    Insert: YES
+                    Update as Update: NO
+                    Update as Insert: NO
+                    Update else Insert: YES
+                    Delete: NO
+                    Truncate Target Table Option: YES
+                    Reject File Directory: $PMBadFileDir\
+                    Reject Filename: tgt_t_tm_sec_stg1.bad
+                
+                Relational Readers:
+                    - src_t_TM_PM_EMPLOYEE_D_ORG (DB Connection)
+                    - src_t_TM_Channel (DB Connection)
+                    - src_t_TM_ORGZN_STG (DB Connection)
+                    - src_t_TM_SIKAKU_STG (DB Connection)
+                    - src_t_TM_SOSIKI_STG (DB Connection)
+                    - src_t_TM_NM_CCIORG_STG (DB Connection)
+                    - src_t_TM_EMP_STG (DB Connection)
+            
+            Session Attributes:
+                Stop on errors: 1
+                Write Backward Compatible Session Log File: YES
+                Session Log File Name: s_m_TM_SEC_STG.log
+                Session Log File directory: $PMSessionLogDir\
+                Enable Test Load: NO
+                Treat source rows as: Update
+                Commit Type: Target
+                Commit Interval: 2147483647
+                Commit On End Of File: YES
+                Rollback Transactions on Errors: YES
+                Recovery Strategy: Fail task and continue workflow
+                DTM buffer size: Auto
+                Collect performance data: NO
+                Write performance data to repository: NO
+                Incremental Aggregation: NO
+                Enable high precision: NO
+                Session retry on deadlock: NO
+                Pushdown Optimization: None
+                Allow Temporary View for Pushdown: NO
+                Allow Temporary Sequence for Pushdown: NO
+                Allow Pushdown for User Incompatible Connections: NO
+        
+        Session Task: s_m_TM_PM_EMPLOYEE_D_ORG
+            Mapping Name: m_TM_PM_EMPLOYEE_D_ORG
+            Is Valid: NO
+            Sort Order: Binary
+            Version Number: 1
+            
+            Session Transformation Instances:
+                Pipeline 0 (Stage 0):
+                    - src_f_PM_EMPLOYEE_D (Source Definition)
+                
+                Pipeline 1 (Stage 1):
+                    - tgt_t_TM_PM_EMPLOYEE_D_ORG (Target Definition) - REPARTITION POINT
+                
+                Pipeline 1 (Stage 2):
+                    - SQ_src_f_PM_EMPLOYEE_D (Source Qualifier) - REPARTITION POINT
+                    - EXPTRANS (Expression)
+            
+            Session Extensions:
+                File Reader (src_f_PM_EMPLOYEE_D):
+                    Connection Reference: Connection
+                    Input Type: File
+                    Concurrent read partitioning: Optimize throughput
+                    Command Type: Command Generating Data
+                    Source filetype: Indirect
+                    Source file directory: $PMSourceFileDir\
+                    Source filename: infile.lst
+                    Command: ""
+                    File Reader Truncate String Null: NO
+                    Codepage Parameter: ""
+                
+                Relational Writer (tgt_t_TM_PM_EMPLOYEE_D_ORG):
+                    Connection Reference: DB Connection
+                    Target Load Type: Normal
+                    Insert: YES
+                    Update as Update: NO
+                    Update as Insert: NO
+                    Update else Insert: NO
+                    Delete: NO
+                    Truncate Target Table Option: NO
+                    Reject File Directory: $PMBadFileDir\
+                    Reject Filename: tgt_t_tm_pm_employee_d_org1.bad
+            
+            Session Attributes:
+                Stop on errors: 1
+                Write Backward Compatible Session Log File: YES
+                Session Log File Name: s_m_TM_PM_EMPLOYEE_D_ORG.log
+                Session Log File directory: $PMSessionLogDir\
+                Enable Test Load: NO
+                Treat source rows as: Insert
+                Commit Type: Target
+                Commit Interval: 2147483647
+                Commit On End Of File: YES
+                Rollback Transactions on Errors: YES
+                Recovery Strategy: Fail task and continue workflow
+                DTM buffer size: Auto
+                Collect performance data: NO
+                Write performance data to repository: NO
+                Incremental Aggregation: NO
+                Enable high precision: NO
+                Session retry on deadlock: NO
+                Pushdown Optimization: None
+                Allow Temporary View for Pushdown: NO
+                Allow Temporary Sequence for Pushdown: NO
+                Allow Pushdown for User Incompatible Connections: NO
+    
+    Workflow Links:
+        開始 -> s_m_TM_PM_EMPLOYEE_D_ORG (Condition: "")
+        s_m_TM_PM_EMPLOYEE_D_ORG -> s_m_TM_SEC_STG (Condition: "$s_m_TM_PM_EMPLOYEE_D_ORG.Status=SUCCEEDED")
+    
+    Workflow Variables:
+        $開始.StartTime: date/time - Task start time
+        $開始.EndTime: date/time - Task end time
+        $開始.Status: integer - Task execution status
+        $開始.PrevTaskStatus: integer - Previous task status
+        $開始.ErrorCode: integer - Task error code
+        $開始.ErrorMsg: string - Task error message
+        $s_m_TM_SEC_STG.StartTime: date/time - Task start time
+        $s_m_TM_SEC_STG.EndTime: date/time - Task end time
+        $s_m_TM_SEC_STG.Status: integer - Task execution status
+        $s_m_TM_SEC_STG.PrevTaskStatus: integer - Previous task status
+        $s_m_TM_SEC_STG.ErrorCode: integer - Task error code
+        $s_m_TM_SEC_STG.ErrorMsg: string - Task error message
+        $s_m_TM_SEC_STG.SrcSuccessRows: bigint - Rows successfully read
+        $s_m_TM_SEC_STG.SrcFailedRows: bigint - Rows failed to read
+        $s_m_TM_SEC_STG.TgtSuccessRows: bigint - Rows successfully loaded
+        $s_m_TM_SEC_STG.TgtFailedRows: bigint - Rows failed to load
+        $s_m_TM_SEC_STG.TotalTransErrors: integer - Total transformation errors
+        $s_m_TM_SEC_STG.FirstErrorCode: integer - First error code
+        $s_m_TM_SEC_STG.FirstErrorMsg: string - First error message
+        $s_m_TM_PM_EMPLOYEE_D_ORG.StartTime: date/time - Task start time
+        $s_m_TM_PM_EMPLOYEE_D_ORG.EndTime: date/time - Task end time
+        $s_m_TM_PM_EMPLOYEE_D_ORG.Status: integer - Task execution status
+        $s_m_TM_PM_EMPLOYEE_D_ORG.PrevTaskStatus: integer - Previous task status
+        $s_m_TM_PM_EMPLOYEE_D_ORG.ErrorCode: integer - Task error code
+        $s_m_TM_PM_EMPLOYEE_D_ORG.ErrorMsg: string - Task error message
+        $s_m_TM_PM_EMPLOYEE_D_ORG.SrcSuccessRows: bigint - Rows successfully read
+        $s_m_TM_PM_EMPLOYEE_D_ORG.SrcFailedRows: bigint - Rows failed to read
+        $s_m_TM_PM_EMPLOYEE_D_ORG.TgtSuccessRows: bigint - Rows successfully loaded
+        $s_m_TM_PM_EMPLOYEE_D_ORG.TgtFailedRows: bigint - Rows failed to load
+        $s_m_TM_PM_EMPLOYEE_D_ORG.TotalTransErrors: integer - Total transformation errors
+        $s_m_TM_PM_EMPLOYEE_D_ORG.FirstErrorCode: integer - First error code
+        $s_m_TM_PM_EMPLOYEE_D_ORG.FirstErrorMsg: string - First error message
+    
+    Workflow Attributes:
+        Parameter Filename: ""
+        Write Backward Compatible Workflow Log File: YES
+        Workflow Log File Name: wf_m_TM_SEC_STG.log
+        Workflow Log File Directory: $PMWorkflowLogDir\
+        Save Workflow log by: By runs
+        Save workflow log for these runs: 0
+        Service Name: ""
+        Service Timeout: 0
+        Is Service Visible: NO
+        Is Service Protected: NO
+        Fail task after wait time: 0
+        Enable HA recovery: NO
+        Automatically recover terminated tasks: NO
+        Service Level Name: Default
+        Allow concurrent run with unique run instance name: NO
+        Allow concurrent run with same run instance name: NO
+        Maximum number of concurrent runs: 0
+        Assigned Web Services Hubs: ""
+        Maximum number of concurrent runs per Hub: 1000
+        Expected Service Time: 1
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING
+// Mapping Variables
+MAPPING_VARIABLES:
+    $$NN_RUN_DT: string(256) - 処理日付, Parameter Variable, User Defined
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING.m_TM_SEC_STG
+// Data Flow Connections
+DATA_FLOW_CONNECTIONS:
+    src_f_PM_EMPLOYEE_D -> SQ_src_f_PM_EMPLOYEE_D:
+        EMPLID -> EMPLID
+        JOBCODE -> JOBCODE
+        DEPTID -> DEPTID
+        LAST_NAME -> LAST_NAME
+        FIRST_NAME -> FIRST_NAME
+        EMAIL_ADDR -> EMAIL_ADDR
+        AX_FM_CD -> AX_FM_CD
+        AX_SM_CD -> AX_SM_CD
+        ORIG_HIRE_DT -> ORIG_HIRE_DT
+        TERMINATION_DT -> TERMINATION_DT
+        AX_MOF_NO -> AX_MOF_NO
+    
+    SQ_src_f_PM_EMPLOYEE_D -> EXPTRANS:
+        EMPLID -> EMPLID
+        JOBCODE -> JOBCODE
+        DEPTID -> DEPTID
+        LAST_NAME -> LAST_NAME
+        FIRST_NAME -> FIRST_NAME
+        EMAIL_ADDR -> EMAIL_ADDR
+        AX_FM_CD -> AX_FM_CD
+        AX_SM_CD -> AX_SM_CD
+        ORIG_HIRE_DT -> ORIG_HIRE_DT
+        TERMINATION_DT -> TERMINATION_DT
+        AX_MOF_NO -> AX_MOF_NO
+    
+    EXPTRANS -> tgt_t_TM_PM_EMPLOYEE_D_ORG:
+        TARGET_DAY -> TARGET_DAY
+        EMPLID -> EMPLID
+        JOBCODE -> JOBCODE
+        DEPTID -> DEPTID
+        LAST_NAME -> LAST_NAME
+        FIRST_NAME -> FIRST_NAME
+        EMAIL_ADDR -> EMAIL_ADDR
+        AX_FM_CD -> AX_FM_CD
+        AX_SM_CD -> AX_SM_CD
+        ORIG_HIRE_DT -> ORIG_HIRE_DT
+        TERMINATION_DT -> TERMINATION_DT
+        AX_MOF_NO -> AX_MOF_NO
+    
+    src_t_TM_PM_EMPLOYEE_D_ORG -> SQ_src_t_TM_PM_EMPLOYEE_D_ORG:
+        TARGET_DAY -> TARGET_DAY
+        EMPLID -> EMPLID
+        JOBCODE -> JOBCODE
+        DEPTID -> DEPTID
+        LAST_NAME -> LAST_NAME
+        FIRST_NAME -> FIRST_NAME
+        EMAIL_ADDR -> EMAIL_ADDR
+        AX_FM_CD -> AX_FM_CD
+        AX_SM_CD -> AX_SM_CD
+        ORIG_HIRE_DT -> ORIG_HIRE_DT
+        TERMINATION_DT -> TERMINATION_DT
+        AX_MOF_NO -> AX_MOF_NO
+    
+    src_t_TM_SOSIKI_STG -> SQ_src_t_TM_SOSIKI_STG:
+        DEPTID -> DEPTID
+        NN_run_dt -> NN_run_dt
+        START_DAY -> START_DAY
+        END_DAY -> END_DAY
+        DEPTNM -> DEPTNM
+        Orgzn_CD -> Orgzn_CD
+        ChannelID -> ChannelID
+    
+    src_t_TM_Channel -> SQ_src_t_TM_Channel:
+        UK_ChannelID -> UK_ChannelID
+        NN_run_dt -> NN_run_dt
+        LJ_ChannelCD -> LJ_ChannelCD
+        ChannelNM -> ChannelNM
+        CannelNM_E -> CannelNM_E
+        CannelNM_R -> CannelNM_R
+    
+    src_t_TM_ORGZN_STG -> SQ_src_t_TM_ORGZN_STG:
+        UK_ORGZN_ID -> UK_ORGZN_ID
+        NN_run_dt -> NN_run_dt
+        ORGZN_NM -> ORGZN_NM
+        ORGZN_NM_E -> ORGZN_NM_E
+        ORGZN_rNM -> ORGZN_rNM
+        Sort_No -> Sort_No
+        ChannelID -> ChannelID
+        ClassNo -> ClassNo
+        ORGZN_CD -> ORGZN_CD
+        LJ_ORGZN_CD -> LJ_ORGZN_CD
+        Class1_CD -> Class1_CD
+        Class2_CD -> Class2_CD
+        Class3_CD -> Class3_CD
+        Del_FLG -> Del_FLG
+        ers_yymmdd -> ers_yymmdd
+    
+    src_t_TM_SIKAKU_STG -> SQ_src_t_TM_SIKAKU_STG:
+        NN_run_dt -> NN_run_dt
+        PS_SIKAKU_CD -> PS_SIKAKU_CD
+        ND_SIKAKU_CD -> ND_SIKAKU_CD
+        ND_YAKUSHOKU_CD -> ND_YAKUSHOKU_CD
+    
+    src_t_TM_NM_CCIORG_STG -> SQ_src_t_TM_NM_CCIORG_STG:
+        NN_run_dt -> NN_run_dt
+        SALES_CD -> SALES_CD
+        ORG_SIBU -> ORG_SIBU
+        ORG_NBR_NO -> ORG_NBR_NO
+        IN_OUT_CD -> IN_OUT_CD
+        SHIBUTYO_EMPID -> SHIBUTYO_EMPID
+        SALES_BOSS_NO -> SALES_BOSS_NO
+        SHIBU_NM -> SHIBU_NM
+        SOSIKIJYO_NM -> SOSIKIJYO_NM
+        OPN_YYMMDD -> OPN_YYMMDD
+        ERS_YYMMDD -> ERS_YYMMDD
+    
+    src_t_TM_EMP_STG -> SQ_src_t_TM_EMP_STG:
+        UK_EmpID -> UK_EmpID
+        NN_run_dt -> NN_run_dt
+        ORGZN_ID -> ORGZN_ID
+        Org_Sibu -> Org_Sibu
+        org_nbr -> org_nbr
+        EmpTyp -> EmpTyp
+        FB_EmpID -> FB_EmpID
+        FM_EmpID -> FM_EmpID
+        EmpNM -> EmpNM
+        EmpCode -> EmpCode
+        LoginID -> LoginID
+        cmpny_jwng_dt -> cmpny_jwng_dt
+        ers_yymmdd -> ers_yymmdd
+    
+    SQ_src_t_TM_PM_EMPLOYEE_D_ORG -> JNRTRANS_SOSIKI:
+        DEPTID -> DEPTID
+        EMPLID -> EMPLID
+        JOBCODE -> JOBCODE
+        EMAIL_ADDR -> EMAIL_ADDR
+    
+    SQ_src_t_TM_SOSIKI_STG -> JNRTRANS_SOSIKI:
+        DEPTID -> SOSIKI_DEPTID
+        Orgzn_CD -> SOSIKI_Orgzn_CD
+        ChannelID -> SOSIKI_ChannelID
+    
+    JNRTRANS_SOSIKI -> JNRTRANS_CHANNEL:
+        EMPLID -> EMPLID
+        JOBCODE -> JOBCODE
+        EMAIL_ADDR -> EMAIL_ADDR
+        SOSIKI_Orgzn_CD -> SOSIKI_Orgzn_CD
+        SOSIKI_ChannelID -> SOSIKI_ChannelID
+    
+    SQ_src_t_TM_Channel -> JNRTRANS_CHANNEL:
+        UK_ChannelID -> CHANNEL_UK_CHANNELID
+        ChannelNM -> CHANNEL_CHANNELNM
+    
+    JNRTRANS_CHANNEL -> JNRTRANS_ORGZN:
+        EMPLID -> EMPLID
+        JOBCODE -> JOBCODE
+        EMAIL_ADDR -> EMAIL_ADDR
+        SOSIKI_Orgzn_CD -> SOSIKI_Orgzn_CD
+        CHANNEL_CHANNELNM -> CHANNEL_CHANNELNM
+    
+    SQ_src_t_TM_ORGZN_STG -> JNRTRANS_ORGZN:
+        ORGZN_CD -> ORGZN_ORGZN_CD
+        Class1_CD -> ORGZN_CLASS1_CD
+        Class2_CD -> ORGZN_CLASS2_CD
+        Class3_CD -> ORGZN_CLASS3_CD
+    
+    JNRTRANS_ORGZN -> JNRTRANS_EMP:
+        EMPLID -> EMPLID
+        JOBCODE -> JOBCODE
+        EMAIL_ADDR -> EMAIL_ADDR
+        SOSIKI_Orgzn_CD -> SOSIKI_Orgzn_CD
+        CHANNEL_CHANNELNM -> CHANNEL_CHANNELNM
+        ORGZN_CLASS1_CD -> ORGZN_CLASS1_CD
+        ORGZN_CLASS2_CD -> ORGZN_CLASS2_CD
+        ORGZN_CLASS3_CD -> ORGZN_CLASS3_CD
+    
+    SQ_src_t_TM_EMP_STG -> JNRTRANS_EMP:
+        UK_EmpID -> EMP_UK_EMPID
+        org_nbr -> EMP_ORG_NBR
+        FB_EmpID -> EMP_FB_EMPID
+        FM_EmpID -> EMP_FM_EMPID
+    
+    JNRTRANS_EMP -> JNRTRANS_ORGZN_1:
+        EMPLID -> EMPLID
+        JOBCODE -> JOBCODE
+        EMAIL_ADDR -> EMAIL_ADDR
+        SOSIKI_Orgzn_CD -> SOSIKI_Orgzn_CD
+        CHANNEL_CHANNELNM -> CHANNEL_CHANNELNM
+        ORGZN_CLASS1_CD -> ORGZN_CLASS1_CD
+        ORGZN_CLASS2_CD -> ORGZN_CLASS2_CD
+        ORGZN_CLASS3_CD -> ORGZN_CLASS3_CD
+        EMP_ORG_NBR -> EMP_ORG_NBR
+        EMP_FB_EMPID -> EMP_FB_EMPID
+        EMP_FM_EMPID -> EMP_FM_EMPID
+    
+    SQ_src_t_TM_ORGZN_STG -> JNRTRANS_ORGZN_1:
+        Class1_CD -> ORGZN_lv_CLASS1_CD
+    
+    JNRTRANS_ORGZN_1 -> JNRTRANS_ORGZN_2:
+        EMPLID -> EMPLID
+        JOBCODE -> JOBCODE
+        EMAIL_ADDR -> EMAIL_ADDR
+        SOSIKI_Orgzn_CD -> SOSIKI_Orgzn_CD
+        CHANNEL_CHANNELNM -> CHANNEL_CHANNELNM
+        ORGZN_CLASS1_CD -> ORGZN_CLASS1_CD
+        ORGZN_CLASS2_CD -> ORGZN_CLASS2_CD
+        ORGZN_CLASS3_CD -> ORGZN_CLASS3_CD
+        EMP_ORG_NBR -> EMP_ORG_NBR
+        EMP_FB_EMPID -> EMP_FB_EMPID
+        EMP_FM_EMPID -> EMP_FM_EMPID
+        ORGZN_lv_CLASS1_CD -> ORGZN_lv_CLASS1_CD
+    
+    SQ_src_t_TM_ORGZN_STG -> JNRTRANS_ORGZN_2:
+        Class2_CD -> ORGZN_lv_CLASS2_CD
+    
+    JNRTRANS_ORGZN_2 -> JNRTRANS_ORGZN_3:
+        EMPLID -> EMPLID
+        JOBCODE -> JOBCODE
+        EMAIL_ADDR -> EMAIL_ADDR
+        SOSIKI_Orgzn_CD -> SOSIKI_Orgzn_CD
+        CHANNEL_CHANNELNM -> CHANNEL_CHANNELNM
+        ORGZN_CLASS1_CD -> ORGZN_CLASS1_CD
+        ORGZN_CLASS2_CD -> ORGZN_CLASS2_CD
+        ORGZN_CLASS3_CD -> ORGZN_CLASS3_CD
+        EMP_ORG_NBR -> EMP_ORG_NBR
+        EMP_FB_EMPID -> EMP_FB_EMPID
+        EMP_FM_EMPID -> EMP_FM_EMPID
+        ORGZN_lv_CLASS1_CD -> ORGZN_lv_CLASS1_CD
+        ORGZN_lv_CLASS2_CD -> ORGZN_lv_CLASS2_CD
+    
+    SQ_src_t_TM_ORGZN_STG -> JNRTRANS_ORGZN_3:
+        Class3_CD -> ORGZN_lv_CLASS3_CD
+    
+    JNRTRANS_ORGZN_3 -> JNRTRANS_SIKAKU:
+        EMPLID -> EMPLID
+        JOBCODE -> JOBCODE
+        EMAIL_ADDR -> EMAIL_ADDR
+        SOSIKI_Orgzn_CD -> SOSIKI_Orgzn_CD
+        CHANNEL_CHANNELNM -> CHANNEL_CHANNELNM
+        ORGZN_CLASS1_CD -> ORGZN_CLASS1_CD
+        ORGZN_CLASS2_CD -> ORGZN_CLASS2_CD
+        ORGZN_CLASS3_CD -> ORGZN_CLASS3_CD
+        EMP_ORG_NBR -> EMP_ORG_NBR
+        EMP_FB_EMPID -> EMP_FB_EMPID
+        EMP_FM_EMPID -> EMP_FM_EMPID
+        ORGZN_lv_CLASS1_CD -> ORGZN_lv_CLASS1_CD
+        ORGZN_lv_CLASS2_CD -> ORGZN_lv_CLASS2_CD
+        ORGZN_lv_CLASS3_CD -> ORGZN_lv_CLASS3_CD
+    
+    SQ_src_t_TM_SIKAKU_STG -> JNRTRANS_SIKAKU:
+        PS_SIKAKU_CD -> SIKAKU_PS_SIKAKU_CD
+        ND_SIKAKU_CD -> SIKAKU_ND_SIKAKU_CD
+        ND_YAKUSHOKU_CD -> SIKAKU_ND_YAKUSHOKU_CD
+    
+    JNRTRANS_SIKAKU -> JNRTRANS_CCIORG:
+        EMPLID -> EMPLID
+        EMAIL_ADDR -> EMAIL_ADDR
+        SOSIKI_Orgzn_CD -> SOSIKI_Orgzn_CD
+        CHANNEL_CHANNELNM -> CHANNEL_CHANNELNM
+        ORGZN_CLASS1_CD -> ORGZN_CLASS1_CD
+        ORGZN_CLASS2_CD -> ORGZN_CLASS2_CD
+        ORGZN_CLASS3_CD -> ORGZN_CLASS3_CD
+        EMP_ORG_NBR -> EMP_ORG_NBR
+        EMP_FB_EMPID -> EMP_FB_EMPID
+        EMP_FM_EMPID -> EMP_FM_EMPID
+        ORGZN_lv_CLASS1_CD -> ORGZN_lv_CLASS1_CD
+        ORGZN_lv_CLASS2_CD -> ORGZN_lv_CLASS2_CD
+        ORGZN_lv_CLASS3_CD -> ORGZN_lv_CLASS3_CD
+        SIKAKU_ND_SIKAKU_CD -> SIKAKU_ND_SIKAKU_CD
+        SIKAKU_ND_YAKUSHOKU_CD -> SIKAKU_ND_YAKUSHOKU_CD
+    
+    SQ_src_t_TM_NM_CCIORG_STG -> JNRTRANS_CCIORG:
+        SALES_BOSS_NO -> CCIORG_SALES_BOSS_NO
+    
+    JNRTRANS_CCIORG -> EXPTRANS:
+        EMPLID -> EMP_ID
+        EMAIL_ADDR -> EMAIL_ADDR
+        CHANNEL_CHANNELNM -> CHANNEL_NM
+        ORGZN_CLASS1_CD -> CLASS1_CD
+        ORGZN_CLASS2_CD -> CLASS2_CD
+        ORGZN_CLASS3_CD -> CLASS3_CD
+        EMP_ORG_NBR -> CLASS5_CD
+        EMP_FB_EMPID -> FB_EMPID
+        EMP_FM_EMPID -> wk_FM_EMPID
+        ORGZN_lv_CLASS1_CD -> lv_CLASS1_CD
+        ORGZN_lv_CLASS2_CD -> lv_CLASS2_CD
+        ORGZN_lv_CLASS3_CD -> lv_CLASS3_CD
+        SIKAKU_ND_SIKAKU_CD -> ND_SIKAKU_CD
+        SIKAKU_ND_YAKUSHOKU_CD -> ND_YAKUSHOKU_CD
+        CCIORG_SALES_BOSS_NO -> SALES_BOSS_NO
+    
+    EXPTRANS -> tgt_t_TM_SEC_STG:
+        EMP_ID -> EMP_ID
+        EMP_WIN_ID -> EMP_WIN_ID
+        CHANNEL_NM -> CHANNEL_NM
+        CLASS1_CD -> CLASS1_CD
+        CLASS2_CD -> CLASS2_CD
+        CLASS3_CD -> CLASS3_CD
+        CLASS5_CD -> CLASS5_CD
+        FB_EMPID -> FB_EMPID
+        FM_EMPID -> FM_EMPID
+        Level -> Level
+        Sec_CD -> SEC_CD
+
+// chunk pseudo code ended
+
+// Parent: POWERMART.REPOSITORY.FOLDER.APL_GZ.MAPPING
+// Target Load Order
+TARGET_LOAD_ORDER:
+    Order 1: tgt_t_TM_PM_EMPLOYEE_D_ORG
+    Order 2: tgt_t_TM_SEC_STG
+
+// chunk pseudo code ended
+```
