@@ -1,0 +1,185 @@
+// ======================================================================
+// PSEUDOCODE: alteryx_sttm_example1.yxmd
+// ======================================================================
+
+// --- Browse Top Customers (ID: 24, BrowseV2) [Lines 689-703] ---
+ACTION: Browse View
+
+// --- Write to TopCustomers (SP) (ID: 20, DbFileOutput) [Lines 585-606] ---
+ACTION: Write to Data Source
+TABLE: dbo.TopCustomers
+[PRESQL STATEMENT]:
+EXEC dbo.usp_TruncateTopCustomers
+[POSTSQL STATEMENT]:
+EXEC dbo.usp_UpdateCustomerDashboard @RunDate='[DateTime.Now()]'
+
+// --- Top 1000 Filter (ID: 19, Filter) [Lines 558-579] ---
+ACTION: Filter Rows
+CONDITION (Simple): CustomerRank <= 1000
+
+// --- Add Ranking (ID: 18, Formula) [Lines 535-554] ---
+ACTION: Calculate Formulas
+COMPUTE: CustomerRank (Int32)
+  EXPRESSION: RecordID()
+COMPUTE: RankingTier (V_String)
+  EXPRESSION: IF [CustomerRank] <= 100 THEN 'Top 100'
+ELSEIF [CustomerRank] <= 500 THEN 'Top 500'
+ELSE 'Others'
+ENDIF
+
+// --- Rank by Revenue (ID: 17, Sort) [Lines 515-531] ---
+ACTION: Sort Data
+SORT BY: TotalRevenue (Descending)
+
+// --- Customer Summary (ID: 14, Summarize) [Lines 429-455] ---
+ACTION: Aggregate Data
+AGGREGATE: CustomerID -> GroupBy -> CustomerID
+AGGREGATE: FullName -> First -> CustomerName
+AGGREGATE: CustomerSegment -> First -> Segment
+AGGREGATE: State -> First -> State
+AGGREGATE: AgeGroup -> First -> AgeGroup
+AGGREGATE: TransactionID -> Count -> TotalTransactionCount
+AGGREGATE: TotalSales -> Sum -> TotalRevenue
+AGGREGATE: GrossProfit -> Sum -> TotalGrossProfit
+AGGREGATE: TotalSales -> Avg -> AvgTransactionValue
+AGGREGATE: TransactionDate -> Max -> LastPurchaseDate
+AGGREGATE: Quantity -> Sum -> TotalItemsPurchased
+
+// --- Browse Products (ID: 25, BrowseV2) [Lines 706-720] ---
+ACTION: Browse View
+
+// --- Product Performance Excel (ID: 21, DbFileOutput) [Lines 610-632] ---
+ACTION: Write to Data Source
+TARGET: \\SharedDrive\Reports\Product_Performance_Analysis.xlsx|||Product_Summary
+
+// --- Product Performance (ID: 15, Summarize) [Lines 459-482] ---
+ACTION: Aggregate Data
+AGGREGATE: Category -> GroupBy -> Category
+AGGREGATE: SubCategory -> GroupBy -> SubCategory
+AGGREGATE: ProductName -> GroupBy -> ProductName
+AGGREGATE: TransactionID -> Count -> SalesCount
+AGGREGATE: Quantity -> Sum -> TotalQuantitySold
+AGGREGATE: TotalSales -> Sum -> TotalRevenue
+AGGREGATE: GrossProfit -> Sum -> TotalProfit
+AGGREGATE: MarginPercent -> Avg -> AvgMarginPercent
+
+// --- Monthly Trends CSV (ID: 22, DbFileOutput) [Lines 636-660] ---
+ACTION: Write to Data Source
+TARGET: \\SharedDrive\Reports\Monthly_Trends_Analysis.csv
+
+// --- Monthly Trends (ID: 16, Summarize) [Lines 486-509] ---
+ACTION: Aggregate Data
+AGGREGATE: TransactionMonth -> GroupBy -> Month
+AGGREGATE: ChannelType -> GroupBy -> ChannelType
+AGGREGATE: CustomerSegment -> GroupBy -> Segment
+AGGREGATE: TransactionID -> Count -> TransactionCount
+AGGREGATE: CustomerID -> CountDistinct -> UniqueCustomers
+AGGREGATE: TotalSales -> Sum -> Revenue
+AGGREGATE: GrossProfit -> Sum -> Profit
+AGGREGATE: TotalSales -> Avg -> AvgOrderValue
+
+// --- Load to Data Warehouse (SP) (ID: 23, DbFileOutput) [Lines 664-685] ---
+ACTION: Write to Data Source
+TABLE: fact.CustomerTransactions
+[PRESQL STATEMENT]:
+TRUNCATE TABLE staging.CustomerTransactions_Temp
+[POSTSQL STATEMENT]:
+EXEC dbo.usp_MergeCustomerTransactions @LoadDate='[DateTime.Now()]', @SourceSystem='Alteryx'
+
+// --- Final Calculations (ID: 13, Formula) [Lines 403-423] ---
+ACTION: Calculate Formulas
+COMPUTE: GrossProfit (Double)
+  EXPRESSION: [TotalSales] * ([MarginPercent] / 100)
+COMPUTE: TransactionMargin (Double)
+  EXPRESSION: [Quantity] * [UnitMargin]
+COMPUTE: TransactionTier (V_String)
+  EXPRESSION: IF [CustomerSegment] = 'Premium' AND [TotalSales] > 500 THEN 'High Value'
+ELSEIF [CustomerSegment] = 'Premium' THEN 'Premium Regular'
+ELSEIF [TotalSales] > 300 THEN 'Growing'
+ELSE 'Standard'
+ENDIF
+COMPUTE: AvgItemPrice (Double)
+  EXPRESSION: ROUND([TotalSales] / [Quantity], 2)
+
+// --- Master Join (ID: 12, Join) [Lines 371-399] ---
+ACTION: Join Datasets
+CRITERIA: Left.CustomerID == Right.CustomerID
+
+// --- Join Customer-Segment (ID: 10, Join) [Lines 275-318] ---
+ACTION: Join Datasets
+CRITERIA: Left.CustomerID == Right.CustomerID
+
+// --- Customer Enrichment (ID: 6, Formula) [Lines 180-201] ---
+ACTION: Calculate Formulas
+COMPUTE: FullName (V_String)
+  EXPRESSION: [FirstName] + ' ' + [LastName]
+COMPUTE: Age (Int32)
+  EXPRESSION: DateTimeDiff(DateTimeToday(), [DateOfBirth], 'years')
+COMPUTE: AgeGroup (V_String)
+  EXPRESSION: IF [Age] < 25 THEN 'Gen Z'
+ELSEIF [Age] < 40 THEN 'Millennial'
+ELSEIF [Age] < 56 THEN 'Gen X'
+ELSEIF [Age] < 76 THEN 'Boomer'
+ELSE 'Silent'
+ENDIF
+COMPUTE: DaysSinceRegistration (Int32)
+  EXPRESSION: DateTimeDiff(DateTimeToday(), [RegistrationDate], 'days')
+COMPUTE: State_Clean (V_String)
+  EXPRESSION: UPPER([State])
+
+// --- Clean Customer Fields (ID: 5, DataCleansing) [Lines 154-176] ---
+ACTION: DataCleansing Transformation
+
+// --- Customer Master (ID: 1, DbFileInput) [Lines 7-39] ---
+ACTION: Read from Data Source
+CONNECTION: Driver={SQL Server};Server=PROD_SERVER;Database=CustomerDB;Trusted_Connection=Yes;
+TABLE: dbo.CUSTOMERS
+[SQL STATEMENT]:
+SELECT CustomerID, FirstName, LastName, Email, Gender, DateOfBirth, RegistrationDate, City, State, ZipCode FROM dbo.CUSTOMERS WHERE Active = 1
+
+// --- Join Transaction-Product (ID: 11, Join) [Lines 322-367] ---
+ACTION: Join Datasets
+CRITERIA: Left.ProductID == Right.ProductID
+
+// --- Transaction Calculations (ID: 8, Formula) [Lines 225-246] ---
+ACTION: Calculate Formulas
+COMPUTE: TotalSales (Double)
+  EXPRESSION: [Amount] * [Quantity]
+COMPUTE: TransactionMonth (V_String)
+  EXPRESSION: DateTimeFormat([TransactionDate], '%Y-%m')
+COMPUTE: TransactionQuarter (V_String)
+  EXPRESSION: DateTimeFormat([TransactionDate], '%Y-Q' + ToString(DateTimeQuarter([TransactionDate])))
+COMPUTE: TransactionYear (Int32)
+  EXPRESSION: DateTimeYear([TransactionDate])
+COMPUTE: ChannelType (V_String)
+  EXPRESSION: IF [Channel] = 'Online' THEN 'Digital'
+ELSEIF [Channel] = 'Mobile' THEN 'Digital'
+ELSE 'Physical'
+ENDIF
+
+// --- Auto Field Conversion (ID: 7, AutoField) [Lines 205-221] ---
+ACTION: AutoField Transformation
+
+// --- Transaction Data (ID: 2, DbFileInput) [Lines 43-81] ---
+ACTION: Read from Data Source
+
+// --- Margin Analysis (ID: 9, Formula) [Lines 250-269] ---
+ACTION: Calculate Formulas
+COMPUTE: UnitMargin (Double)
+  EXPRESSION: [UnitPrice] - [CostPrice]
+COMPUTE: MarginPercent (Double)
+  EXPRESSION: ([UnitPrice] - [CostPrice]) / [UnitPrice] * 100
+COMPUTE: MarginCategory (V_String)
+  EXPRESSION: IF [MarginPercent] > 40 THEN 'High'
+ELSEIF [MarginPercent] > 20 THEN 'Medium'
+ELSE 'Low'
+ENDIF
+
+// --- Product Catalog (ID: 3, DbFileInput) [Lines 85-115] ---
+ACTION: Read from Data Source
+
+// --- Customer Segments (SP) (ID: 4, DbFileInput) [Lines 119-148] ---
+ACTION: Read from Data Source
+CONNECTION: Driver={SQL Server};Server=ANALYTICS_SERVER;Database=SegmentationDB;Trusted_Connection=Yes;
+[SQL STATEMENT]:
+EXEC dbo.usp_GetCustomerSegments @StartDate='2024-01-01', @EndDate='2024-12-31', @MinTransactions=5

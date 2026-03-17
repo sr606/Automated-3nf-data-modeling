@@ -1,0 +1,99 @@
+// ======================================================================
+// PSEUDOCODE: alteryx_sttm_example2.yxmd
+// ======================================================================
+
+// --- Browse Customer Data (ID: 23, BrowseV2) [Lines 605-624] ---
+ACTION: Browse View
+
+// --- Customer Analytics DB (ID: 19, DbFileOutput) [Lines 521-539] ---
+ACTION: Write to Data Source
+TABLE: CustomerAnalyticsSummary
+
+// --- Customer Segment Summary (ID: 16, Summarize) [Lines 444-465] ---
+ACTION: Aggregate Data
+
+// --- Join Customer Data (ID: 13, Join) [Lines 361-384] ---
+ACTION: Join Datasets
+CRITERIA: Left.CustomerID == Right.CustomerID
+
+// --- Calculate Value Score (ID: 8, Formula) [Lines 253-270] ---
+ACTION: Calculate Formulas
+
+// --- Clean Customer Data (ID: 7, DataCleansing) [Lines 231-249] ---
+ACTION: DataCleansing Transformation
+
+// --- Customer Segments SP (ID: 1, DbFileInput) [Lines 7-38] ---
+ACTION: Read from Data Source
+CONNECTION: Driver={SQL Server};Server=PROD_SERVER;Database=AnalyticsDB;Trusted_Connection=Yes;
+TABLE: CustomerSegments
+[SQL STATEMENT]:
+EXEC dbo.usp_GetCustomerSegments @StartDate = '2024-01-01', @EndDate = '2024-12-31', @MinTransactions = 5, @SegmentType = 'Premium'
+
+// --- Browse Product Data (ID: 24, BrowseV2) [Lines 627-646] ---
+ACTION: Browse View
+
+// --- Product Analytics XLS (ID: 20, DbFileOutput) [Lines 543-559] ---
+ACTION: Write to Data Source
+
+// --- Product Category Summary (ID: 17, Summarize) [Lines 469-490] ---
+ACTION: Aggregate Data
+
+// --- Join Product Data (ID: 14, Join) [Lines 388-411] ---
+ACTION: Join Datasets
+CRITERIA: Left.ProductID == Right.ProductID
+
+// --- Calculate Profit Margin (ID: 10, Formula) [Lines 297-314] ---
+ACTION: Calculate Formulas
+
+// --- Auto Field Product Data (ID: 9, AutoField) [Lines 274-293] ---
+ACTION: AutoField Transformation
+
+// --- Product Performance SP (ID: 2, DbFileInput) [Lines 42-74] ---
+ACTION: Read from Data Source
+CONNECTION: Driver={SQL Server};Server=PROD_SERVER;Database=AnalyticsDB;Trusted_Connection=Yes;
+TABLE: ProductPerformance
+[SQL STATEMENT]:
+EXEC dbo.usp_GetProductPerformance @StartDate = '2024-01-01', @EndDate = '2024-12-31', @MinQuantity = 50, @CategoryFilter = 'Electronics'
+
+// --- Sales Analytics DB (ID: 22, DbFileOutput) [Lines 583-601] ---
+ACTION: Write to Data Source
+TABLE: SalesAnalyticsSummary
+
+// --- Filter High Performance (ID: 11, Filter) [Lines 318-333] ---
+ACTION: Filter Rows
+
+// --- Sales Analytics SP (ID: 3, DbFileInput) [Lines 78-112] ---
+ACTION: Read from Data Source
+CONNECTION: Driver={SQL Server};Server=PROD_SERVER;Database=AnalyticsDB;Trusted_Connection=Yes;
+TABLE: SalesAnalytics
+[SQL STATEMENT]:
+EXEC dbo.usp_GetSalesAnalytics @StartDate = '2024-01-01', @EndDate = '2024-12-31', @RegionFilter = 'North America', @MinSalesAmount = 100000
+
+// --- Browse Inventory Data (ID: 25, BrowseV2) [Lines 649-668] ---
+ACTION: Browse View
+
+// --- Inventory Analytics CSV (ID: 21, DbFileOutput) [Lines 563-579] ---
+ACTION: Write to Data Source
+
+// --- Inventory Status Summary (ID: 18, Summarize) [Lines 494-515] ---
+ACTION: Aggregate Data
+
+// --- Join Inventory Data (ID: 15, Join) [Lines 415-438] ---
+ACTION: Join Datasets
+CRITERIA: Left.ProductID == Right.ProductID
+
+// --- Sort by Stock Status (ID: 12, Sort) [Lines 337-355] ---
+ACTION: Sort Data
+
+// --- Inventory Status SP (ID: 4, DbFileInput) [Lines 116-150] ---
+ACTION: Read from Data Source
+CONNECTION: Driver={SQL Server};Server=PROD_SERVER;Database=AnalyticsDB;Trusted_Connection=Yes;
+TABLE: InventoryStatus
+[SQL STATEMENT]:
+EXEC dbo.usp_GetInventoryStatus @WarehouseID = 1, @CategoryFilter = 'Electronics', @LowStockThreshold = 15, @ReorderLevel = 30
+
+// --- Customer Master CSV (ID: 5, DbFileInput) [Lines 154-188] ---
+ACTION: Read from Data Source
+
+// --- Product Catalog XLS (ID: 6, DbFileInput) [Lines 192-225] ---
+ACTION: Read from Data Source
