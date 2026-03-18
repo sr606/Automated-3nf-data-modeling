@@ -2,11 +2,17 @@ import os
 import json
 import uuid
 import re
+import shlex
 import hashlib
 from collections import defaultdict, deque
 from pathlib import Path
 from dotenv import load_dotenv
 from xml.sax.saxutils import escape
+import networkx as nx
+try:
+    from langchain_openai import AzureChatOpenAI
+except ImportError:
+    AzureChatOpenAI = None
 
 try:
     from sql_metadata import Parser
@@ -18,6 +24,8 @@ try:
 except ImportError:
     graphviz = None
 
+from .parsers import parse_alteryx_jobs, parse_datastage_jobs, parse_informatica_jobs
+
 load_dotenv()
 
 SERVICE_ROOT = Path(__file__).resolve().parents[1]
@@ -25,6 +33,7 @@ DATA_ROOT = str((SERVICE_ROOT / "data").resolve())
 UPLOAD_BASE_PATH = str((SERVICE_ROOT / "data" / "uploads").resolve())
 OUTPUT_BASE_PATH = str((SERVICE_ROOT / "data" / "output").resolve())
 LOG_BASE_PATH = str((SERVICE_ROOT / "data" / "logs").resolve())
+_SEMANTIC_LLM = None
 
 
 """
@@ -75,7 +84,7 @@ def require_existing_file(path, label):
 
 def normalize_lineage_options(options=None):
     """
-    Normalize lineage rendering options with stable defaults.
+    Normalize lineage rendering and semantic-enrichment options with stable defaults.
     """
 
     defaults = {
@@ -83,6 +92,9 @@ def normalize_lineage_options(options=None):
         "include_sql_sources": False,
         "collapse_intermediate_datasets": True,
         "include_lookup_nodes": True,
+        "llm_role_classification": False,
+        "llm_business_labels": False,
+        "llm_sql_grouping": False,
     }
 
     if not options:
@@ -156,6 +168,66 @@ def _lineage_complexity(node_count, edge_count):
     return "large"
 
 
+def _display_label(node):
+    """
+    Build a render label that preserves the original node name and appends semantic context.
+    """
+
+    base_label = str(node.get("label") or node.get("id") or "").strip()
+    details = [str(item).strip() for item in node.get("details", []) if str(item).strip()]
+
+    if not details:
+        return base_label
+
+    return "\n".join([base_label] + details)
+
+
+def _semantic_detail_lines(node_type, stage_meta=None):
+    """
+    Return short semantic detail lines for a node without replacing the original label.
+    """
+
+    stage_meta = stage_meta or {}
+    detail_map = {
+        "SOURCE": ["Source table"],
+        "SOURCE_GROUP": ["Grouped upstream sources"],
+        "EXTRACT": ["Source extract"],
+        "TRANSFORM": ["Transformation"],
+        "DECISION": ["Conditional / multi-output transform"],
+        "LOOKUP": ["Lookup store"],
+        "STORE": ["Persistent store"],
+        "DB_TARGET": ["Final target"],
+        "FILE_TARGET": ["File target"],
+        "TARGET": ["Target"],
+        "EXCEPTION": ["Exception / reject output"],
+        "DATASET": ["Intermediate dataset"],
+    }
+
+    details = list(detail_map.get(node_type, []))
+    constraints = stage_meta.get("constraints", [])
+    for item in constraints[:2]:
+        expression = item.get("expression", "").strip()
+        if expression:
+            details.append(f"Condition: {expression[:80]}")
+
+    return details
+
+
+def _make_node(node_id, node_type, stage_meta=None, label=None, details=None, **extra):
+    """
+    Create a lineage node with stable label and semantic metadata.
+    """
+
+    node = {
+        "id": node_id,
+        "type": node_type,
+        "label": label or node_id,
+        "details": list(details or _semantic_detail_lines(node_type, stage_meta)),
+    }
+    node.update(extra)
+    return node
+
+
 def build_lineage_diagram_filename(source_files, options=None, extension=".drawio"):
     """
     Build a deterministic diagram filename for the same inputs and options.
@@ -192,20 +264,72 @@ def _normalize_arrow_text(text):
     )
 
 
-def _canonical_stage_block(block):
+def _detect_pseudocode_type(text):
     """
-    Restore the stage block prefix after regex splitting.
+    Detect the dominant pseudocode family for parser dispatch.
     """
 
-    block = block.strip()
+    sample = str(text or "")
 
-    if not block:
-        return ""
+    if any(marker in sample for marker in (
+        "WORKFLOW_DEFINITION:",
+        "SOURCE_QUALIFIER:",
+        "TARGET_DEFINITION:",
+        "SESSION_DEFINITION:",
+        "SOURCE_DEFINITION ",
+        "TRANSFORMATION ",
+        "Input Link:",
+        "Output Link:",
+        "DATA_FLOW_CONNECTIONS:",
+    )):
+        return "informatica"
 
-    if block.startswith("// --- ["):
-        return block
+    if re.search(r"//\s*---\s*.*\(ID:\s*\d+,\s*[^)]+\)\s*\[Lines\s*\d+-\d+\]", sample):
+        return "alteryx"
 
-    return f"// --- [{block}"
+    if any(marker in sample for marker in ("StageType:", "Constraint (", "Input: â† dataset_", "Output: â†’ dataset_")):
+        return "datastage"
+
+    return "datastage"
+
+
+def _split_jobs_for_parser(source_name, text, parser_type):
+    """
+    Split source text into parser-specific job records.
+    """
+
+    normalized = _normalize_arrow_text(text)
+
+    if parser_type != "datastage":
+        return [{
+            "source_file": source_name,
+            "job_index": 1,
+            "parser_type": parser_type,
+            "content": normalized.strip(),
+        }]
+
+    jobs = []
+    segments = re.split(r"//\s*=+", normalized)
+
+    for index, seg in enumerate(segments, start=1):
+        if len(seg.strip()) <= 50:
+            continue
+        jobs.append({
+            "source_file": source_name,
+            "job_index": index,
+            "parser_type": parser_type,
+            "content": seg.strip(),
+        })
+
+    if jobs:
+        return jobs
+
+    return [{
+        "source_file": source_name,
+        "job_index": 1,
+        "parser_type": parser_type,
+        "content": normalized.strip(),
+    }]
 
 
 def _extract_stage_header(block):
@@ -274,6 +398,22 @@ def _extract_sql_block(block):
     return match.group(1).strip() if match else ""
 
 
+def _extract_constraints(block):
+    """
+    Extract constraint expressions from a pseudocode block.
+    """
+
+    constraints = []
+
+    for link_name, expression in re.findall(r'Constraint\s*\(([^)]+)\):\s*([^\r\n]+)', block):
+        constraints.append({
+            "link_name": link_name.strip(),
+            "expression": expression.strip(),
+        })
+
+    return constraints
+
+
 def _deduplicate_edges(edges):
     """
     Remove duplicate edges while preserving order.
@@ -298,23 +438,6 @@ def _deduplicate_edges(edges):
     return deduped
 
 
-def _stage_lookup_hint(stage_name, stage_type, stage_kind, edge_kind):
-    """
-    Detect lookup-style stages.
-    """
-
-    stage_type = (stage_type or "").lower()
-    stage_kind = (stage_kind or "").lower()
-
-    if "hashedfile" in stage_type or "hashedfile" in stage_kind:
-        return True
-
-    if edge_kind == "lookup":
-        return True
-
-    return False
-
-
 def _is_lookup_stage(stage_meta):
     """
     Determine whether a stage behaves as a lookup/helper node.
@@ -329,40 +452,6 @@ def _is_lookup_stage(stage_meta):
     return "hashedfile" in stage_type or "hashedfile" in stage_kind
 
 
-def _classify_node(node_name, stage_meta, inbound_kinds, outbound_kinds):
-    """
-    Assign a visual category to a lineage node.
-    """
-
-    if not stage_meta:
-        return "DATASET"
-
-    stage_name = stage_meta.get("stage", "")
-    stage_type = (stage_meta.get("stage_type") or "").lower()
-    stage_kind = (stage_meta.get("stage_kind") or "").lower()
-
-    if "exception" in stage_name.lower():
-        return "EXCEPTION"
-
-    if _stage_lookup_hint(stage_name, stage_type, stage_kind, "lookup" if "lookup" in outbound_kinds else ""):
-        if stage_meta.get("used_as_lookup"):
-            return "LOOKUP"
-
-    if "transformer" in stage_type or "transformer" in stage_kind:
-        return "TRANSFORM"
-
-    if "oracleconnector" in stage_type:
-        return "SOURCE" if not inbound_kinds else "TARGET"
-
-    if "seqfile" in stage_type or "seqfile" in stage_kind:
-        return "TARGET"
-
-    if "hashedfile" in stage_type or "hashedfile" in stage_kind:
-        return "LOOKUP" if stage_meta.get("used_as_lookup") else "DATASET"
-
-    return "TRANSFORM"
-
-
 def _classify_semantic_stage(stage_meta, inbound_count, outbound_count, used_as_lookup):
     """
     Classify a stage node for semantic lineage rendering.
@@ -372,6 +461,18 @@ def _classify_semantic_stage(stage_meta, inbound_count, outbound_count, used_as_
     stage_type = (stage_meta.get("stage_type") or "").lower()
     stage_kind = (stage_meta.get("stage_kind") or "").lower()
     output_count = len(stage_meta.get("outputs", []))
+
+    if stage_type == "source":
+        return "SOURCE"
+
+    if stage_type == "target":
+        return "TARGET"
+
+    if stage_name.lower().startswith("sq_"):
+        return "EXTRACT"
+
+    if "source_qualifier" in stage_type or "source_qualifier" in stage_kind:
+        return "EXTRACT"
 
     if "seqfile" in stage_type or "seqfile" in stage_kind:
         return "FILE_TARGET"
@@ -421,50 +522,544 @@ def _edge_kind_from_input(entry, target_stage=None, source_stage=None):
     return "input"
 
 
-def _collapse_lookup_nodes(edges, nodes):
+def _should_use_llm_semantics(options):
     """
-    Collapse lookup helper nodes into direct lookup edges.
+    Return True when any semantic-enrichment option requires an LLM hint pass.
     """
 
-    node_type_map = {node["id"]: node["type"] for node in nodes}
-    incoming = defaultdict(list)
-    outgoing = defaultdict(list)
+    return any(
+        options.get(key)
+        for key in ("llm_role_classification", "llm_business_labels", "llm_sql_grouping")
+    )
 
-    for edge in edges:
-        incoming[edge["target"]].append(edge)
-        outgoing[edge["source"]].append(edge)
 
-    collapsed_edges = []
-    removed_lookup_nodes = set()
+def _get_semantic_llm():
+    """
+    Create a cached Azure OpenAI client for semantic enrichment.
+    """
 
-    for node_id, node_type in node_type_map.items():
-        if node_type != "LOOKUP":
+    global _SEMANTIC_LLM
+
+    if _SEMANTIC_LLM is not None:
+        return _SEMANTIC_LLM
+
+    if AzureChatOpenAI is None:
+        return None
+
+    deployment = os.getenv("AZURE_OPENAI_CHAT_DEPLOYMENT_NAME")
+    version = os.getenv("AZURE_OPENAI_API_VERSION")
+    endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
+    api_key = os.getenv("AZURE_OPENAI_API_KEY")
+
+    if not all([deployment, version, endpoint, api_key]):
+        return None
+
+    _SEMANTIC_LLM = AzureChatOpenAI(
+        azure_deployment=deployment,
+        openai_api_version=version,
+        azure_endpoint=endpoint,
+        api_key=api_key,
+        temperature=0.0,
+    )
+    return _SEMANTIC_LLM
+
+
+def _extract_json_object(text):
+    """
+    Extract the first JSON object from a model response.
+    """
+
+    if not text:
+        return {}
+
+    text = text.strip()
+
+    try:
+        return json.loads(text)
+    except Exception:
+        pass
+
+    start = text.find("{")
+    end = text.rfind("}")
+
+    if start == -1 or end == -1 or end <= start:
+        return {}
+
+    try:
+        return json.loads(text[start:end + 1])
+    except Exception:
+        return {}
+
+
+def _generate_llm_semantic_hints(stages, edges, tables, options):
+    """
+    Ask the LLM for batched stage-role, business-label, and SQL-grouping hints.
+    """
+
+    if not _should_use_llm_semantics(options):
+        return {}
+
+    llm = _get_semantic_llm()
+    if llm is None:
+        return {}
+
+    payload = {
+        "stages": [
+            {
+                "stage": stage.get("stage"),
+                "stage_kind": stage.get("stage_kind"),
+                "stage_type": stage.get("stage_type"),
+                "inputs": [item.get("alias") or item.get("dataset_id") for item in stage.get("inputs", [])],
+                "outputs": [item.get("alias") or item.get("dataset_id") for item in stage.get("outputs", [])],
+                "constraints": [item.get("expression") for item in stage.get("constraints", [])],
+                "has_sql": bool(stage.get("sql")),
+            }
+            for stage in stages
+        ],
+        "edges": edges,
+        "sql_tables": [table.get("table") for table in tables],
+        "options": {
+            "llm_role_classification": bool(options.get("llm_role_classification")),
+            "llm_business_labels": bool(options.get("llm_business_labels")),
+            "llm_sql_grouping": bool(options.get("llm_sql_grouping")),
+        },
+    }
+
+    prompt = f"""
+You are enriching ETL lineage semantics.
+Return JSON only.
+
+Tasks:
+1. If llm_role_classification is true, classify stages into one of:
+   SOURCE, EXTRACT, LOOKUP, STORE, TRANSFORM, DECISION, DB_TARGET, FILE_TARGET.
+2. If llm_business_labels is true, provide a short business label.
+3. If llm_sql_grouping is true, group SQL tables by target stage when it improves readability.
+4. If constraints indicate filtering or branching, provide a short condition summary.
+
+Rules:
+- Preserve original stage and table names externally. Do not rename them.
+- Only return stages or tables that appear in the input payload.
+- Keep business labels short.
+- Keep condition summaries short.
+- Return valid JSON matching this structure:
+{{
+  "stages": [
+    {{
+      "stage": "stage_name",
+      "role": "TRANSFORM",
+      "business_label": "Short label",
+      "condition_summary": "Optional short condition"
+    }}
+  ],
+  "sql_groups": [
+    {{
+      "target_stage": "stage_name",
+      "group_name": "Upstream Sources",
+      "tables": ["SCHEMA.TABLE_A", "SCHEMA.TABLE_B"]
+    }}
+  ]
+}}
+
+Input:
+{json.dumps(payload, indent=2)}
+"""
+
+    try:
+        response = llm.invoke(prompt)
+        content = response.content if hasattr(response, "content") else str(response)
+        return _extract_json_object(content)
+    except Exception:
+        return {}
+
+
+def _validate_llm_semantic_hints(hints, stages, tables, options):
+    """
+    Validate semantic hints against parsed stages and extracted SQL tables.
+    """
+
+    if not isinstance(hints, dict):
+        return {"stages": {}, "sql_groups": []}
+
+    stage_names = {stage.get("stage") for stage in stages}
+    table_names = {table.get("table") for table in tables}
+    valid_roles = {"SOURCE", "EXTRACT", "LOOKUP", "STORE", "TRANSFORM", "DECISION", "DB_TARGET", "FILE_TARGET"}
+    stage_hints = {}
+
+    for item in hints.get("stages", []):
+        if not isinstance(item, dict):
+            continue
+        stage_name = item.get("stage")
+        if stage_name not in stage_names:
             continue
 
-        parents = incoming.get(node_id, [])
-        children = outgoing.get(node_id, [])
+        normalized = {}
+        role = str(item.get("role") or "").strip().upper()
+        if options.get("llm_role_classification") and role in valid_roles:
+            normalized["role"] = role
 
-        if not parents or not children:
-            continue
+        business_label = str(item.get("business_label") or "").strip()
+        if options.get("llm_business_labels") and business_label:
+            normalized["business_label"] = business_label[:80]
 
-        removed_lookup_nodes.add(node_id)
+        condition_summary = str(item.get("condition_summary") or "").strip()
+        if condition_summary:
+            normalized["condition_summary"] = condition_summary[:120]
 
-        for parent in parents:
-            for child in children:
-                collapsed_edges.append({
-                    "source": parent["source"],
-                    "target": child["target"],
-                    "kind": "lookup"
-                })
+        if normalized:
+            stage_hints[stage_name] = normalized
 
-    passthrough_edges = [
-        edge for edge in edges
-        if edge["source"] not in removed_lookup_nodes and edge["target"] not in removed_lookup_nodes
+    sql_groups = []
+    if options.get("llm_sql_grouping"):
+        for item in hints.get("sql_groups", []):
+            if not isinstance(item, dict):
+                continue
+            target_stage = item.get("target_stage")
+            if target_stage not in stage_names:
+                continue
+            group_name = str(item.get("group_name") or "Upstream Sources").strip()[:80]
+            tables_in_group = [table for table in item.get("tables", []) if table in table_names]
+            if len(tables_in_group) < 2:
+                continue
+            sql_groups.append({
+                "target_stage": target_stage,
+                "group_name": group_name or "Upstream Sources",
+                "tables": sorted(set(tables_in_group), key=str.lower),
+            })
+
+    return {"stages": stage_hints, "sql_groups": sql_groups}
+
+
+_ALTERYX_GENERIC_KINDS = {
+    "Formula",
+    "Filter",
+    "Sort",
+    "AutoField",
+    "DataCleansing",
+    "Select",
+    "Sample",
+    "Unique",
+}
+
+_ALTERYX_SOURCE_KINDS = {"DbFileInput", "TextInput", "InputData", "DynamicInput"}
+_ALTERYX_SINK_KINDS = {"DbFileOutput", "BrowseV2", "OutputData", "Render"}
+
+
+def _alteryx_branch_key(stage_name):
+    """
+    Infer a coarse business branch hint from an Alteryx stage name.
+    """
+
+    tokens = re.findall(r"[A-Za-z]+", str(stage_name or ""))
+    stop_words = {
+        "browse",
+        "data",
+        "db",
+        "xls",
+        "csv",
+        "sp",
+        "summary",
+        "analytics",
+        "calculate",
+        "clean",
+        "sort",
+        "filter",
+        "join",
+        "value",
+        "score",
+        "profit",
+        "margin",
+        "field",
+        "high",
+        "performance",
+        "stock",
+        "status",
+        "segment",
+        "category",
+    }
+
+    for token in tokens:
+        lowered = token.lower()
+        if lowered not in stop_words:
+            return lowered
+
+    return None
+
+
+def _alteryx_connect(stages_by_name, source_name, target_name, edge_counter):
+    """
+    Add a synthetic connection between two Alteryx stages if not already present.
+    """
+
+    source_stage = stages_by_name.get(source_name)
+    target_stage = stages_by_name.get(target_name)
+
+    if not source_stage or not target_stage or source_name == target_name:
+        return edge_counter
+
+    existing = {item.get("alias") for item in source_stage.get("outputs", [])}
+    if target_name in existing:
+        return edge_counter
+
+    dataset_id = f"dataset_alt_resolved_{edge_counter}"
+    source_stage.setdefault("outputs", []).append({
+        "dataset_id": dataset_id,
+        "alias": target_name,
+        "link_name": "",
+    })
+    target_stage.setdefault("inputs", []).append({
+        "dataset_id": dataset_id,
+        "alias": source_name,
+        "link_name": "",
+    })
+
+    return edge_counter + 1
+
+
+def _alteryx_generic_candidates(stages):
+    """
+    Return generic Alteryx tools that still have incomplete connectivity.
+    """
+
+    return [
+        stage for stage in stages
+        if stage.get("stage_kind") in _ALTERYX_GENERIC_KINDS
+        and (not stage.get("inputs") or not stage.get("outputs"))
     ]
 
-    final_nodes = [node for node in nodes if node["id"] not in removed_lookup_nodes]
 
-    return final_nodes, _deduplicate_edges(passthrough_edges + collapsed_edges)
+def _generate_alteryx_disambiguation_hints(stages, unresolved_stages, job_text):
+    """
+    Ask the LLM to resolve only ambiguous connector-less Alteryx generic tools.
+    """
+
+    llm = _get_semantic_llm()
+    if llm is None or not unresolved_stages:
+        return {}
+
+    ordered = sorted(stages, key=lambda item: (item.get("line_start", 0), item.get("stage", "")))
+    payload = {
+        "workflow_family": "alteryx",
+        "ordered_stages": [
+            {
+                "stage": stage.get("stage"),
+                "stage_kind": stage.get("stage_kind"),
+                "line_start": stage.get("line_start"),
+                "inputs": [item.get("alias") for item in stage.get("inputs", [])],
+                "outputs": [item.get("alias") for item in stage.get("outputs", [])],
+            }
+            for stage in ordered
+        ],
+        "ambiguous_stages": [
+            {
+                "stage": stage.get("stage"),
+                "stage_kind": stage.get("stage_kind"),
+                "line_start": stage.get("line_start"),
+                "inputs": [item.get("alias") for item in stage.get("inputs", [])],
+                "outputs": [item.get("alias") for item in stage.get("outputs", [])],
+            }
+            for stage in unresolved_stages
+        ],
+        "job_excerpt": str(job_text or "")[:12000],
+    }
+
+    prompt = f"""
+You are resolving ambiguous connector-less Alteryx lineage.
+Return JSON only.
+
+Task:
+- For each ambiguous stage, suggest at most one predecessor and at most one successor.
+- Use only stage names that already exist in the payload.
+- Prefer local line-order consistency and business branch consistency.
+- Do not invent stages.
+
+Return this shape:
+{{
+  "assignments": [
+    {{
+      "stage": "Calculate Value Score",
+      "predecessor": "Clean Customer Data",
+      "successor": "Join Customer Data"
+    }}
+  ]
+}}
+
+Input:
+{json.dumps(payload, indent=2)}
+"""
+
+    try:
+        response = llm.invoke(prompt)
+        content = response.content if hasattr(response, "content") else str(response)
+        return _extract_json_object(content)
+    except Exception:
+        return {}
+
+
+def _apply_alteryx_disambiguation_hints(stages, hints):
+    """
+    Validate and apply targeted Alteryx connection hints.
+    """
+
+    if not isinstance(hints, dict):
+        return stages
+
+    stages_by_name = {stage.get("stage"): stage for stage in stages}
+    edge_counter = 1 + sum(len(stage.get("outputs", [])) for stage in stages)
+
+    for item in hints.get("assignments", []):
+        if not isinstance(item, dict):
+            continue
+
+        stage_name = item.get("stage")
+        predecessor = item.get("predecessor")
+        successor = item.get("successor")
+
+        if stage_name not in stages_by_name:
+            continue
+
+        if predecessor in stages_by_name:
+            edge_counter = _alteryx_connect(stages_by_name, predecessor, stage_name, edge_counter)
+        if successor in stages_by_name:
+            edge_counter = _alteryx_connect(stages_by_name, stage_name, successor, edge_counter)
+
+    return list(stages_by_name.values())
+
+
+def _resolve_alteryx_ambiguous_steps(stages, job_text=""):
+    """
+    Apply a deterministic pass first, then optional LLM help for unresolved generic Alteryx steps.
+    """
+
+    if not stages:
+        return stages
+
+    ordered = sorted(stages, key=lambda item: (item.get("line_start", 0), item.get("stage", "")))
+    branch_by_stage = {}
+    active_branch = None
+
+    for stage in ordered:
+        branch = _alteryx_branch_key(stage.get("stage"))
+        if branch:
+            active_branch = branch
+        branch_by_stage[stage.get("stage")] = active_branch
+
+    active_branch = None
+    for stage in reversed(ordered):
+        stage_name = stage.get("stage")
+        if branch_by_stage.get(stage_name):
+            active_branch = branch_by_stage[stage_name]
+        elif active_branch:
+            branch_by_stage[stage_name] = active_branch
+
+    stages_by_name = {stage.get("stage"): stage for stage in ordered}
+    edge_counter = 1 + sum(len(stage.get("outputs", [])) for stage in ordered)
+
+    for stage in ordered:
+        stage_name = stage.get("stage")
+        stage_kind = stage.get("stage_kind")
+        if stage_kind not in _ALTERYX_GENERIC_KINDS:
+            continue
+
+        branch = branch_by_stage.get(stage_name)
+        line_start = stage.get("line_start", 0)
+
+        if stage.get("inputs") and not stage.get("outputs"):
+            for candidate in ordered:
+                if candidate.get("line_start", 0) <= line_start:
+                    continue
+                candidate_name = candidate.get("stage")
+                candidate_kind = candidate.get("stage_kind")
+                candidate_branch = branch_by_stage.get(candidate_name)
+                if branch and candidate_branch and candidate_branch != branch:
+                    continue
+                if candidate_kind in _ALTERYX_SOURCE_KINDS:
+                    continue
+                edge_counter = _alteryx_connect(stages_by_name, stage_name, candidate_name, edge_counter)
+                break
+
+        if stage.get("outputs") and not stage.get("inputs"):
+            for candidate in reversed(ordered):
+                if candidate.get("line_start", 0) >= line_start:
+                    continue
+                candidate_name = candidate.get("stage")
+                candidate_kind = candidate.get("stage_kind")
+                candidate_branch = branch_by_stage.get(candidate_name)
+                if branch and candidate_branch and candidate_branch != branch:
+                    continue
+                if candidate_kind in _ALTERYX_SINK_KINDS:
+                    continue
+                edge_counter = _alteryx_connect(stages_by_name, candidate_name, stage_name, edge_counter)
+                break
+
+        if not stage.get("inputs") and not stage.get("outputs"):
+            predecessor = None
+            successor = None
+
+            for candidate in reversed(ordered):
+                if candidate.get("line_start", 0) >= line_start:
+                    continue
+                candidate_name = candidate.get("stage")
+                candidate_kind = candidate.get("stage_kind")
+                candidate_branch = branch_by_stage.get(candidate_name)
+                if branch and candidate_branch and candidate_branch != branch:
+                    continue
+                if candidate_kind in _ALTERYX_SINK_KINDS:
+                    continue
+                predecessor = candidate_name
+                break
+
+            for candidate in ordered:
+                if candidate.get("line_start", 0) <= line_start:
+                    continue
+                candidate_name = candidate.get("stage")
+                candidate_kind = candidate.get("stage_kind")
+                candidate_branch = branch_by_stage.get(candidate_name)
+                if branch and candidate_branch and candidate_branch != branch:
+                    continue
+                if candidate_kind in _ALTERYX_SOURCE_KINDS:
+                    continue
+                successor = candidate_name
+                break
+
+            if predecessor:
+                edge_counter = _alteryx_connect(stages_by_name, predecessor, stage_name, edge_counter)
+            if successor:
+                edge_counter = _alteryx_connect(stages_by_name, stage_name, successor, edge_counter)
+
+    resolved = list(stages_by_name.values())
+    unresolved = _alteryx_generic_candidates(resolved)
+    if unresolved:
+        resolved = _apply_alteryx_disambiguation_hints(
+            resolved,
+            _generate_alteryx_disambiguation_hints(resolved, unresolved, job_text),
+        )
+
+    return sorted(resolved, key=lambda item: (item.get("line_start", 0), item.get("stage", "")))
+
+
+def _apply_stage_semantic_hints(node, stage_hint):
+    """
+    Append validated semantic hints to a node without losing its original label.
+    """
+
+    if not stage_hint:
+        return node
+
+    details = list(node.get("details", []))
+
+    business_label = stage_hint.get("business_label")
+    if business_label:
+        details.append(f"Business: {business_label}")
+
+    condition_summary = stage_hint.get("condition_summary")
+    if condition_summary:
+        details.append(f"Rule: {condition_summary}")
+
+    node["details"] = details
+    if stage_hint.get("role"):
+        node["type"] = stage_hint["role"]
+
+    return node
 
 
 def _collapse_semantic_nodes(edges, nodes, removable_types):
@@ -546,10 +1141,7 @@ def _build_dataset_graph(stages, tables, options):
 
     for stage in stages:
         stage_name = stage["stage"]
-        nodes.setdefault(stage_name, {
-            "id": stage_name,
-            "type": "TRANSFORM",
-        })
+        nodes.setdefault(stage_name, _make_node(stage_name, "TRANSFORM", stage_meta=stage))
 
         for output in stage.get("outputs", []):
             dataset_id = output.get("dataset_id")
@@ -559,10 +1151,7 @@ def _build_dataset_graph(stages, tables, options):
             if not dataset_id or not dataset_node:
                 continue
 
-            nodes.setdefault(dataset_node, {
-                "id": dataset_node,
-                "type": "DATASET",
-            })
+            nodes.setdefault(dataset_node, _make_node(dataset_node, "DATASET"))
             edges.append({
                 "source": stage_name,
                 "target": dataset_node,
@@ -577,10 +1166,7 @@ def _build_dataset_graph(stages, tables, options):
             if not dataset_id or not dataset_node:
                 continue
 
-            nodes.setdefault(dataset_node, {
-                "id": dataset_node,
-                "type": "DATASET",
-            })
+            nodes.setdefault(dataset_node, _make_node(dataset_node, "DATASET"))
             edges.append({
                 "source": dataset_node,
                 "target": stage_name,
@@ -595,7 +1181,7 @@ def _build_dataset_graph(stages, tables, options):
             continue
         if stage_inbound.get(stage_name, 0) > 0 and not options.get("include_sql_sources"):
             continue
-        nodes.setdefault(table_name, {"id": table_name, "type": "SOURCE"})
+        nodes.setdefault(table_name, _make_node(table_name, "SOURCE"))
         table_targets[table_name].add(stage_name)
 
     for table_name, stage_names in table_targets.items():
@@ -615,6 +1201,7 @@ def _build_dataset_graph(stages, tables, options):
             used_as_lookup=any(edge["target"] == stage_name and edge["kind"] == "lookup" for edge in edges),
         )
         nodes[stage_name]["type"] = stage_type
+        nodes[stage_name]["details"] = _semantic_detail_lines(stage_type, stage)
 
     return {
         "nodes": list(nodes.values()),
@@ -622,7 +1209,95 @@ def _build_dataset_graph(stages, tables, options):
     }
 
 
-def _build_semantic_graph(stages, stage_edges, tables, options):
+def _aggregate_parallel_sources(nodes, edges, semantic_hints=None, min_group_size=3):
+    """
+    Group many SQL source tables feeding the same downstream stage into one source node.
+    """
+
+    node_map = {node["id"]: dict(node) for node in nodes}
+    incoming = defaultdict(list)
+    outgoing = defaultdict(list)
+
+    for edge in edges:
+        incoming[edge["target"]].append(edge)
+        outgoing[edge["source"]].append(edge)
+
+    groups = defaultdict(list)
+    semantic_hints = semantic_hints or {}
+
+    for item in semantic_hints.get("sql_groups", []):
+        target_stage = item.get("target_stage")
+        for table_name in item.get("tables", []):
+            if table_name in node_map:
+                groups[target_stage].append(table_name)
+
+    for node_id, node in node_map.items():
+        if node.get("type") != "SOURCE":
+            continue
+
+        if incoming.get(node_id):
+            continue
+
+        source_edges = outgoing.get(node_id, [])
+        if not source_edges:
+            continue
+
+        kinds = {edge.get("kind") for edge in source_edges}
+        targets = {edge.get("target") for edge in source_edges}
+
+        if kinds != {"sql_source"} or len(targets) != 1:
+            continue
+
+        if not semantic_hints.get("sql_groups"):
+            groups[next(iter(targets))].append(node_id)
+
+    nodes_to_remove = set()
+    replacement_edges = []
+
+    for target_id, member_ids in groups.items():
+        if len(member_ids) < min_group_size:
+            continue
+
+        sorted_members = sorted(member_ids, key=str.lower)
+        group_id = f"__source_group__{re.sub(r'[^A-Za-z0-9_]+', '_', target_id).strip('_').lower() or 'target'}"
+        explicit_group = next(
+            (item for item in semantic_hints.get("sql_groups", []) if item.get("target_stage") == target_id),
+            None,
+        )
+        group_label = (explicit_group or {}).get("group_name") or "Upstream Sources"
+        detail_lines = [f"{len(sorted_members)} source tables"] + sorted_members
+
+        node_map[group_id] = _make_node(
+            group_id,
+            "SOURCE_GROUP",
+            label=group_label,
+            details=detail_lines,
+            members=sorted_members,
+        )
+        replacement_edges.append({
+            "source": group_id,
+            "target": target_id,
+            "kind": "sql_source",
+        })
+        nodes_to_remove.update(sorted_members)
+
+    if not nodes_to_remove:
+        return nodes, edges
+
+    final_nodes = [
+        node for node_id, node in node_map.items()
+        if node_id not in nodes_to_remove
+    ]
+    final_edges = [
+        edge for edge in edges
+        if edge["source"] not in nodes_to_remove and edge["target"] not in nodes_to_remove
+    ]
+    final_edges.extend(replacement_edges)
+
+    return final_nodes, _deduplicate_edges(final_edges)
+
+
+def _build_semantic_graph(stages, stage_edges, tables, options, semantic_hints=None):
     """
     Build a clean stage-level graph for logical lineage diagrams.
     """
@@ -630,6 +1305,7 @@ def _build_semantic_graph(stages, stage_edges, tables, options):
     nodes = {}
     edges = []
     stage_map = {stage["stage"]: stage for stage in stages}
+    stage_hints = (semantic_hints or {}).get("stages", {})
     inbound_counts = defaultdict(int)
     outbound_counts = defaultdict(int)
     lookup_stages = set()
@@ -647,8 +1323,8 @@ def _build_semantic_graph(stages, stage_edges, tables, options):
         if edge.get("kind") == "lookup":
             lookup_stages.add(source_name)
 
-        nodes.setdefault(source_name, {"id": source_name, "type": "SOURCE"})
-        nodes.setdefault(target_name, {"id": target_name, "type": "TRANSFORM"})
+        nodes.setdefault(source_name, _make_node(source_name, "SOURCE", stage_meta=stage_map.get(source_name)))
+        nodes.setdefault(target_name, _make_node(target_name, "TRANSFORM", stage_meta=stage_map.get(target_name)))
         edges.append({
             "source": source_name,
             "target": target_name,
@@ -656,18 +1332,21 @@ def _build_semantic_graph(stages, stage_edges, tables, options):
         })
 
     for stage_name, stage in stage_map.items():
-        nodes[stage_name] = {
-            "id": stage_name,
-            "type": _classify_semantic_stage(
-                stage,
-                inbound_counts.get(stage_name, 0),
-                outbound_counts.get(stage_name, 0),
-                stage_name in lookup_stages,
-            ),
-        }
+        node_type = _classify_semantic_stage(
+            stage,
+            inbound_counts.get(stage_name, 0),
+            outbound_counts.get(stage_name, 0),
+            stage_name in lookup_stages,
+        )
+        if stage_hints.get(stage_name, {}).get("role"):
+            node_type = stage_hints[stage_name]["role"]
+        nodes[stage_name] = _apply_stage_semantic_hints(
+            _make_node(stage_name, node_type, stage_meta=stage),
+            stage_hints.get(stage_name),
+        )
 
     complexity = _lineage_complexity(len(stage_map), len(stage_edges))
-    add_sql_sources = options.get("include_sql_sources") or complexity == "small"
+    add_sql_sources = options.get("include_sql_sources")
     table_targets = defaultdict(set)
 
     if add_sql_sources:
@@ -684,7 +1363,7 @@ def _build_semantic_graph(stages, stage_edges, tables, options):
             table_targets[table_name].add(stage_name)
 
         for table_name, stage_names in table_targets.items():
-            nodes[table_name] = {"id": table_name, "type": "SOURCE"}
+            nodes[table_name] = _make_node(table_name, "SOURCE")
             for stage_name in sorted(stage_names):
                 edges.append({
                     "source": table_name,
@@ -701,6 +1380,11 @@ def _build_semantic_graph(stages, stage_edges, tables, options):
         nodes = {node["id"]: node for node in node_values}
         edges = edge_values
 
+    if options.get("diagram_mode") == "logical":
+        node_values, edge_values = _aggregate_parallel_sources(list(nodes.values()), edges, semantic_hints=semantic_hints)
+        nodes = {node["id"]: node for node in node_values}
+        edges = edge_values
+
     return {
         "nodes": list(nodes.values()),
         "edges": _deduplicate_edges(edges),
@@ -709,149 +1393,198 @@ def _build_semantic_graph(stages, stage_edges, tables, options):
     }
 
 
-def _build_edge_maps(edges, allowed_kinds=None):
+def _build_nx_graph(node_ids, edges, allowed_kinds=None):
     """
-    Build adjacency maps from edge list.
+    Build a directed lineage graph using NetworkX.
     """
 
-    children = defaultdict(list)
-    parents = defaultdict(list)
+    graph = nx.DiGraph()
+    graph.add_nodes_from(node_ids)
     filtered = []
 
     for edge in edges:
         if allowed_kinds is not None and edge.get("kind") not in allowed_kinds:
             continue
-
+        source = edge.get("source")
+        target = edge.get("target")
+        if not source or not target:
+            continue
+        graph.add_edge(source, target)
         filtered.append(edge)
-        children[edge["source"]].append(edge["target"])
-        parents[edge["target"]].append(edge["source"])
 
-    return filtered, children, parents
-
-
-def _topological_sort(node_ids, edges):
-    """
-    Return a stable topological ordering when possible.
-    """
-
-    _, children, _ = _build_edge_maps(edges)
-    indegree = {node_id: 0 for node_id in node_ids}
-
-    for edge in edges:
-        indegree[edge["target"]] = indegree.get(edge["target"], 0) + 1
-        indegree.setdefault(edge["source"], 0)
-
-    queue = deque(sorted(node_id for node_id, degree in indegree.items() if degree == 0))
-    order = []
-
-    while queue:
-        node_id = queue.popleft()
-        order.append(node_id)
-
-        for child in sorted(children.get(node_id, [])):
-            indegree[child] -= 1
-            if indegree[child] == 0:
-                queue.append(child)
-
-    for node_id in sorted(node_ids):
-        if node_id not in order:
-            order.append(node_id)
-
-    return order
+    return graph, filtered
 
 
 def _longest_path(node_ids, edges):
     """
-    Compute a longest path on a DAG-like lineage graph.
+    Compute a stable longest-path spine using NetworkX.
     """
 
     if not node_ids:
         return []
 
-    order = _topological_sort(node_ids, edges)
-    _, _, parents = _build_edge_maps(edges)
-    distance = {node_id: 0 for node_id in node_ids}
-    previous = {}
+    graph, _ = _build_nx_graph(node_ids, edges)
 
-    for node_id in order:
-        for parent in parents.get(node_id, []):
-            candidate = distance[parent] + 1
-            if candidate > distance[node_id]:
-                distance[node_id] = candidate
-                previous[node_id] = parent
+    if graph.number_of_edges() == 0:
+        return sorted(node_ids)[:1]
 
-    end_node = max(order, key=lambda node_id: distance.get(node_id, 0))
-    path = [end_node]
+    if nx.is_directed_acyclic_graph(graph):
+        return list(nx.algorithms.dag.dag_longest_path(graph))
 
-    while end_node in previous:
-        end_node = previous[end_node]
-        path.append(end_node)
+    condensed = nx.condensation(graph)
+    component_path = list(nx.algorithms.dag.dag_longest_path(condensed))
+    component_members = defaultdict(list)
 
-    path.reverse()
-    return path
+    for node_id, component_id in condensed.graph.get("mapping", {}).items():
+        component_members[component_id].append(node_id)
+
+    path = [
+        sorted(component_members.get(component_id, []), key=str.lower)[0]
+        for component_id in component_path
+        if component_members.get(component_id)
+    ]
+
+    return path or sorted(node_ids)[:1]
 
 
 def _dag_layers(node_ids, edges):
     """
-    Assign a left-to-right layer to each node using longest-path ranking.
+    Assign left-to-right ranks using NetworkX longest-path layering.
     """
 
-    order = _topological_sort(node_ids, edges)
-    _, children, parents = _build_edge_maps(edges)
+    graph, _ = _build_nx_graph(node_ids, edges)
     rank = {node_id: 0 for node_id in node_ids}
 
-    for node_id in order:
-        parent_ranks = [rank[parent] for parent in parents.get(node_id, [])]
-        if parent_ranks:
-            rank[node_id] = max(parent_ranks) + 1
+    if nx.is_directed_acyclic_graph(graph):
+        for node_id in nx.topological_sort(graph):
+            parent_ranks = [rank[parent] for parent in graph.predecessors(node_id)]
+            rank[node_id] = (max(parent_ranks) + 1) if parent_ranks else 0
+    else:
+        condensed = nx.condensation(graph)
+        component_rank = {}
+        for component_id in nx.topological_sort(condensed):
+            parents = list(condensed.predecessors(component_id))
+            component_rank[component_id] = (max(component_rank[parent] for parent in parents) + 1) if parents else 0
+        mapping = condensed.graph.get("mapping", {})
+        for node_id in node_ids:
+            rank[node_id] = component_rank.get(mapping.get(node_id), 0)
+
+    children = {node_id: sorted(graph.successors(node_id)) for node_id in graph.nodes}
+    parents = {node_id: sorted(graph.predecessors(node_id)) for node_id in graph.nodes}
 
     return rank, children, parents
 
 
-def _node_sort_weight(node):
-    """
-    Stable tie-breaker for deterministic layer ordering.
-    """
-
-    priority = {
-        "SOURCE": 0,
-        "EXTRACT": 1,
-        "LOOKUP": 2,
-        "STORE": 3,
-        "TRANSFORM": 4,
-        "TARGET": 5,
-        "EXCEPTION": 6,
-        "DATASET": 7,
-    }
-
-    return (priority.get(node.get("type", ""), 99), node["id"].lower())
-
-
-def _graphviz_plain_layout(nodes, edges, sizes):
+def _graphviz_plain_layout(nodes, edges, sizes, annotations=None):
     """
     Ask Graphviz for node positions and return draw.io-friendly coordinates.
+    
+    Uses safe identifiers (node_0, node_1, etc.) to avoid parsing issues with
+    special characters in node IDs, then maps results back to original IDs.
     """
 
     if graphviz is None:
         raise RuntimeError("Graphviz Python package is not installed.")
 
     dot = graphviz.Digraph(engine="dot")
-    dot.attr(rankdir="LR", nodesep="0.6", ranksep="1.1", splines="line")
+    lane_priority = {
+        "source": 0,
+        "lookup": 1,
+        "support": 2,
+        "main": 3,
+        "branch": 4,
+    }
+    node_ids = [node["id"] for node in nodes]
+    rank_map, _, parents = _dag_layers(node_ids, edges)
+    annotation_map = annotations or {}
+    complexity = _lineage_complexity(len(nodes), len(edges))
+    ranksep = {
+        "small": "1.8",
+        "medium": "2.2",
+        "large": "2.7",
+    }.get(complexity, "2.2")
+    nodesep = {
+        "small": "0.9",
+        "medium": "1.2",
+        "large": "1.5",
+    }.get(complexity, "1.2")
+    dot.attr(
+        rankdir="LR",
+        ranksep=ranksep,
+        nodesep=nodesep,
+        splines="ortho",
+        pad="0.4",
+        margin="0.25",
+        concentrate="true",
+        outputorder="edgesfirst",
+    )
+    dot.attr("node", shape="box", fixedsize="false")
 
-    for node in nodes:
-        node_id = node["id"]
-        node_size = sizes.get(node_id, {"width": 220, "height": 70})
+    # Create mapping from safe IDs to original IDs
+    safe_id_map = {}
+    id_to_safe = {}
+    
+    for index, node in enumerate(nodes):
+        original_id = node["id"]
+        safe_id = f"node_{index}"
+        safe_id_map[safe_id] = original_id
+        id_to_safe[original_id] = safe_id
+        
+        node_size = sizes.get(original_id, {"width": 220, "height": 70})
         dot.node(
-            node_id,
-            label=node_id,
+            safe_id,
+            label=_display_label(node),
             width=f"{node_size['width'] / 72:.3f}",
             height=f"{node_size['height'] / 72:.3f}",
-            shape="box",
-            fixedsize="false",
         )
 
+    # Build explicit layered ranks and stable intra-rank ordering to reduce crossings.
+    rank_groups = defaultdict(list)
+    for node in nodes:
+        rank_groups[rank_map.get(node["id"], 0)].append(node["id"])
+
+    def _rank_sort_key(node_id):
+        parent_positions = sorted(rank_map.get(parent, 0) for parent in parents.get(node_id, []))
+        parent_hint = sum(parent_positions) / len(parent_positions) if parent_positions else -1
+        lane = annotation_map.get(node_id, {}).get("lane", "main")
+        node_type = next((item.get("type", "") for item in nodes if item["id"] == node_id), "")
+        return (
+            lane_priority.get(lane, 9),
+            parent_hint,
+            node_type,
+            node_id.lower(),
+        )
+
+    for rank, node_group in sorted(rank_groups.items()):
+        ordered_ids = sorted(node_group, key=_rank_sort_key)
+        with dot.subgraph(name=f"rank_{rank}") as sub:
+            sub.attr(rank="same")
+            for node_id in ordered_ids:
+                sub.node(id_to_safe[node_id])
+
+        # Preserve vertical ordering within a layer using invisible edges.
+        for source_id, target_id in zip(ordered_ids, ordered_ids[1:]):
+            dot.edge(
+                id_to_safe[source_id],
+                id_to_safe[target_id],
+                style="invis",
+                weight="20",
+            )
+
     for edge in edges:
-        dot.edge(edge["source"], edge["target"])
+        source_safe_id = id_to_safe.get(edge["source"], edge["source"])
+        target_safe_id = id_to_safe.get(edge["target"], edge["target"])
+        edge_attrs = {
+            "weight": "6",
+        }
+        if edge.get("kind") in {"lookup", "sql_source"}:
+            edge_attrs["weight"] = "2"
+            edge_attrs["minlen"] = "1"
+        elif edge.get("kind") == "exception":
+            edge_attrs["minlen"] = "2"
+        else:
+            edge_attrs["minlen"] = "2"
+        dot.edge(source_safe_id, target_safe_id, **edge_attrs)
 
     try:
         plain = dot.pipe(format="plain").decode("utf-8")
@@ -864,22 +1597,38 @@ def _graphviz_plain_layout(nodes, edges, sizes):
     graph_height = 0.0
 
     for line in plain.splitlines():
+        if not line.strip():
+            continue
+            
         parts = line.split()
         if not parts:
             continue
 
         if parts[0] == "graph" and len(parts) >= 4:
-            graph_height = float(parts[3])
+            try:
+                graph_height = float(parts[3])
+            except (ValueError, IndexError):
+                continue
+                
         elif parts[0] == "node" and len(parts) >= 6:
-            node_id = parts[1]
-            x_center = float(parts[2]) * 72
-            y_center = float(parts[3]) * 72
-            width = float(parts[4]) * 72
-            height = float(parts[5]) * 72
-            positions[node_id] = {
-                "x": int(round(x_center - (width / 2))),
-                "y": int(round((graph_height * 72) - y_center - (height / 2))),
-            }
+            try:
+                safe_id = parts[1]
+                original_id = safe_id_map.get(safe_id, safe_id)
+                
+                x_center = float(parts[2]) * 72
+                y_center = float(parts[3]) * 72
+                width = float(parts[4]) * 72
+                height = float(parts[5]) * 72
+                
+                positions[original_id] = {
+                    "x": int(round(x_center - (width / 2))),
+                    "y": int(round((graph_height * 72) - y_center - (height / 2))),
+                }
+            except (ValueError, IndexError) as e:
+                raise ValueError(
+                    f"Failed to parse Graphviz output line: '{line}'. "
+                    f"Parts: {parts}. Error: {e}"
+                ) from e
 
     if not positions:
         raise RuntimeError("Graphviz returned no node positions.")
@@ -887,56 +1636,69 @@ def _graphviz_plain_layout(nodes, edges, sizes):
     return positions
 
 
-def _spread_missing_or_colliding_positions(nodes, edges, sizes, positions):
+def _spread_missing_or_colliding_positions(nodes, edges, sizes, positions, annotations=None):
     """
-    Distribute nodes that Graphviz left unplaced or placed on identical coordinates.
+    Apply a minimal repair when Graphviz leaves nodes unplaced or stacked.
     """
 
-    node_ids = [node["id"] for node in nodes]
-    layer_rank, _, _ = _dag_layers(node_ids, edges)
-    by_layer = defaultdict(list)
+    row_gap = 160
+    column_tolerance = 80
+    lane_priority = {
+        "source": 0,
+        "lookup": 1,
+        "support": 2,
+        "main": 3,
+        "branch": 4,
+    }
+    annotation_map = annotations or {}
+    graph, _ = _build_nx_graph([node["id"] for node in nodes], edges)
+    grouped = defaultdict(list)
 
     for node in nodes:
-        by_layer[layer_rank.get(node["id"], 0)].append(node["id"])
+        node_id = node["id"]
+        if node_id in positions:
+            column_key = round(positions[node_id]["x"] / column_tolerance)
+            grouped[column_key].append(node_id)
 
+    for column_key, node_ids in grouped.items():
+        if len(node_ids) <= 1:
+            continue
+
+        ordered_ids = sorted(
+            node_ids,
+            key=lambda item: (
+                lane_priority.get(annotation_map.get(item, {}).get("lane", "main"), 9),
+                -graph.out_degree(item),
+                graph.in_degree(item),
+                item.lower(),
+            )
+        )
+
+        top_y = min(positions[item]["y"] for item in ordered_ids)
+        for offset, node_id in enumerate(ordered_ids):
+            positions[node_id]["y"] = top_y + (offset * row_gap)
+
+    if len(positions) == len(nodes):
+        return positions
+
+    node_ids = [node["id"] for node in nodes]
+    rank_map, _, _ = _dag_layers(node_ids, edges)
     x_gap = 340
     base_x = 40
     base_y = 40
-    row_gap = 130
+    next_y_by_rank = defaultdict(lambda: base_y)
 
-    for layer_index, layer_nodes in by_layer.items():
-        layer_x = base_x + (layer_index * x_gap)
-        placed = [positions[node_id] for node_id in layer_nodes if node_id in positions]
-
-        if not placed:
-            current_y = base_y
-            for node_id in sorted(layer_nodes):
-                positions[node_id] = {"x": layer_x, "y": current_y}
-                current_y += row_gap
+    for node_id in sorted(node_ids, key=lambda item: (rank_map.get(item, 0), item.lower())):
+        if node_id in positions:
+            rank = rank_map.get(node_id, 0)
+            next_y_by_rank[rank] = max(next_y_by_rank[rank], positions[node_id]["y"] + row_gap)
             continue
-
-        collision_groups = defaultdict(list)
-        for node_id in layer_nodes:
-            if node_id not in positions:
-                continue
-            key = (positions[node_id]["x"], positions[node_id]["y"])
-            collision_groups[key].append(node_id)
-
-        for (x_value, y_value), node_group in collision_groups.items():
-            if len(node_group) <= 1:
-                continue
-            for offset, node_id in enumerate(sorted(node_group)):
-                positions[node_id] = {
-                    "x": x_value,
-                    "y": y_value + (offset * row_gap),
-                }
-
-        max_y = max(item["y"] for item in positions.values()) if positions else base_y
-        for node_id in sorted(layer_nodes):
-            if node_id in positions:
-                continue
-            max_y += row_gap
-            positions[node_id] = {"x": layer_x, "y": max_y}
+        rank = rank_map.get(node_id, 0)
+        positions[node_id] = {
+            "x": base_x + (rank * x_gap),
+            "y": next_y_by_rank[rank],
+        }
+        next_y_by_rank[rank] += row_gap
 
     return positions
 
@@ -956,11 +1718,12 @@ def _generate_layout_single(graph_entry):
     node_ids = [node["id"] for node in nodes]
 
     for node_id in node_ids:
-        width, height = _node_box_size(node_id)
+        node = next((item for item in nodes if item["id"] == node_id), {"id": node_id})
+        width, height = _node_box_size(_display_label(node))
         sizes[node_id] = {"width": width, "height": height}
 
-    positions = _graphviz_plain_layout(nodes, edges, sizes)
-    positions = _spread_missing_or_colliding_positions(nodes, edges, sizes, positions)
+    positions = _graphviz_plain_layout(nodes, edges, sizes, annotations=annotations)
+    positions = _spread_missing_or_colliding_positions(nodes, edges, sizes, positions, annotations=annotations)
 
     return {
         "source_file": _safe_source_key(graph_entry.get("source_file")),
@@ -971,78 +1734,8 @@ def _generate_layout_single(graph_entry):
         "options": options,
         "annotations": annotations,
         "complexity": complexity,
+        "semantic_hints_applied": graph_entry.get("semantic_hints_applied", False),
     }
-
-
-def _shortest_distance(start_nodes, children):
-    """
-    Compute shortest distance from a set of start nodes.
-    """
-
-    queue = deque()
-    distance = {}
-
-    for node_id in start_nodes:
-        distance[node_id] = 0
-        queue.append(node_id)
-
-    while queue:
-        node_id = queue.popleft()
-
-        for child in children.get(node_id, []):
-            if child in distance:
-                continue
-
-            distance[child] = distance[node_id] + 1
-            queue.append(child)
-
-    return distance
-
-
-def _nearest_anchor(node_id, anchors, children):
-    """
-    Find nearest anchor reachable from a node.
-    """
-
-    queue = deque([(node_id, 0)])
-    visited = {node_id}
-
-    while queue:
-        current, depth = queue.popleft()
-
-        if current in anchors:
-            return current, depth
-
-        for child in children.get(current, []):
-            if child in visited:
-                continue
-            visited.add(child)
-            queue.append((child, depth + 1))
-
-    return None, None
-
-
-def _nearest_upstream_anchor(node_id, anchors, parents):
-    """
-    Find nearest upstream anchor reachable from a node.
-    """
-
-    queue = deque([(node_id, 0)])
-    visited = {node_id}
-
-    while queue:
-        current, depth = queue.popleft()
-
-        if current in anchors and current != node_id:
-            return current, depth
-
-        for parent in parents.get(current, []):
-            if parent in visited:
-                continue
-            visited.add(parent)
-            queue.append((parent, depth + 1))
-
-    return None, None
 
 
 def _node_box_size(label):
@@ -1050,9 +1743,11 @@ def _node_box_size(label):
     Compute a width that keeps long labels inside the node box.
     """
 
-    length = len(label or "")
-    width = max(220, min(320, 160 + (length * 4)))
-    height = 70 if length <= 28 else 80
+    lines = [line for line in str(label or "").splitlines() if line] or [""]
+    max_length = max(len(line) for line in lines)
+    line_count = len(lines)
+    width = max(220, min(420, 160 + (max_length * 5)))
+    height = max(70, min(240, 40 + (line_count * 22)))
     return width, height
 
 
@@ -1060,17 +1755,6 @@ def _edge_style(kind, route="", complexity="medium"):
     """
     Return draw.io edge style tuned for logical lineage.
     """
-
-    if complexity in {"small", "medium"}:
-        base = "edgeStyle=none;rounded=1;html=1;"
-
-        if kind == "lookup":
-            return base + "dashed=1;dashPattern=6 4;"
-
-        if kind == "sql_source":
-            return base + "dashed=1;dashPattern=2 4;"
-
-        return base
 
     base = "edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;"
 
@@ -1108,7 +1792,7 @@ def _ordered_nodes_for_render(nodes, positions, annotations):
     return sorted(
         nodes,
         key=lambda node: (
-            lane_priority.get(annotations.get(node["id"], {}).get("lane", "support"), 9),
+            lane_priority.get(annotations.get(node["id"], {}).get("lane", "main"), 9),
             positions.get(node["id"], {}).get("x", 0),
             positions.get(node["id"], {}).get("y", 0),
             node["id"].lower(),
@@ -1118,10 +1802,10 @@ def _ordered_nodes_for_render(nodes, positions, annotations):
 
 def _edge_waypoints(edge, positions, sizes, annotations, complexity="medium"):
     """
-    Create explicit waypoints for support and branch edges so they avoid node boxes.
+    Create explicit waypoints only for large diagrams that benefit from a bend.
     """
 
-    if complexity in {"small", "medium"} and edge.get("kind") != "exception":
+    if complexity == "small":
         return []
 
     source_pos = positions.get(edge["source"])
@@ -1136,28 +1820,8 @@ def _edge_waypoints(edge, positions, sizes, annotations, complexity="medium"):
     source_center_y = source_pos["y"] + (source_size["height"] / 2)
     target_center_x = target_pos["x"] + (target_size["width"] / 2)
     target_center_y = target_pos["y"] + (target_size["height"] / 2)
-    route = edge.get("route", "")
 
-    if route == "vertical":
-        if abs(source_center_y - target_center_y) < 20:
-            return []
-        mid_x = source_center_x if source_center_x < target_center_x else target_center_x
-        bend_x = mid_x + 30
-        return [
-            {"x": bend_x, "y": source_center_y},
-            {"x": bend_x, "y": target_center_y},
-        ]
-
-    if route == "side":
-        if abs(source_center_x - target_center_x) < 20:
-            return []
-        bend_y = source_center_y - 40 if source_center_y <= target_center_y else source_center_y + 40
-        return [
-            {"x": source_center_x, "y": bend_y},
-            {"x": target_center_x, "y": bend_y},
-        ]
-
-    if edge.get("kind") == "exception":
+    if edge.get("kind") in {"lookup", "sql_source", "exception"}:
         bend_y = max(source_center_y, target_center_y) + 40
         return [
             {"x": source_center_x, "y": bend_y},
@@ -1169,7 +1833,7 @@ def _edge_waypoints(edge, positions, sizes, annotations, complexity="medium"):
 
 def _derive_logical_lineage(nodes, edges, options):
     """
-    Derive a logical graph with a main spine and supporting lanes.
+    Derive a logical graph with lightweight annotations and Graphviz-driven layout.
     """
 
     node_ids = [node["id"] for node in nodes]
@@ -1179,96 +1843,106 @@ def _derive_logical_lineage(nodes, edges, options):
     main_path = _longest_path(node_ids, non_lookup_edges)
     if len(main_path) < 2:
         main_path = _longest_path(node_ids, edges)
-    if len(main_path) < 2:
-        main_path = node_ids[:]
-        
-        
     if not main_path:
-        main_path = _longest_path(node_ids, edges)
+        main_path = sorted(node_ids)
 
     main_set = set(main_path)
-    all_edges, all_children, all_parents = _build_edge_maps(edges)
-    _, main_children, main_parents = _build_edge_maps(non_lookup_edges)
-    from_main = _shortest_distance(main_path, main_children)
-    to_main = _shortest_distance(list(reversed(main_path)), main_parents)
+    graph, all_edges = _build_nx_graph(node_ids, edges)
 
     annotations = {}
 
     for node in nodes:
         node_id = node["id"]
         node_type = node_types.get(node_id, "DATASET")
+        is_main = node_id in main_set
+        has_incoming = graph.in_degree(node_id) > 0
+        has_outgoing = graph.out_degree(node_id) > 0
+        lane = "support"
+        role = "main" if is_main else "support"
+
+        if node_type in {"SOURCE", "SOURCE_GROUP", "EXTRACT"}:
+            lane = "source"
+        elif node_type in {"LOOKUP", "STORE"}:
+            lane = "lookup"
+        elif node_type in {"FILE_TARGET", "DB_TARGET", "TARGET", "EXCEPTION"} and has_incoming and not is_main:
+            lane = "branch"
+            role = "branch"
+        elif is_main:
+            lane = "main"
+        elif has_incoming and not has_outgoing:
+            lane = "branch"
+            role = "branch"
 
         annotations[node_id] = {
-            "role": "main" if node_id in main_set else "support",
-            "anchor": node_id if node_id in main_set else None,
-            "distance": 0,
-            "lane": "main" if node_id in main_set else "support",
+            "role": role,
+            "lane": lane,
         }
-
-        if node_id in main_set:
-            continue
-
-        downstream_anchor, downstream_distance = _nearest_anchor(node_id, main_set, all_children)
-        upstream_anchor, upstream_distance = _nearest_upstream_anchor(node_id, main_set, all_parents)
-
-        if node_type in {"SOURCE", "EXTRACT"}:
-            annotations[node_id]["role"] = "support"
-            annotations[node_id]["lane"] = "source"
-            annotations[node_id]["anchor"] = downstream_anchor or upstream_anchor or (main_path[0] if main_path else node_id)
-            annotations[node_id]["distance"] = downstream_distance or upstream_distance or 1
-            continue
-
-        if node_type in {"LOOKUP", "STORE"}:
-            annotations[node_id]["role"] = "support"
-            annotations[node_id]["lane"] = "lookup"
-            annotations[node_id]["anchor"] = downstream_anchor or upstream_anchor or (main_path[0] if main_path else node_id)
-            annotations[node_id]["distance"] = downstream_distance or upstream_distance or 1
-            continue
-
-        if upstream_anchor is not None and (
-            downstream_anchor is None or
-            from_main.get(node_id, 10**6) <= to_main.get(node_id, 10**6)
-        ) and node_type not in {"SOURCE", "LOOKUP", "STORE", "EXTRACT"}:
-            annotations[node_id]["role"] = "branch"
-            annotations[node_id]["lane"] = "branch"
-            annotations[node_id]["anchor"] = upstream_anchor
-            annotations[node_id]["distance"] = upstream_distance or 1
-        else:
-            annotations[node_id]["role"] = "support"
-            annotations[node_id]["lane"] = "support"
-            annotations[node_id]["anchor"] = downstream_anchor or upstream_anchor or (main_path[0] if main_path else node_id)
-            annotations[node_id]["distance"] = downstream_distance or upstream_distance or 1
-
-        if node_type == "TARGET" and upstream_anchor is not None:
-            annotations[node_id]["role"] = "branch"
-            annotations[node_id]["lane"] = "branch"
-            annotations[node_id]["anchor"] = upstream_anchor
-            annotations[node_id]["distance"] = upstream_distance or 1
 
     logical_edges = []
 
     for edge in all_edges:
-        source_role = annotations.get(edge["source"], {}).get("role")
-        target_role = annotations.get(edge["target"], {}).get("role")
-        route = ""
-
-        if edge.get("kind") in {"lookup", "sql_source"}:
-            route = "vertical"
-        elif complexity == "small" and annotations.get(edge["source"], {}).get("lane") == "source":
-            route = "side"
-        elif source_role in {"support"} or target_role in {"support", "branch"}:
-            route = "vertical"
-
         logical_edges.append({
             "source": edge["source"],
             "target": edge["target"],
             "kind": edge.get("kind", "input"),
-            "route": route,
         })
 
     return {
         "nodes": nodes,
         "edges": _deduplicate_edges(logical_edges),
+        "main_path": main_path,
+        "annotations": annotations,
+        "options": options,
+        "complexity": complexity,
+    }
+
+
+def _derive_technical_lineage(nodes, edges, options):
+    """
+    Preserve the technical dataset-level graph and add only lightweight render annotations.
+    """
+
+    node_ids = [node["id"] for node in nodes]
+    node_types = {node["id"]: node["type"] for node in nodes}
+    complexity = _lineage_complexity(len(nodes), len(edges))
+    non_lookup_edges = [edge for edge in edges if edge.get("kind") not in {"lookup", "sql_source"}]
+    main_path = _longest_path(node_ids, non_lookup_edges)
+    if not main_path:
+        main_path = _longest_path(node_ids, edges)
+    if not main_path:
+        main_path = sorted(node_ids)
+
+    main_set = set(main_path)
+    annotations = {}
+
+    for node in nodes:
+        node_id = node["id"]
+        node_type = node_types.get(node_id, "DATASET")
+
+        if node_type == "SOURCE":
+            lane = "source"
+            role = "support"
+        elif node_type in {"LOOKUP", "STORE"}:
+            lane = "lookup"
+            role = "support"
+        elif node_type in {"FILE_TARGET", "DB_TARGET", "TARGET", "EXCEPTION"}:
+            lane = "branch"
+            role = "branch"
+        elif node_id in main_set:
+            lane = "main"
+            role = "main"
+        else:
+            lane = "support"
+            role = "support"
+
+        annotations[node_id] = {
+            "role": role,
+            "lane": lane,
+        }
+
+    return {
+        "nodes": nodes,
+        "edges": _deduplicate_edges(edges),
         "main_path": main_path,
         "annotations": annotations,
         "options": options,
@@ -1285,6 +1959,7 @@ def _style_for_node_type(node_type):
 
     styles = {
         "SOURCE": base + "shape=cylinder3;boundedLbl=1;size=15;fillColor=#fff2cc;",
+        "SOURCE_GROUP": base + "shape=cylinder3;boundedLbl=1;size=18;fillColor=#fff2cc;",
         "EXTRACT": base + "rounded=1;fillColor=#f8cecc;",
         "TRANSFORM": base + "rounded=1;fillColor=#f8cecc;",
         "DECISION": base + "shape=rhombus;perimeter=rhombusPerimeter;fillColor=#f8cecc;",
@@ -1500,7 +2175,7 @@ def read_etl_sources(job_files, output_path):
 
 def detect_job_boundaries(source_file, output_path):
     """
-    Detect independent ETL pipelines inside pseudocode.
+    Detect ETL job boundaries and parser family inside pseudocode.
     """
 
     source_file = require_existing_file(source_file, "lineage source file")
@@ -1510,20 +2185,9 @@ def detect_job_boundaries(source_file, output_path):
 
     for entry in data:
         source_name = _safe_source_key(entry.get("file"))
-
         text = entry.get("content", "")
-        text = _normalize_arrow_text(text)
-
-        segments = re.split(r'//\s*=+', text)
-
-        for index, seg in enumerate(segments, start=1):
-
-            if len(seg.strip()) > 50:
-                jobs.append({
-                    "source_file": source_name,
-                    "job_index": index,
-                    "content": seg.strip(),
-                })
+        parser_type = _detect_pseudocode_type(text)
+        jobs.extend(_split_jobs_for_parser(source_name, text, parser_type))
 
     write_json(output_path, jobs)
 
@@ -1535,55 +2199,45 @@ def detect_job_boundaries(source_file, output_path):
 # -----------------------------------------------------
 def parse_stages_chunked(job_file, output_path):
     """
-    Extract stage metadata from pseudocode jobs.
-    Robust parser tolerant to formatting differences.
+    Extract stage metadata from pseudocode jobs via tool-specific parsers.
     """
 
     job_file = require_existing_file(job_file, "job boundaries file")
     jobs = read_json(job_file)
 
-    stages = []
-
+    normalized_jobs = []
     for job in jobs:
         if isinstance(job, dict):
-            source_file = _safe_source_key(job.get("source_file"))
-            job_text = job.get("content", "")
-        else:
-            source_file = "lineage"
-            job_text = job
-
-        job_text = _normalize_arrow_text(job_text)
-
-        # detect stage blocks safely
-        stage_blocks = re.findall(
-            r'(//\s*---\s*\[.*?\](?:.*?))(?=//\s*---\s*\[|\Z)',
-            job_text,
-            re.S
-        )
-
-        for block in stage_blocks:
-
-            header = _extract_stage_header(block)
-
-            if not header:
-                continue
-
-            inputs = _extract_link_entries(block, "Input")
-            outputs = _extract_link_entries(block, "Output")
-            sql = _extract_sql_block(block)
-
-            stages.append({
-                "source_file": source_file,
-                "stage": header["stage"],
-                "type": "TRANSFORM",
-                "stage_kind": header["kind"],
-                "stage_type": _extract_stage_type(block),
-                "line_start": header["line_start"],
-                "line_end": header["line_end"],
-                "inputs": inputs,
-                "outputs": outputs,
-                "sql": [sql] if sql else []
+            normalized_jobs.append({
+                "source_file": _safe_source_key(job.get("source_file")),
+                "job_index": job.get("job_index", 1),
+                "parser_type": job.get("parser_type") or _detect_pseudocode_type(job.get("content", "")),
+                "content": job.get("content", ""),
             })
+        else:
+            normalized_jobs.append({
+                "source_file": "lineage",
+                "job_index": 1,
+                "parser_type": _detect_pseudocode_type(job),
+                "content": str(job),
+            })
+
+    jobs_by_type = defaultdict(list)
+    for job in normalized_jobs:
+        jobs_by_type[job["parser_type"]].append(job)
+
+    stages = []
+    if jobs_by_type.get("datastage"):
+        stages.extend(parse_datastage_jobs(jobs_by_type["datastage"]))
+    if jobs_by_type.get("informatica"):
+        stages.extend(parse_informatica_jobs(jobs_by_type["informatica"]))
+    if jobs_by_type.get("powercenter"):
+        # Backward compatibility for job-boundary artifacts created before the Informatica rename.
+        stages.extend(parse_informatica_jobs(jobs_by_type["powercenter"]))
+    if jobs_by_type.get("alteryx"):
+        for job in jobs_by_type["alteryx"]:
+            alteryx_stages = parse_alteryx_jobs([job])
+            stages.extend(_resolve_alteryx_ambiguous_steps(alteryx_stages, job.get("content", "")))
 
     write_json(output_path, stages)
 
@@ -1764,6 +2418,15 @@ def normalize_lineage_graph(dataset_file, sql_file, output_path, options=None):
         edges = graph_entry.get("edges", [])
         stages = graph_entry.get("stages", [])
         source_tables = tables_by_source.get(source_file, [])
+        semantic_hints = {}
+
+        if _should_use_llm_semantics(options):
+            semantic_hints = _validate_llm_semantic_hints(
+                _generate_llm_semantic_hints(stages, edges, source_tables, options),
+                stages,
+                source_tables,
+                options,
+            )
 
         if options.get("diagram_mode") == "technical" and not options.get("collapse_intermediate_datasets"):
             graph_payload = _build_dataset_graph(stages, source_tables, options)
@@ -1773,7 +2436,7 @@ def normalize_lineage_graph(dataset_file, sql_file, output_path, options=None):
             )
             sql_sources = [table.get("table") for table in source_tables]
         else:
-            graph_payload = _build_semantic_graph(stages, edges, source_tables, options)
+            graph_payload = _build_semantic_graph(stages, edges, source_tables, options, semantic_hints=semantic_hints)
             complexity = graph_payload.get("complexity", _lineage_complexity(len(stages), len(edges)))
             sql_sources = graph_payload.get("sql_sources", [])
 
@@ -1784,6 +2447,7 @@ def normalize_lineage_graph(dataset_file, sql_file, output_path, options=None):
             "sql_sources": sql_sources,
             "options": options,
             "complexity": complexity,
+            "semantic_hints_applied": bool(semantic_hints),
         })
 
     normalized = _graphs_payload(normalized_graphs)
@@ -1809,21 +2473,31 @@ def build_lineage_graph_bottom_up(graph_file, output_path):
     lineage_entries = []
 
     for graph_entry in graph_entries:
-        logical_graph = _derive_logical_lineage(
-            graph_entry.get("nodes", []),
-            graph_entry.get("edges", []),
-            normalize_lineage_options(graph_entry.get("options", {}))
-        )
+        options = normalize_lineage_options(graph_entry.get("options", {}))
+
+        if options.get("diagram_mode") == "technical" and not options.get("collapse_intermediate_datasets"):
+            rendered_graph = _derive_technical_lineage(
+                graph_entry.get("nodes", []),
+                graph_entry.get("edges", []),
+                options,
+            )
+        else:
+            rendered_graph = _derive_logical_lineage(
+                graph_entry.get("nodes", []),
+                graph_entry.get("edges", []),
+                options,
+            )
 
         lineage_entries.append({
             "source_file": _safe_source_key(graph_entry.get("source_file")),
-            "paths": [logical_graph.get("main_path", [])] if logical_graph.get("main_path") else [],
-            "edges": logical_graph.get("edges", []),
-            "nodes": logical_graph.get("nodes", []),
-            "annotations": logical_graph.get("annotations", {}),
+            "paths": [rendered_graph.get("main_path", [])] if rendered_graph.get("main_path") else [],
+            "edges": rendered_graph.get("edges", []),
+            "nodes": rendered_graph.get("nodes", []),
+            "annotations": rendered_graph.get("annotations", {}),
             "sql_sources": graph_entry.get("sql_sources", []),
             "options": graph_entry.get("options", {}),
-            "complexity": logical_graph.get("complexity", graph_entry.get("complexity")),
+            "complexity": rendered_graph.get("complexity", graph_entry.get("complexity")),
+            "semantic_hints_applied": graph_entry.get("semantic_hints_applied", False),
         })
 
     lineage = _graphs_payload(lineage_entries)
@@ -1862,7 +2536,7 @@ def generate_layout(graph_file, output_path):
 
 def generate_drawio_xml(layout_file):
     """
-    Convert lineage layout JSON into draw.io XML format.
+    Convert the finalized lineage layout JSON into draw.io XML format.
     """
 
     layout_file = require_existing_file(layout_file, "layout file")
@@ -1901,14 +2575,15 @@ def generate_drawio_xml(layout_file):
             id_map[node["id"]] = node_id
 
             geometry = pos.get(node["id"], {"x": 0, "y": 0})
-            label = escape(node["id"])
+            render_label = _display_label(node)
+            label = escape(render_label, {'"': "&quot;"})
             style = _style_for_node_type(node.get("type")).replace(
                 "whiteSpace=wrap;html=1;",
                 "whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;"
             )
             node_size = sizes.get(node["id"], {})
-            width = node_size.get("width") or _node_box_size(node["id"])[0]
-            height = node_size.get("height") or _node_box_size(node["id"])[1]
+            width = node_size.get("width") or _node_box_size(render_label)[0]
+            height = node_size.get("height") or _node_box_size(render_label)[1]
 
             xml.append(
                 f'        <mxCell id="{node_id}" value="{label}" '
