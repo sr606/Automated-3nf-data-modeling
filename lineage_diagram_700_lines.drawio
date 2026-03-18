@@ -1,0 +1,102 @@
+<mxfile host="app.diagrams.net" version="29.6.1">
+  <diagram name="Logical ETL Lineage" id="0">
+    <mxGraphModel dx="1895" dy="958" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Nodes -->
+        <mxCell id="n1" value="XML_READER_ROOT_ARLGESTIP_V01_01
+Source table
+Business: Read ARLGESTIP XML" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=cylinder3;boundedLbl=1;size=15;fillColor=#fff2cc;" vertex="1" parent="1">
+          <mxGeometry x="0" y="149" width="320" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n2" value="ROOT_ARLGESTIP_V01_01
+Source table
+Business: ARLGESTIP Source" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=cylinder3;boundedLbl=1;size=15;fillColor=#fff2cc;" vertex="1" parent="1">
+          <mxGeometry x="15" y="596" width="290" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n3" value="XML_READER_XMLDSQ
+Source table
+Business: Read XMLDSQ" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=cylinder3;boundedLbl=1;size=15;fillColor=#fff2cc;" vertex="1" parent="1">
+          <mxGeometry x="27" y="0" width="265" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n4" value="XMLDSQ_ROOT_ARLGESTIP_V01_01
+Source extract
+Business: Extract ARLGESTIP" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="521" y="681" width="300" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n5" value="s_arl_control_det
+Transformation
+Business: Control Details" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="17" y="298" width="285" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n6" value="FILE_WRITER_ARL_DETAIL
+File target
+Business: Write ARL File" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=document;boundedLbl=1;fillColor=#d5e8d4;" vertex="1" parent="1">
+          <mxGeometry x="20" y="447" width="280" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n7" value="SRT_DIAG_DOCUMENT
+Transformation
+Business: Sort Diagnostic" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="1022" y="755" width="285" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n8" value="SRT_ARL
+Transformation
+Business: Sort ARL" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="606" width="250" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n9" value="JNR_DETAIL
+Transformation
+Condition: XPK_ARLGESTIP_ARL = FK_ARLGESTIP_ARL
+Business: Join Details
+Rule: Join on XPK_ARLGESTIP_ARL = FK_ARLGESTIP_ARL" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="1386" y="659" width="410" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="n10" value="EXP_TRIM
+Transformation
+Business: Trim Data" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="1902" y="681" width="255" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n11" value="ARL_DETAIL
+File target
+Business: ARL File Output" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=document;boundedLbl=1;fillColor=#d5e8d4;" vertex="1" parent="1">
+          <mxGeometry x="2236" y="681" width="285" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n12" value="X_ARLGESTIP_ARL
+Transformation
+Condition: XPK_ARLGESTIP_ARL: integer(20), PRIMARY_KEY, NOT_NULL
+Business: Transform ARLGESTIP
+Rule: Primary Key Constraint" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="399" y="488" width="420" height="150" as="geometry"/>
+        </mxCell>
+
+        <!-- Edges -->
+        <mxCell id="e1" edge="1" parent="1" source="n2" target="n12" value="" style="edgeStyle=none;rounded=1;html=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="n2" target="n4" value="" style="edgeStyle=none;rounded=1;html=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="n10" target="n11" value="" style="edgeStyle=none;rounded=1;html=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="n4" target="n8" value="" style="edgeStyle=none;rounded=1;html=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="n4" target="n7" value="" style="edgeStyle=none;rounded=1;html=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="n8" target="n9" value="" style="edgeStyle=none;rounded=1;html=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="n7" target="n9" value="" style="edgeStyle=none;rounded=1;html=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="n9" target="n10" value="" style="edgeStyle=none;rounded=1;html=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

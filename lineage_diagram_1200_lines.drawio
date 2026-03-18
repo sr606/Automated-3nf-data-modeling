@@ -1,0 +1,281 @@
+<mxfile host="app.diagrams.net" version="29.6.1">
+  <diagram name="Logical ETL Lineage" id="0">
+    <mxGraphModel dx="1895" dy="958" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Nodes -->
+        <mxCell id="n1" value="src_t_TM_PM_EMPLOYEE_D_ORG
+Source table
+Business: Source PM Employee D Org" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=cylinder3;boundedLbl=1;size=15;fillColor=#fff2cc;" vertex="1" parent="1">
+          <mxGeometry x="0" y="298" width="330" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n2" value="$PMsrc_t_TM_PM_EMPLOYEE_D_ORG
+Source table" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=cylinder3;boundedLbl=1;size=15;fillColor=#fff2cc;" vertex="1" parent="1">
+          <mxGeometry x="13" y="447" width="305" height="84" as="geometry"/>
+        </mxCell>
+        <mxCell id="n3" value="src_t_TM_SOSIKI_STG
+Source table
+Business: Source SOSIKI STG" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=cylinder3;boundedLbl=1;size=15;fillColor=#fff2cc;" vertex="1" parent="1">
+          <mxGeometry x="18" y="149" width="295" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n4" value="SQ_src_t_TM_PM_EMPLOYEE_D_ORG
+Source extract
+Business: Extract PM Employee D Org" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="409" y="367" width="335" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n5" value="SQ_src_t_TM_SOSIKI_STG
+Source extract
+Business: Extract SOSIKI STG" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="426" y="516" width="300" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n6" value="src_t_TM_Channel
+Source table
+Business: Source Channel" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=cylinder3;boundedLbl=1;size=15;fillColor=#fff2cc;" vertex="1" parent="1">
+          <mxGeometry x="436" y="207" width="280" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n7" value="src_t_TM_ORGZN_STG
+Source table
+Business: Source ORGZN STG" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=cylinder3;boundedLbl=1;size=15;fillColor=#fff2cc;" vertex="1" parent="1">
+          <mxGeometry x="841" y="549" width="290" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n8" value="SQ_src_t_TM_Channel
+Source extract
+Business: Extract Channel" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="843" y="207" width="285" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n9" value="SQ_src_t_TM_ORGZN_STG
+Source extract
+Business: Extract ORGZN STG" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="1306" y="549" width="295" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n10" value="src_t_TM_EMP_STG
+Source table
+Business: Source EMP STG" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=cylinder3;boundedLbl=1;size=15;fillColor=#fff2cc;" vertex="1" parent="1">
+          <mxGeometry x="1314" y="709" width="280" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n11" value="SQ_src_t_TM_EMP_STG
+Source extract
+Business: Extract EMP STG" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="1812" y="709" width="285" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n12" value="src_t_TM_SIKAKU_STG
+Source table
+Business: Source SIKAKU STG" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=cylinder3;boundedLbl=1;size=15;fillColor=#fff2cc;" vertex="1" parent="1">
+          <mxGeometry x="3203" y="795" width="295" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n13" value="src_t_TM_NM_CCIORG_STG
+Source table
+Business: Source NM CCIORG STG" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=cylinder3;boundedLbl=1;size=15;fillColor=#fff2cc;" vertex="1" parent="1">
+          <mxGeometry x="3703" y="955" width="310" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n14" value="SQ_src_t_TM_SIKAKU_STG
+Source extract
+Business: Extract SIKAKU STG" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="3708" y="795" width="300" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n15" value="SQ_src_t_TM_NM_CCIORG_STG
+Source extract
+Business: Extract NM CCIORG STG" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="4175" y="955" width="315" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n16" value="src_f_PM_EMPLOYEE_D
+Source table
+Business: Source PM Employee D" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=cylinder3;boundedLbl=1;size=15;fillColor=#fff2cc;" vertex="1" parent="1">
+          <mxGeometry x="4177" y="1115" width="310" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n17" value="SQ_src_f_PM_EMPLOYEE_D
+Source extract
+Business: Extract PM Employee D" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="4617" y="1115" width="315" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n18" value="$PMtgt_t_TM_PM_EMPLOYEE_D_ORG
+Source table" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=cylinder3;boundedLbl=1;size=15;fillColor=#fff2cc;" vertex="1" parent="1">
+          <mxGeometry x="5097" y="881" width="305" height="84" as="geometry"/>
+        </mxCell>
+        <mxCell id="n19" value="wf_m_TM_SEC_STG
+Transformation
+Business: Workflow SEC STG" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="20" y="0" width="290" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n20" value="JNRTRANS_SOSIKI
+Transformation
+Condition: SOSIKI_DEPTID = DEPTID
+Business: Join SOSIKI
+Rule: SOSIKI_DEPTID = DEPTID" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="823" y="356" width="325" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="n21" value="JNRTRANS_CHANNEL
+Transformation
+Condition: CHANNEL_UK_CHANNELID = SOSIKI_ChannelID
+Business: Join Channel
+Rule: CHANNEL_UK_CHANNELID = SOSIKI_ChannelID" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="1227" y="356" width="410" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="n22" value="JNRTRANS_ORGZN
+Transformation
+Condition: ORGZN_ORGZN_CD = SOSIKI_Orgzn_CD
+Business: Join ORGZN
+Rule: ORGZN_ORGZN_CD = SOSIKI_Orgzn_CD" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="1759" y="516" width="375" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="n23" value="JNRTRANS_EMP
+Transformation
+Condition: EMP_UK_EMPID = EMPLID
+Business: Join EMP
+Rule: EMP_UK_EMPID = EMPLID" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="2229" y="602" width="320" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="n24" value="JNRTRANS_ORGZN_1
+Transformation
+Condition: ORGZN_lv_CLASS1_CD = ORGZN_CLASS1_CD
+Business: Join ORGZN 1
+Rule: ORGZN_lv_CLASS1_CD = ORGZN_CLASS1_CD" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="2628" y="602" width="395" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="n25" value="JNRTRANS_ORGZN_2
+Transformation
+Condition: ORGZN_lv_CLASS2_CD = ORGZN_CLASS2_CD
+Business: Join ORGZN 2
+Rule: ORGZN_lv_CLASS2_CD = ORGZN_CLASS2_CD" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="3136" y="602" width="395" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="n26" value="JNRTRANS_ORGZN_3
+Transformation
+Condition: ORGZN_lv_CLASS3_CD = ORGZN_CLASS3_CD
+Business: Join ORGZN 3
+Rule: ORGZN_lv_CLASS3_CD = ORGZN_CLASS3_CD" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="3644" y="602" width="395" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="n27" value="JNRTRANS_SIKAKU
+Transformation
+Condition: SIKAKU_PS_SIKAKU_CD = JOBCODE
+Business: Join SIKAKU
+Rule: SIKAKU_PS_SIKAKU_CD = JOBCODE" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="4152" y="762" width="360" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="n28" value="JNRTRANS_CCIORG
+Transformation
+Condition: CCIORG_SALES_BOSS_NO = EMPLID
+Business: Join CCIORG
+Rule: CCIORG_SALES_BOSS_NO = EMPLID" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="4591" y="922" width="360" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="n29" value="EXPTRANS
+Transformation
+Condition: Security data processing and level calculation
+Business: Security Processing
+Rule: Security data processing and level calculation" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="5038" y="1008" width="420" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="n30" value="tgt_t_TM_PM_EMPLOYEE_D_ORG
+Final target
+Business: Target PM Employee D Org" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=cylinder3;boundedLbl=1;size=15;fillColor=#d5e8d4;" vertex="1" parent="1">
+          <mxGeometry x="5540" y="876" width="330" height="106" as="geometry"/>
+        </mxCell>
+        <mxCell id="n31" value="tgt_t_TM_SEC_STG
+Final target
+Business: Target SEC STG" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=cylinder3;boundedLbl=1;size=15;fillColor=#d5e8d4;" vertex="1" parent="1">
+          <mxGeometry x="5565" y="1030" width="280" height="106" as="geometry"/>
+        </mxCell>
+
+        <!-- Edges -->
+        <mxCell id="e1" edge="1" parent="1" source="n6" target="n8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="n7" target="n9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="n12" target="n14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="n13" target="n15" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="n10" target="n11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="n16" target="n17" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="n17" target="n29" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="n29" target="n30" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="n1" target="n4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="n4" target="n20" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="n5" target="n20" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="n20" target="n21" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e13" edge="1" parent="1" source="n11" target="n23" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e14" edge="1" parent="1" source="n8" target="n21" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e15" edge="1" parent="1" source="n21" target="n22" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e16" edge="1" parent="1" source="n9" target="n22" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e17" edge="1" parent="1" source="n22" target="n23" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e18" edge="1" parent="1" source="n23" target="n24" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e19" edge="1" parent="1" source="n24" target="n25" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e20" edge="1" parent="1" source="n25" target="n26" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e21" edge="1" parent="1" source="n26" target="n27" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e22" edge="1" parent="1" source="n14" target="n27" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e23" edge="1" parent="1" source="n27" target="n28" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e24" edge="1" parent="1" source="n15" target="n28" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e25" edge="1" parent="1" source="n28" target="n29" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e26" edge="1" parent="1" source="n29" target="n31" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e27" edge="1" parent="1" source="n2" target="n4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;elbow=vertical;dashed=1;dashPattern=2 4;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="165.5" y="529.0"/>
+              <mxPoint x="576.5" y="529.0"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e28" edge="1" parent="1" source="n18" target="n30" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;jettySize=auto;orthogonalLoop=1;elbow=vertical;dashed=1;dashPattern=2 4;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="5249.5" y="969.0"/>
+              <mxPoint x="5705.0" y="969.0"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
