@@ -1,0 +1,18 @@
+<mxfile host="app.diagrams.net" version="29.6.1">
+  <diagram name="Logical ETL Lineage" id="0">
+    <mxGraphModel dx="1895" dy="958" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Nodes -->
+        <mxCell id="n1" value="
+Target" style="whiteSpace=wrap;html=1;overflow=hidden;align=center;verticalAlign=middle;spacing=6;strokeColor=#666666;shape=document;boundedLbl=1;fillColor=#d5e8d4;" vertex="1" parent="1">
+          <mxGeometry x="0" y="0" width="220" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Edges -->
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
