@@ -1,0 +1,2494 @@
+```
+// DataStage Job Definition - Advanced Runtime Configuration
+JOB_START: DataStage_Job_Execution
+
+// Job Metadata Configuration
+CONFIGURE_JOB_METADATA:
+    Job_Name = "jbSMR3010220StgVehicleOffRoadFact"
+    Job_Description = "Job to load the STAGE_SMR.STG_VEHICLE_OFF_ROAD table"
+    Job_Version = "56.0.0"
+    Job_Category = "\Jobs\003 Warehouse\04 SMR\QA\30 Operational Reports\10 Stage"
+    Job_Type = 0
+    Next_ID = 117
+    Container = "V0"
+    Full_Description = "The job is used to load the staging table STAGE_SMR.STG_VEHICLE_OFF_ROAD which will be used to load the Vehicle off Road Fact data"
+    
+    // Job Configuration Settings
+    Control_After_Subr = 0
+    NULL_Indicator_Position = 0
+    Is_Template = 0
+    NLS_Locale = ",,,"
+    Century_Break_Year = 30
+    Next_Alias_ID = 2
+    Parameter_File_DDName = "DD00001"
+    Reserved_Word_Check = 1
+    Transaction_Size = 0
+    Validation_Status = 0
+    Uploadable = 0
+    Program_Customization_Flag = 0
+    Job_Report_Flag = 0
+    Allow_Multiple_Invocations = 0
+    Act2Act_Override_Defaults = 0
+    Act2Act_Enable_Row_Buffer = 0
+    Act2Act_Use_IPC = 0
+    Act2Act_Buffer_Size = 0
+    Act2Act_IPC_Timeout = 0
+    Expression_Semantic_Check_Flag = 0
+    Trace_Option = 0
+    Enable_Cache_Sharing = 0
+    Runtime_Column_Propagation = 0
+    Rel_Stages_In_Job_Status = -1
+    Web_Service_Enabled = 0
+    MF_Process_MetaData = 0
+    MF_Process_MetaData_XML_File_Exchange_Method = 0
+    IMS_Prog_Type = 0
+    Copy_Lib_Prefix = "ARDT"
+    Record_Performance_Results = 0
+
+// chunk pseudo code ended
+
+// Advanced Runtime Options Configuration
+CONFIGURE_RUNTIME_OPTIONS:
+    Owner = "APT"
+    Name = "AdvancedRuntimeOptions" 
+    Value = "#DSProjectARTOptions#"
+    SET_RUNTIME_PARAMETERS(Owner, Name, Value)
+
+// chunk pseudo code ended
+
+// Job Parameters Collection Configuration
+CONFIGURE_JOB_PARAMETERS:
+    Collection_Name = "Parameters"
+    Collection_Type = "Parameters"
+    
+    // Database Connection Parameter
+    PARAMETER_1:
+        Name = "psOraDB"
+        Prompt = "psOraDB parameters"
+        Default = "(As pre-defined)"
+        ParamType = 13
+        ParamLength = 0
+        ParamScale = 0
+    
+    // Previous Batch Run Date Parameter
+    PARAMETER_2:
+        Name = "PREV_BATCH_RUN_DATE_VOR"
+        Prompt = "PREV_BATCH_RUN_DATE_VOR"
+        Default = "20151204"
+        ParamType = 0
+        ParamLength = 0
+        ParamScale = 0
+    
+    // Delta Days Parameter
+    PARAMETER_3:
+        Name = "DELTA_DAYS_PARAM"
+        Prompt = "DELTA_DAYS_PARAM"
+        Default = "90"
+        ParamType = 0
+        ParamLength = 0
+        ParamScale = 0
+    
+    // SMR Output Path Parameter
+    PARAMETER_4:
+        Name = "pSMROutputPath"
+        Prompt = "pSMROutputPath"
+        Default = "/d/ftpdata/tmp/TEST/VOR"
+        ParamType = 0
+        ParamLength = 0
+        ParamScale = 0
+    
+    // VOR Exception File Name Parameter
+    PARAMETER_5:
+        Name = "pVOR_Exception_FileName"
+        Prompt = "pVOR_Exception_FileName"
+        Default = "VOR_Supp_Exceptions"
+        ParamType = 0
+        ParamLength = 0
+        ParamScale = 0
+    
+    // File Date Parameter
+    PARAMETER_6:
+        Name = "pFiledate"
+        Prompt = "pFiledate"
+        Default = "20151204"
+        ParamType = 0
+        ParamLength = 0
+        ParamScale = 0
+
+// chunk pseudo code ended
+
+// Job Container View Configuration
+CONFIGURE_JOB_CONTAINER_VIEW:
+    Container_Name = "Job"
+    Parent_Container = "V0"
+    Container_Type = "ContainerView"
+    Next_ID = 1
+    Is_Top_Level = 0
+    Next_Stage_ID = 19
+    Snap_To_Grid = 1
+    Grid_Lines = 0
+    Zoom_Value = 100
+    Container_View_Sizing = "0050 0050 0548 0636 0000 0001 0000 0000"
+
+// chunk pseudo code ended
+
+// Annotation Configuration for Source Data Documentation
+CONFIGURE_ANNOTATION_V94A0:
+    Annotation_Name = "V94A0"
+    Next_ID = 0
+    Annotation_Type = 0
+    Annotation_Text = "Fetch Source Data
+
+Source tables:
+SUPPLIERDATA_EXT.VOR_VEHICLE_OFF_ROAD
+SUPPLIERDATA_EXT.VOR_PROGRESS_REPORTING
+SMR_OWNER.D_VOR_NON_RETURN_REASON
+CDM_OWNER.VEHICLE_DIM
+CDM_OWNER.SUPPLIER_DIM
+CDM_OWNER.CUSTOMER_DIM
+CDM_OWNER.DRIVER_ALLOC_VEH_DIM
+SMR_OWNER.D_VOR_NOTE
+SUPPLIERDATA_EXT.VOR_I247_GARAGE_MAPPING"
+    Text_Horizontal_Justification = 0
+    Text_Vertical_Justification = 0
+    Text_Color = 0
+    Background_Color = 12713983
+    Background_Transparent = 0
+    Border_Visible = 1
+
+// chunk pseudo code ended
+
+// Annotation Configuration for Vehicle Dimension Lookup
+CONFIGURE_ANNOTATION_V0A16:
+    Annotation_Name = "V0A16"
+    Annotation_Type = 0
+    Annotation_Text = "To get rid of unmatched Vehicle sk look up with Vehicle dim with Registration number as key"
+    Text_Horizontal_Justification = 1
+    Text_Vertical_Justification = 1
+    Text_Color = 0
+    Background_Color = 12713983
+    Background_Transparent = 0
+    Border_Visible = 1
+
+// chunk pseudo code ended
+
+// Annotation Configuration for Duplicate Removal
+CONFIGURE_ANNOTATION_V0A17:
+    Annotation_Name = "V0A17"
+    Next_ID = 0
+    Annotation_Type = 0
+    Annotation_Text = "To get rid of duplicates due to bad data in Vehicle and Driver allocation dimension"
+    Text_Horizontal_Justification = 1
+    Text_Vertical_Justification = 1
+    Text_Color = 0
+    Background_Color = 12713983
+    Background_Transparent = 0
+    Border_Visible = 1
+
+// chunk pseudo code ended
+
+// Annotation Configuration for Process Flow Documentation
+CONFIGURE_ANNOTATION_V93A0:
+    Annotation_Name = "V93A0"
+    Next_ID = 0
+    Annotation_Type = 2
+    Text_Horizontal_Justification = 0
+    Text_Vertical_Justification = 0
+    Text_Color = 0
+    Background_Color = 16776960
+    Background_Transparent = 0
+    Border_Visible = 1
+
+// chunk pseudo code ended
+
+// Annotation Configuration for Load Data to Staging Documentation
+CONFIGURE_ANNOTATION_V95A0:
+    Annotation_Name = "V95A0"
+    Next_ID = 0
+    Annotation_Type = 0
+    Annotation_Text = "Load Data to Staging
+
+Table Name:  
+STAGE_SMR. STG_VEHICLE_OFF_ROAD_FACT
+Type of Statement:   TRUNCATE & LOAD"
+    Text_Horizontal_Justification = 0
+    Text_Vertical_Justification = 2
+    Text_Color = 0
+    Background_Color = 12713983
+    Background_Transparent = 0
+    Border_Visible = 1
+
+// chunk pseudo code ended
+
+// Oracle Connector Stage V0S0 Configuration
+CONFIGURE_ORACLE_CONNECTOR_V0S0:
+    Parent_Identifier = "V0S0"
+    Stage_Type = "CustomStage"
+    Readonly = 0
+    Name = "ORA_Ext_Vehicle_Off_Road_Data"
+    NextID = 3
+    OutputPins = "V0S0P2"
+    StageType = "OracleConnector"
+    AllowColumnMapping = 0
+    NextRecordID = 0
+    Properties_Collection_Name = "Properties"
+    Properties_Collection_Type = "CustomProperty"
+    Properties_ReferencedFile = "chunk_7.xml"
+
+// chunk pseudo code ended
+
+// Oracle Connector Stage V0S0 Properties Configuration
+CONFIGURE_ORACLE_CONNECTOR_V0S0_PROPERTIES:
+    Parent_Identifier = "V0S0"
+    Stage_Type = "CustomStage"
+    Readonly = 0
+    
+    // Connector Variant Configuration
+    VariantName = "10"
+    VariantLibrary = "ccora10g"
+    VariantVersion = "1.0"
+    SupportedVariants = "V1;10:\"10g\":ccora10g;11:\"11g\":ccora11g"
+    SupportedVariantsLibraries = "ccora10g,ccora11g"
+    SupportedVariantsVersions = "1.0,1.0"
+    ConnectorName = "OracleConnector"
+    Engine = "SE"
+    Context = "source"
+    
+    // Connection Configuration
+    ConnectionString = "/Connection/Server"
+    Username = "/Connection/Username"
+    Password = "/Connection/Password"
+    xaoDbName = "/Connection/xaoDbName"
+    OSLevelAuthentication = "/Connection/OSLevelAuthentication"
+    
+    // Transaction Configuration
+    transactionModel = 0
+    supportedTransactionModel = "local"
+    
+    // Rejection Configuration
+    RejectFromLink = -1
+    RejectThreshold = 0
+    RejectNumber = 0
+    RejectUsesPercentage = false
+    
+    // Oracle Connection Properties
+    Server = "#psOraDB.pSID#"
+    Database_Username = "#psOraDB.pUserID#"
+    Database_Password = "#psOraDB.pPassword#"
+    Oracle_Version = "10g"
+    
+    // Read Configuration
+    ReadMode = 0
+    GenerateSQL = false
+    EnableQuotedIDs = false
+    ReadFromFileSelect = false
+    
+    // Performance Configuration
+    IsolationLevel = 0
+    RecordCount = 2000
+    ArraySize = 2000
+    PrefetchRowCount = 1
+    PrefetchMemorySize = 0
+    PassLobLocator = false
+    BFILEasBLOB = false
+    TreatWarningsAsErrors = false
+    TreatFetchTruncateAsError = true
+    
+    // SQL Query Configuration
+    SelectStatement = "select /*+Parallel (5)*/ WORKSHEET_NUMBER,
+ORIGINAL_WORKSHEET_NUMBER,
+VOR_PROGRESS_SK,
+NVL (cd.cust_driver_sk,             -99)    AS REGISTERED_CUST_DRIVER_SK,
+SRC.VEHICLE_SK AS VEHICLE_SK,
+variant_sk,
+(Case WHEN CAPTURED_garage_name is null then -98
+  when supp_smr.supp_sk is not null and supp_smr.lkp_key='A' then supp_smr.supp_sk
+  when supp_nols.supp_sk is not null AND supp_nols.lkp_key='A' then supp_nols.supp_sk
+  when supp_smr.supp_sk is not null and supp_smr.lkp_key='B' then -97
+  when supp_nols.supp_sk is not null and supp_nols.lkp_key='B' then -97
+  Else -99 end) as SUPP_SK,
+CUSTOMER_SK,
+RENTAL_BOOKING_SK,
+RENTAL_BOOKING_REFERENCE,
+VOR_NOTE_SK,
+ORIGINAL_APPOINTMENT_DATE_SK,
+JOB_CLOSED_DATE_SK,
+VOR_PASSED_DATE_SK,
+DRIVER_COLLECTION_DATE_SK,
+VOR_REGISTRATION_NUMBER,
+CAPTURED_GARAGE_NAME,
+CONTACT_DRIVER_NAME,
+MILEAGE,
+VOR_INCIDENT_SOURCE,
+VOR_WORK,
+CRS_LOG_ID,
+NUMBER_OF_WORKING_DAYS_VOR,
+NUMBER_OF_DAYS_VOR,
+COMPLETION_TO_COLLECT_DAYS FROM
+(SELECT vor.worksheet_number as worksheet_number,
+  NVL (vor.original_worksheet_number,'N/A') AS ORIGINAL_WORKSHEET_NUMBER,
+  NVL (vnrr.vor_progress_sk, -99)    AS vor_progress_sk,
+ (CASE WHEN v.vehicle_sk IS NOT NULL THEN  v.vehicle_sk
+ WHEN VN.VEHICLE_SK IS NOT NULL THEN VN.VEHICLE_SK ELSE -99 END)    AS vehicle_sk,
+  (CASE WHEN v.variant_sk IS NOT NULL THEN  v.variant_sk
+WHEN VN.variant_sk IS NOT NULL THEN VN.variant_sk ELSE -99 END)    AS variant_sk,
+(CASE WHEN V.OBJECT_NO IS NOT NULL THEN  V.OBJECT_NO
+WHEN VN.OBJECT_NO IS NOT NULL THEN VN.OBJECT_NO ELSE NULL END)    AS OBJECT_NO,
+    NVL (cust.cust_sk,                  -99)    AS customer_sk,
+  NVL(b.booking_id,                   -99)    AS RENTAL_BOOKING_SK,
+  b.booking_reference as rental_booking_reference,
+  NVL (note.vor_note_sk, -99) AS vor_note_sk,
+  NVL(TO_CHAR (TO_DATE (vor.original_appointment_date, 'DD/MM/YYYY'), 'YYYYMMDD'),'19000101') AS original_appointment_date_sk,
+  CASE
+    WHEN vor.work_finish_date IS NULL
+    THEN '99991231'
+    WHEN vor.work_finish_date='In Progress'
+    THEN '99991231'
+    ELSE TO_CHAR (TO_DATE (vor.work_finish_date, 'DD/MM/YYYY'), 'YYYYMMDD')
+  END AS JOB_CLOSED_DATE_SK,
+  NVL (TO_CHAR (TO_DATE (vor.vor_passed_date, 'DD/MM/YYYY'), 'YYYYMMDD'), '99991231' )  as VOR_PASSED_DATE_SK,
+  NVL (TO_CHAR (TO_DATE (vor.driver_collection_date, 'DD/MM/YYYY'), 'YYYYMMDD'), '99991231' ) as  driver_collection_date_sk,
+  vor.registration_number as VOR_REGISTRATION_NUMBER,
+ (CASE WHEN GM.MAPPED_TO_GARAGE IS NOT NULL THEN GM.MAPPED_TO_GARAGE ELSE vor.garage_name end) as captured_garage_name,
+  vor.driver_name as contact_driver_name,
+  vor.mileage as mileage,
+  vor.vor_incident_source,
+  vor.work_info as VOR_WORK,
+  NVL(vor.crs_reference_no,'N/A') as crs_log_id,
+  vor.working_days_vor as number_of_working_days_vor,
+  vor.number_of_days_vor as number_of_days_vor ,
+  vor.completion_to_collection_days as COMPLETION_TO_COLLECT_DAYS,
+  INCIDENT_CREATION_DATE
+FROM
+     (SELECT worksheet_number,
+      original_worksheet_number,
+      original_appointment_date,
+      work_finish_date,
+      vor_passed_date,
+      driver_collection_date,
+      registration_number,
+      garage_name,
+      driver_name,
+      mileage,
+      vor_incident_source,
+      work_info,
+      crs_reference_no,
+      working_days_vor,
+      number_of_days_vor,
+      completion_to_collection_days,
+      INCIDENT_CREATION_DATE,
+      nols_customer_number,
+      (
+      CASE
+        WHEN rental_number IS NULL
+        THEN '-99'
+        WHEN DW_OWNER.F_IS_NUMBER(RENTAL_NUMBER)=1
+        THEN RENTAL_NUMBER
+        ELSE '-99'
+      END) AS RENTAL_NUMBER,LAST_UPDATED_ON
+    FROM supplierdata_ext.vor_vehicle_off_road VOR 
+        
+    ) vor
+LEFT OUTER JOIN smr_owner.d_vor_progress vnrr
+ON vor.original_worksheet_number = vnrr.original_worksheet_number
+and VNRR.LATEST_FLAG='Y'
+LEFT OUTER JOIN
+ (select vehicle_sk,variant_sk,
+     registration_no,OBJECT_NO,CUST_ID,EFFECTIVE_START_DATE,EFFECTIVE_END_DATE,ETL_TERMINATED_DATE FROM cdm_owner.vehicle_dim v 
+    WHERE   UPPER(V.BRAND)<>'NETWORK' 
+    )V 
+ON vor.registration_number = v.registration_no
+AND VOR.NOLS_CUSTOMER_NUMBER=V.CUST_ID
+and TO_DATE (VOR.INCIDENT_CREATION_DATE, 'DD/MM/YYYY') between v.EFFECTIVE_START_DATE and V.EFFECTIVE_END_DATE
+LEFT OUTER JOIN
+     (select vehicle_sk,variant_sk,
+     registration_no,OBJECT_NO,CUST_ID,EFFECTIVE_START_DATE,EFFECTIVE_END_DATE,ETL_TERMINATED_DATE FROM cdm_owner.vehicle_dim v 
+    WHERE   UPPER(V.BRAND)='NETWORK' ) VN
+    ON vor.registration_number = VN.registration_no
+AND VOR.NOLS_CUSTOMER_NUMBER=VN.CUST_ID and TO_DATE (VOR.INCIDENT_CREATION_DATE, 'DD/MM/YYYY') 
+between VN.EFFECTIVE_START_DATE and VN.EFFECTIVE_END_DATE
+LEFT OUTER JOIN cdm_owner.customer_dim cust
+ON cust.cust_id      = vor.nols_customer_number
+AND cust.latest_flag = 'Y'
+LEFT OUTER JOIN ldrdw.bookings b
+ON vor.rental_number =b.booking_reference
+LEFT OUTER JOIN smr_owner.d_vor_note note
+ON vor.worksheet_number = note.worksheet_number
+AND NOTE.LAST_RECORD    ='Y'
+LEFT OUTER JOIN SUPPLIERDATA_EXT.VOR_I247_GARAGE_MAPPING GM
+ON GM.FROM_I247_GARAGE= VOR.GARAGE_NAME
+WHERE VOR.LAST_UPDATED_ON>=TO_DATE('#PREV_BATCH_RUN_DATE_VOR#','YYYY-MM-DD')-#DELTA_DAYS_PARAM#) SRC 
+LEFT JOIN
+(SELECT distinct driver_id_no,VEHICLE_SK,OBJECT_NO,DRIVER_START_DATE,DRIVER_END_DATE
+ from CDM_OWNER.driver_alloc_veh_dim dav 
+ ORDER BY DRIVER_ID_NO ) dav
+ON SRC.object_no = dav.object_no
+-- AND SRC.vehicle_sk = dav.vehicle_sk
+AND TO_DATE(INCIDENT_CREATION_DATE,'DD/MM/YYYY') between DAV.DRIVER_START_DATE and DAV.DRIVER_END_DATE
+LEFT OUTER JOIN cdm_owner.cust_driver_dim cd
+ON cd.cust_driver_id = dav.driver_id_no
+AND cd.latest_flag   = 'Y' 
+LEFT OUTER JOIN
+/*To give prioity to SMR than NOLS suppliers and to find duplicates*/
+  (select supp_sk,supp_name,lkp_key from
+(SELECT supp_sk , supp_name, 'A'  AS LKP_KEY FROM 
+     ( 
+         SELECT sd.supp_sk ,  sd.supp_name, 
+                           COUNT (sd.supp_name) OVER (PARTITION BY sd.supp_name) AS record_count
+          FROM cdm_owner.supplier_dim sd
+          WHERE sd.latest_flag = 'Y' AND sd.delete_flag = 'N'  and sd.supp_type='SMR' AND
+               SUPP_ID IN (
+                                       select SITE_ID from supplierdata_ext.ONELINK_SUPPLIER_NETWORK 
+                                       where latest_record='Y' AND PREFERENCE_LEVEL <>'D'                                   
+                           )
+     ) 
+WHERE record_count  = 1
+UNION ALL
+SELECT supp_sk ,  supp_name, 'B' AS LKP_KEY FROM 
+     ( 
+         SELECT sd.supp_sk , sd.supp_id, sd.supp_name, row_number() over(partition by  sd.supp_name order by sd.supp_name) as row_val,
+                           COUNT (sd.supp_name) OVER (PARTITION BY sd.supp_name) AS record_count
+          FROM cdm_owner.supplier_dim sd
+          WHERE sd.latest_flag = 'Y' AND sd.delete_flag = 'N' and sd.supp_type='SMR' AND  
+               SUPP_ID IN (
+                                       select SITE_ID from supplierdata_ext.ONELINK_SUPPLIER_NETWORK 
+                                       where latest_record='Y' AND PREFERENCE_LEVEL <>'D'                                   
+                           )
+     ) 
+WHERE record_count  >1 and row_val=1))supp_smr
+ON supp_SMR.supp_name    = SRC.CAPTURED_GARAGE_NAME
+LEFT OUTER JOIN
+(select supp_sk,supp_name,lkp_key from
+(SELECT supp_sk , supp_name, 'A'  AS LKP_KEY FROM 
+     ( 
+         SELECT sd.supp_sk ,  sd.supp_name, 
+                           COUNT (sd.supp_name) OVER (PARTITION BY sd.supp_name) AS record_count
+          FROM cdm_owner.supplier_dim sd
+          WHERE sd.latest_flag = 'Y' AND sd.delete_flag = 'N'  and sd.supp_type='NOLS' AND
+               SUPP_ID IN (
+                                       select SITE_ID from supplierdata_ext.ONELINK_SUPPLIER_NETWORK 
+                                       where latest_record='Y' AND PREFERENCE_LEVEL <>'D'                                   
+                           )
+     ) 
+WHERE record_count  = 1
+UNION ALL
+SELECT supp_sk , supp_name, 'B' AS LKP_KEY FROM 
+     ( 
+         SELECT sd.supp_sk , supp_name, row_number() over(partition by  sd.supp_name order by sd.supp_name) as row_val,
+                           COUNT (sd.supp_name) OVER (PARTITION BY sd.supp_name) AS record_count
+          FROM cdm_owner.supplier_dim sd
+          WHERE sd.latest_flag = 'Y' AND sd.delete_flag = 'N' and sd.supp_type='NOLS' AND  
+               SUPP_ID IN (
+                                       select SITE_ID from supplierdata_ext.ONELINK_SUPPLIER_NETWORK 
+                                       where latest_record='Y' AND PREFERENCE_LEVEL <>'D'                                   
+                           )
+     ) 
+WHERE record_count  >1 and row_val=1))supp_nols
+ON supp_nols.supp_name    = SRC.CAPTURED_GARAGE_NAME
+ORDER BY worksheet_number,vehicle_sk,cd.cust_driver_sk;"
+    
+    Orientation = "link"
+
+// chunk pseudo code ended
+
+// Hashed File Stage V116S0 Configuration - Vehicle Dimension Lookup
+CONFIGURE_HASHED_FILE_V116S0:
+    Parent_Identifier = "V116S0"
+    Stage_Type = "HashedFileStage"
+    Readonly = 0
+    Name = "HF_SMR_VEHICLE_DIM"
+    NextID = 3
+    OutputPins = "V116S0P2"
+    UVcompatible = 0
+    SQLNull = 0
+    StageType = "CHashedFileStage"
+
+// chunk pseudo code ended
+
+// Hashed File Stage V116S0 Output Pin V116S0P2 Column Definitions
+CONFIGURE_HASHED_FILE_V116S0_OUTPUT_COLUMNS:
+    Parent_Identifier = "V116S0P2"
+    Output_Type = "HashedOutput"
+    Readonly = 0
+    Collection_Name = "Columns"
+    Collection_Type = "OutputColumn"
+    
+    // Vehicle Dimension Lookup Column Definitions
+    COLUMN_1:
+        Name = "VEHICLE_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 0
+        Group = 0
+        SortKey = 0
+        SortType = 0
+        TableDef = "Saved\HF_SMR_VEHICLE_DIM_REG\HF_SMR_VEHICLE_DIM_REG"
+        AllowCRLF = 0
+        LevelNo = 0
+        Occurs = 0
+        PadNulls = 0
+        SignOption = 0
+        SortingOrder = 0
+        ArrayHandling = 0
+        SyncIndicator = 0
+        PadChar = ""
+        ColumnReference = "VEHICLE_SK"
+        ExtendedPrecision = 0
+        TaggedSubrec = 0
+        OccursVarying = 0
+        PKeyIsCaseless = 0
+        SCDPurpose = 0
+    
+    COLUMN_2:
+        Name = "OBJECT_NO"
+        SqlType = 12
+        Precision = 15
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 0
+        Group = 0
+        SortKey = 0
+        SortType = 0
+        TableDef = "Saved\HF_SMR_VEHICLE_DIM_REG\HF_SMR_VEHICLE_DIM_REG"
+        AllowCRLF = 0
+        LevelNo = 0
+        Occurs = 0
+        PadNulls = 0
+        SignOption = 0
+        SortingOrder = 0
+        ArrayHandling = 0
+        SyncIndicator = 0
+        PadChar = ""
+        ColumnReference = "OBJECT_NO"
+        ExtendedPrecision = 0
+        TaggedSubrec = 0
+        OccursVarying = 0
+        PKeyIsCaseless = 0
+        SCDPurpose = 0
+    
+    COLUMN_3:
+        Name = "REGISTRATION_NO"
+        SqlType = 12
+        Precision = 18
+        Scale = 0
+        Nullable = 0
+        KeyPosition = 1
+        DisplaySize = 0
+        Group = 0
+        KeyExpression = "Lnk_Vehicle_off_Road_Data.VOR_REGISTRATION_NUMBER"
+        SortKey = 0
+        SortType = 0
+        TableDef = "Saved\HF_SMR_VEHICLE_DIM_REG\HF_SMR_VEHICLE_DIM_REG"
+        AllowCRLF = 0
+        LevelNo = 0
+        Occurs = 0
+        PadNulls = 0
+        SignOption = 0
+        SortingOrder = 0
+        ArrayHandling = 0
+        SyncIndicator = 0
+        PadChar = ""
+        ColumnReference = "REGISTRATION_NO"
+        ExtendedPrecision = 0
+        TaggedSubrec = 0
+        OccursVarying = 0
+        PKeyParsedDerivation = "Lnk_Vehicle_off_Road_Data.VOR_REGISTRATION_NUMBER"
+        PKeySourceColumn = "Lnk_Vehicle_off_Road_Data.VOR_REGISTRATION_NUMBER"
+        PKeyIsCaseless = 0
+        SCDPurpose = 0
+    
+    COLUMN_4:
+        Name = "CUST_ID"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 0
+        Group = 0
+        SortKey = 0
+        SortType = 0
+        TableDef = "Saved\HF_SMR_VEHICLE_DIM_REG\HF_SMR_VEHICLE_DIM_REG"
+        AllowCRLF = 0
+        LevelNo = 0
+        Occurs = 0
+        PadNulls = 0
+        SignOption = 0
+        SortingOrder = 0
+        ArrayHandling = 0
+        SyncIndicator = 0
+        PadChar = ""
+        ColumnReference = "CUST_ID"
+        ExtendedPrecision = 0
+        TaggedSubrec = 0
+        OccursVarying = 0
+        PKeyIsCaseless = 0
+        SCDPurpose = 0
+    
+    COLUMN_5:
+        Name = "VARIANT_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 0
+        Group = 0
+        SortKey = 0
+        SortType = 0
+        TableDef = "Saved\HF_SMR_VEHICLE_DIM_REG\HF_SMR_VEHICLE_DIM_REG"
+        AllowCRLF = 0
+        LevelNo = 0
+        Occurs = 0
+        PadNulls = 0
+        SignOption = 0
+        SortingOrder = 0
+        ArrayHandling = 0
+        SyncIndicator = 0
+        PadChar = ""
+        ColumnReference = "VARIANT_SK"
+        ExtendedPrecision = 0
+        TaggedSubrec = 0
+        OccursVarying = 0
+        PKeyIsCaseless = 0
+        SCDPurpose = 0
+
+// chunk pseudo code ended
+
+// Hashed File Stage V116S0 Output Pin V116S0P2 Link Configuration
+CONFIGURE_HASHED_FILE_V116S0_OUTPUT_LINK:
+    Parent_Identifier = "V116S0P2"
+    Output_Type = "HashedOutput"
+    Readonly = 0
+    Name = "lkVehicleDim_REg"
+    Partner = "V0S2|V0S2P7"
+    FileName = "HF_SMR_VEHICLE_DIM_REG"
+    InMemory = 0
+    Normalize = "Un-Normalized"
+    RecordLevelRead = 0
+    Collection_Columns_Name = "Columns"
+    Collection_Columns_Type = "OutputColumn"
+    Collection_Columns_ReferencedFile = "chunk_29.xml"
+
+// chunk pseudo code ended
+
+// Oracle Connector Stage V0S1 Configuration
+CONFIGURE_ORACLE_CONNECTOR_V0S1:
+    Parent_Identifier = "V0S1"
+    Stage_Type = "CustomStage"
+    Readonly = 0
+    Name = "Ora_StgVehicleOffRoad"
+    NextID = 3
+    InputPins = "V0S1P2"
+    StageType = "OracleConnector"
+    AllowColumnMapping = 0
+    NextRecordID = 0
+    Properties_Collection_Name = "Properties"
+    Properties_Collection_Type = "CustomProperty"
+    Properties_ReferencedFile = "chunk_12.xml"
+
+// chunk pseudo code ended
+
+// Oracle Connector Stage V0S1 Input Pin V0S1P2 Link Configuration
+CONFIGURE_ORACLE_CONNECTOR_V0S1_INPUT_LINK:
+    Parent_Identifier = "V0S1P2"
+    Input_Type = "CustomInput"
+    Readonly = 0
+    Name = "Load_StgVehicleoffRoad"
+    Partner = "V0S13|V0S13P1"
+    LinkType = 1
+    ConditionNotMet = "fail"
+    LookupFail = "fail"
+    TransactionSize = 0
+    TXNBehaviour = 0
+    EnableTxGroup = 0
+    LinkMinimised = 0
+    Collection_Properties_Name = "Properties"
+    Collection_Properties_Type = "CustomProperty"
+    Collection_Properties_ReferencedFile = "chunk_18.xml"
+
+// chunk pseudo code ended
+
+// Oracle Connector Stage V0S1 Input Pin V0S1P2 Properties Configuration
+CONFIGURE_ORACLE_CONNECTOR_V0S1_INPUT_PIN_PROPERTIES:
+    Parent_Identifier = "V0S1P2"
+    Input_Type = "CustomInput"
+    Readonly = 0
+    Collection_Name = "Properties"
+    Collection_Type = "CustomProperty"
+    
+    // Connector Variant Configuration
+    VariantName = "10"
+    VariantLibrary = "ccora10g"
+    VariantVersion = "1.0"
+    XMLProperties = ""
+    
+    // Rejection Configuration
+    RejectFromLink = -1
+    RejectThreshold = 0
+    RejectNumber = 0
+    RejectUsesPercentage = false
+    RejectConditions = ""
+    RejectDataElements = ""
+    XMLRejectSettings = ""
+    
+    // Connector Properties
+    ConnectorName = "OracleConnector"
+
+// chunk pseudo code ended
+
+// Oracle Connector Stage V0S1 Properties Configuration
+CONFIGURE_ORACLE_CONNECTOR_V0S1_PROPERTIES:
+    Parent_Identifier = "V0S1"
+    Stage_Type = "CustomStage"
+    Readonly = 0
+    Collection_Name = "Properties"
+    Collection_Type = "CustomProperty"
+    
+    // Connector Variant Configuration
+    VariantName = "10"
+    VariantLibrary = "ccora10g"
+    VariantVersion = "1.0"
+    SupportedVariants = "V1;10:\"10g\":ccora10g;11:\"11g\":ccora11g"
+    SupportedVariantsLibraries = "ccora10g,ccora11g"
+    SupportedVariantsVersions = "1.0,1.0"
+    ConnectorName = "OracleConnector"
+    Engine = "SE"
+    Context = "target"
+    
+    // Connection Configuration
+    ConnectionString = "/Connection/Server"
+    Username = "/Connection/Username"
+    Password = "/Connection/Password"
+    xaoDbName = "/Connection/xaoDbName"
+    OSLevelAuthentication = "/Connection/OSLevelAuthentication"
+    
+    // Transaction Configuration
+    transactionModel = 0
+    supportedTransactionModel = "local"
+    
+    // Rejection Configuration
+    RejectFromLink = -1
+    RejectThreshold = 0
+    RejectNumber = 0
+    RejectUsesPercentage = false
+    
+    // Oracle Connection Properties
+    Server = "#psOraDB.pSID#"
+    Database_Username = "#psOraDB.pUserID#"
+    Database_Password = "#psOraDB.pPassword#"
+    Oracle_Version = "10g"
+    
+    // Write Configuration
+    WriteMode = 0
+    GenerateSQL = true
+    TableName = "STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+    TableScope = 0
+    EnableQuotedIDs = false
+    TableAction = 3
+    GenerateTruncateStatement = true
+    FailOnError = true
+    TableActionFirst = true
+    
+    // Performance Configuration
+    IsolationLevel = 0
+    RecordCount = 2000
+    ArraySize = 2000
+    DropUnmatchedFields = false
+    TreatWarningsAsErrors = false
+    PreserveTrailingBlanks = true
+    FailOnRowErrorSE = false
+    LogColumnValues = false
+    
+    Orientation = "link"
+
+// chunk pseudo code ended
+
+// Oracle Connector Stage V0S0 Output Pin V0S0P2 Properties Configuration
+CONFIGURE_ORACLE_CONNECTOR_V0S0_OUTPUT_PIN_PROPERTIES:
+    Parent_Identifier = "V0S0P2"
+    Output_Type = "CustomOutput"
+    Readonly = 0
+    Collection_Name = "Properties"
+    Collection_Type = "CustomProperty"
+    
+    // Connector Variant Configuration
+    VariantName = "10"
+    VariantLibrary = "ccora10g"
+    VariantVersion = "1.0"
+    
+    // Rejection Configuration
+    RejectFromLink = -1
+    RejectThreshold = 0
+    RejectNumber = 0
+    RejectUsesPercentage = false
+    
+    // Connector Properties
+    ConnectorName = "OracleConnector"
+
+// chunk pseudo code ended
+
+// Oracle Connector Stage V0S0 Output Pin V0S0P2 Column Definitions
+CONFIGURE_ORACLE_CONNECTOR_V0S0_OUTPUT_COLUMNS:
+    Parent_Identifier = "V0S0P2"
+    Collection_Name = "Columns"
+    Collection_Type = "OutputColumn"
+    
+    // Column Definitions
+    COLUMN_1:
+        Name = "WORKSHEET_NUMBER"
+        SqlType = 12
+        Precision = 20
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 20
+        ColumnReference = "WORKSHEET_NUMBER"
+        TableDef = "PlugIn\ORAOCI9\VOR_PROGRESS_REPORTING"
+    
+    COLUMN_2:
+        Name = "ORIGINAL_WORKSHEET_NUMBER"
+        SqlType = 12
+        Precision = 20
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 20
+        ColumnReference = "ORIGINAL_WORKSHEET_NUMBER"
+        TableDef = "PlugIn\ORAOCI9\VOR_PROGRESS_REPORTING"
+    
+    COLUMN_3:
+        Name = "VOR_PROGRESS_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 21
+        ColumnReference = "VOR_NON_RETURN_REASON_SK"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+    
+    COLUMN_4:
+        Name = "REGISTERED_CUST_DRIVER_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 21
+        ColumnReference = "REGISTERED_CUST_DRIVER_SK"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+    
+    COLUMN_5:
+        Name = "VEHICLE_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 21
+        ColumnReference = "VEHICLE_SK"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+    
+    COLUMN_6:
+        Name = "VARIANT_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 0
+    
+    COLUMN_7:
+        Name = "SUPP_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 0
+    
+    COLUMN_8:
+        Name = "CUSTOMER_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 21
+        ColumnReference = "CUSTOMER_SK"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+    
+    COLUMN_9:
+        Name = "RENTAL_BOOKING_SK"
+        SqlType = 3
+        Precision = 10
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 0
+    
+    COLUMN_10:
+        Name = "RENTAL_BOOKING_REFERENCE"
+        SqlType = 3
+        Precision = 10
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 12
+        ColumnReference = "BOOKING_REFERENCE"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+    
+    COLUMN_11:
+        Name = "VOR_NOTE_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 21
+        ColumnReference = "VOR_NOTE_SK"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+    
+    COLUMN_12:
+        Name = "ORIGINAL_APPOINTMENT_DATE_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 21
+        ColumnReference = "ORIGINAL_APPOINTMENT_DATE_SK"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+    
+    COLUMN_13:
+        Name = "JOB_CLOSED_DATE_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 21
+        ColumnReference = "JOB_CLOSED_DATE_SK"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+    
+    COLUMN_14:
+        Name = "VOR_PASSED_DATE_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 21
+        ColumnReference = "VOR_PASSED_DATE_SK"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+    
+    COLUMN_15:
+        Name = "DRIVER_COLLECTION_DATE_SK"
+        SqlType = 3
+        Precision = 38
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 40
+        ColumnReference = "DRIVER_COLLECTION_DATE_SK"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+    
+    COLUMN_16:
+        Name = "VOR_REGISTRATION_NUMBER"
+        SqlType = 12
+        Precision = 10
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 10
+        ColumnReference = "VOR_REGISTRATION_NUMBER"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+    
+    COLUMN_17:
+        Name = "CAPTURED_GARAGE_NAME"
+        SqlType = 12
+        Precision = 255
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 255
+        ColumnReference = "CAPTURED_GARAGE_NAME"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+    
+    COLUMN_18:
+        Name = "CONTACT_DRIVER_NAME"
+        SqlType = 12
+        Precision = 255
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 255
+        ColumnReference = "CONTACT_DRIVER_NAME"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+    
+    COLUMN_19:
+        Name = "MILEAGE"
+        SqlType = 3
+        Precision = 38
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 40
+        ColumnReference = "MILEAGE"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+    
+    COLUMN_20:
+        Name = "VOR_INCIDENT_SOURCE"
+        SqlType = 12
+        Precision = 20
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 20
+        ColumnReference = "VOR_INCIDENT_SOURCE"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+    
+    COLUMN_21:
+        Name = "VOR_WORK"
+        SqlType = 12
+        Precision = 2000
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 2000
+        ColumnReference = "VOR_WORK"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+    
+    COLUMN_22:
+        Name = "CRS_LOG_ID"
+        SqlType = 12
+        Precision = 20
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 20
+        ColumnReference = "CRS_LOG_ID"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+    
+    COLUMN_23:
+        Name = "NUMBER_OF_WORKING_DAYS_VOR"
+        SqlType = 3
+        Precision = 38
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 40
+        ColumnReference = "NUMBER_OF_WORKING_DAYS_VOR"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+    
+    COLUMN_24:
+        Name = "NUMBER_OF_DAYS_VOR"
+        SqlType = 3
+        Precision = 38
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 40
+        ColumnReference = "NUMBER_OF_DAYS_VOR"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+    
+    COLUMN_25:
+        Name = "COMPLETION_TO_COLLECT_DAYS"
+        SqlType = 3
+        Precision = 38
+        Scale = 0
+        Nullable = 1
+        DisplaySize = 40
+        ColumnReference = "COMPLETION_TO_COLLECT_DAYS"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+
+// chunk pseudo code ended
+
+// Link Configuration for Vehicle Off Road Data
+CONFIGURE_LINK_LNK_VEHICLE_OFF_ROAD_DATA:
+    Parent_Identifier = "V0S0P2"
+    Link_Name = "Lnk_Vehicle_off_Road_Data"
+    Partner = "V0S2|V0S2P6"
+    LeftTextPos = 217
+    TopTextPos = 480
+    LinkMinimised = 0
+    Collection_Columns_Name = "Columns"
+    Collection_Columns_Type = "OutputColumn"
+    Collection_Columns_ReferencedFile = "chunk_9.xml"
+    Collection_Properties_Name = "Properties"
+    Collection_Properties_Type = "CustomProperty"
+    Collection_Properties_ReferencedFile = "chunk_10.xml"
+
+// chunk pseudo code ended
+
+// Transformer Stage V0S2 Input Pin V0S2P6 Configuration
+CONFIGURE_TRANSFORMER_V0S2_INPUT_PIN_V0S2P6:
+    Parent_Identifier = "V0S2P6"
+    Input_Type = "TrxInput"
+    Readonly = 0
+    Name = "Lnk_Vehicle_off_Road_Data"
+    Partner = "V0S0|V0S0P2"
+    LinkType = 1
+    MultiRow = 0
+    LinkMinimised = 0
+
+// chunk pseudo code ended
+
+// Transformer Stage V0S2 Input Pin V0S2P7 Configuration
+CONFIGURE_TRANSFORMER_V0S2_INPUT_PIN_V0S2P7:
+    Parent_Identifier = "V0S2P7"
+    Input_Type = "TrxInput"
+    Readonly = 0
+    Name = "lkVehicleDim_REg"
+    Partner = "V116S0|V116S0P2"
+    LinkType = 2
+    MultiRow = 0
+    LinkMinimised = 0
+
+// chunk pseudo code ended
+
+// Transformer Stage V0S2 Configuration
+CONFIGURE_TRANSFORMER_STAGE_V0S2:
+    Parent_Identifier = "V0S2"
+    Stage_Type = "TransformerStage"
+    Readonly = 0
+    Name = "Tfm_LoadRecords"
+    NextID = 8
+    InputPins = "V0S2P6|V0S2P7"
+    OutputPins = "V0S2P2|V0S2P3"
+    ValidationStatus = 0
+    StageType = "CTransformerStage"
+    BlockSize = 0
+    StageVarsMinimised = 0
+    LoopVarsMaximised = 0
+    MaxLoopIterations = 0
+    
+    // Stage Variables Configuration
+    CONFIGURE_STAGE_VARIABLES:
+        Collection_Name = "StageVars"
+        Collection_Type = "StageVar"
+        Collection_ReferencedFile = "chunk_20.xml"
+        
+        STAGE_VARIABLE_1:
+            Name = "svException"
+            Expression = "If Lnk_Vehicle_off_Road_Data.SUPP_SK=-99 then -1 Else IF Lnk_Vehicle_off_Road_Data.SUPP_SK=-97  then -1 else 0"
+            SqlType = 3
+            ParsedExpression = "\(20)If Lnk_Vehicle_off_Road_Data.SUPP_SK = -99 then -1 Else  IF Lnk_Vehicle_off_Road_Data.SUPP_SK = -97 then -1 else 0"
+            SourceColumn = "Lnk_Vehicle_off_Road_Data.SUPP_SK"
+            Precision = 0
+            ColScale = 0
+            ExtendedPrecision = 0
+
+// chunk pseudo code ended
+
+// Transformer Stage V0S2 Output Pin V0S2P2 Configuration
+CONFIGURE_TRANSFORMER_V0S2_OUTPUT_PIN_V0S2P2:
+    Parent_Identifier = "V0S2P2"
+    Output_Type = "TrxOutput"
+    Readonly = 0
+    Name = "Load_HFVehicleoffRoad"
+    Partner = "V0S13|V0S13P3"
+    Reject = 0
+    ErrorPin = 0
+    RowLimit = 0
+    LeftTextPos = 432
+    TopTextPos = 480
+    LinkMinimised = 0
+    Collection_Columns_Name = "Columns"
+    Collection_Columns_Type = "OutputColumn"
+    Collection_Columns_ReferencedFile = "chunk_22.xml"
+
+// chunk pseudo code ended
+
+// Transformer Stage V0S2 Output Pin V0S2P2 Column Definitions Configuration
+CONFIGURE_TRANSFORMER_V0S2_OUTPUT_PIN_V0S2P2_COLUMNS:
+    Parent_Identifier = "V0S2P2"
+    Output_Type = "TrxOutput"
+    Readonly = 0
+    Collection_Name = "Columns"
+    Collection_Type = "OutputColumn"
+    
+    // Column Definitions with Derivations
+    COLUMN_1:
+        Name = "WORKSHEET_NUMBER"
+        SqlType = 12
+        Precision = 20
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 1
+        DisplaySize = 20
+        Derivation = "Lnk_Vehicle_off_Road_Data.WORKSHEET_NUMBER"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.WORKSHEET_NUMBER"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.WORKSHEET_NUMBER"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "WORKSHEET_NUMBER"
+    
+    COLUMN_2:
+        Name = "ORIGINAL_WORKSHEET_NUMBER"
+        SqlType = 12
+        Precision = 20
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 20
+        Derivation = "Lnk_Vehicle_off_Road_Data.ORIGINAL_WORKSHEET_NUMBER"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.ORIGINAL_WORKSHEET_NUMBER"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.ORIGINAL_WORKSHEET_NUMBER"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "ORIGINAL_WORKSHEET_NUMBER"
+    
+    COLUMN_3:
+        Name = "VOR_PROGRESS_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 21
+        Derivation = "Lnk_Vehicle_off_Road_Data.VOR_PROGRESS_SK"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.VOR_PROGRESS_SK"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.VOR_PROGRESS_SK"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "VOR_NON_RETURN_REASON_SK"
+    
+    COLUMN_4:
+        Name = "REGISTERED_CUST_DRIVER_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 21
+        Derivation = "Lnk_Vehicle_off_Road_Data.REGISTERED_CUST_DRIVER_SK"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.REGISTERED_CUST_DRIVER_SK"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.REGISTERED_CUST_DRIVER_SK"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "REGISTERED_CUST_DRIVER_SK"
+    
+    COLUMN_5:
+        Name = "VEHICLE_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 21
+        Derivation = "If Lnk_Vehicle_off_Road_Data.VEHICLE_SK=-99 then lkVehicleDim_REg.VEHICLE_SK else Lnk_Vehicle_off_Road_Data.VEHICLE_SK"
+        ParsedDerivation = "\(20)If Lnk_Vehicle_off_Road_Data.VEHICLE_SK = -99 then lkVehicleDim_REg.VEHICLE_SK else Lnk_Vehicle_off_Road_Data.VEHICLE_SK"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.VEHICLE_SK;lkVehicleDim_REg.VEHICLE_SK"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "VEHICLE_SK"
+    
+    COLUMN_6:
+        Name = "VARIANT_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 0
+        Derivation = "If Lnk_Vehicle_off_Road_Data.VEHICLE_SK=-99 then lkVehicleDim_REg.VARIANT_SK else Lnk_Vehicle_off_Road_Data.VARIANT_SK"
+        ParsedDerivation = "\(20)If Lnk_Vehicle_off_Road_Data.VEHICLE_SK = -99 then lkVehicleDim_REg.VARIANT_SK else Lnk_Vehicle_off_Road_Data.VARIANT_SK"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.VEHICLE_SK;lkVehicleDim_REg.VARIANT_SK;Lnk_Vehicle_off_Road_Data.VARIANT_SK"
+    
+    COLUMN_7:
+        Name = "SUPP_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 21
+        Derivation = "\(20)Lnk_Vehicle_off_Road_Data.SUPP_SK"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.SUPP_SK"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.SUPP_SK"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "SUPP_SK"
+    
+    COLUMN_8:
+        Name = "CUSTOMER_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 21
+        Derivation = "Lnk_Vehicle_off_Road_Data.CUSTOMER_SK"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.CUSTOMER_SK"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.CUSTOMER_SK"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "CUSTOMER_SK"
+    
+    COLUMN_9:
+        Name = "RENTAL_BOOKING_SK"
+        SqlType = 3
+        Precision = 10
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 0
+        Derivation = "Lnk_Vehicle_off_Road_Data.RENTAL_BOOKING_SK"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.RENTAL_BOOKING_SK"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.RENTAL_BOOKING_SK"
+    
+    COLUMN_10:
+        Name = "RENTAL_BOOKING_REFERENCE"
+        SqlType = 3
+        Precision = 10
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 12
+        Derivation = "Lnk_Vehicle_off_Road_Data.RENTAL_BOOKING_REFERENCE"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.RENTAL_BOOKING_REFERENCE"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.RENTAL_BOOKING_REFERENCE"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "BOOKING_REFERENCE"
+    
+    COLUMN_11:
+        Name = "VOR_NOTE_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 21
+        Derivation = "Lnk_Vehicle_off_Road_Data.VOR_NOTE_SK"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.VOR_NOTE_SK"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.VOR_NOTE_SK"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "VOR_NOTE_SK"
+    
+    COLUMN_12:
+        Name = "ORIGINAL_APPOINTMENT_DATE_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 21
+        Derivation = "Lnk_Vehicle_off_Road_Data.ORIGINAL_APPOINTMENT_DATE_SK"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.ORIGINAL_APPOINTMENT_DATE_SK"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.ORIGINAL_APPOINTMENT_DATE_SK"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "ORIGINAL_APPOINTMENT_DATE_SK"
+    
+    COLUMN_13:
+        Name = "JOB_CLOSED_DATE_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 21
+        Derivation = "Lnk_Vehicle_off_Road_Data.JOB_CLOSED_DATE_SK"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.JOB_CLOSED_DATE_SK"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.JOB_CLOSED_DATE_SK"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "JOB_CLOSED_DATE_SK"
+    
+    COLUMN_14:
+        Name = "VOR_PASSED_DATE_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 21
+        Derivation = "Lnk_Vehicle_off_Road_Data.VOR_PASSED_DATE_SK"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.VOR_PASSED_DATE_SK"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.VOR_PASSED_DATE_SK"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "VOR_PASSED_DATE_SK"
+    
+    COLUMN_15:
+        Name = "DRIVER_COLLECTION_DATE_SK"
+        SqlType = 3
+        Precision = 38
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 40
+        Derivation = "Lnk_Vehicle_off_Road_Data.DRIVER_COLLECTION_DATE_SK"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.DRIVER_COLLECTION_DATE_SK"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.DRIVER_COLLECTION_DATE_SK"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "DRIVER_COLLECTION_DATE_SK"
+    
+    COLUMN_16:
+        Name = "VOR_REGISTRATION_NUMBER"
+        SqlType = 12
+        Precision = 10
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 10
+        Derivation = "Lnk_Vehicle_off_Road_Data.VOR_REGISTRATION_NUMBER"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.VOR_REGISTRATION_NUMBER"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.VOR_REGISTRATION_NUMBER"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "VOR_REGISTRATION_NUMBER"
+    
+    COLUMN_17:
+        Name = "CAPTURED_GARAGE_NAME"
+        SqlType = 12
+        Precision = 255
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 255
+        Derivation = "Lnk_Vehicle_off_Road_Data.CAPTURED_GARAGE_NAME"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.CAPTURED_GARAGE_NAME"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.CAPTURED_GARAGE_NAME"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "CAPTURED_GARAGE_NAME"
+    
+    COLUMN_18:
+        Name = "CONTACT_DRIVER_NAME"
+        SqlType = 12
+        Precision = 255
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 255
+        Derivation = "Lnk_Vehicle_off_Road_Data.CONTACT_DRIVER_NAME"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.CONTACT_DRIVER_NAME"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.CONTACT_DRIVER_NAME"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "CONTACT_DRIVER_NAME"
+    
+    COLUMN_19:
+        Name = "MILEAGE"
+        SqlType = 3
+        Precision = 38
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 40
+        Derivation = "Lnk_Vehicle_off_Road_Data.MILEAGE"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.MILEAGE"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.MILEAGE"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "MILEAGE"
+    
+    COLUMN_20:
+        Name = "VOR_INCIDENT_SOURCE"
+        SqlType = 12
+        Precision = 20
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 20
+        Derivation = "Lnk_Vehicle_off_Road_Data.VOR_INCIDENT_SOURCE"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.VOR_INCIDENT_SOURCE"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.VOR_INCIDENT_SOURCE"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "VOR_INCIDENT_SOURCE"
+    
+    COLUMN_21:
+        Name = "VOR_WORK"
+        SqlType = 12
+        Precision = 2000
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 2000
+        Derivation = "Lnk_Vehicle_off_Road_Data.VOR_WORK"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.VOR_WORK"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.VOR_WORK"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "VOR_WORK"
+    
+    COLUMN_22:
+        Name = "CRS_LOG_ID"
+        SqlType = 12
+        Precision = 20
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 20
+        Derivation = "Lnk_Vehicle_off_Road_Data.CRS_LOG_ID"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.CRS_LOG_ID"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.CRS_LOG_ID"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "CRS_LOG_ID"
+    
+    COLUMN_23:
+        Name = "NUMBER_OF_WORKING_DAYS_VOR"
+        SqlType = 3
+        Precision = 38
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 40
+        Derivation = "Lnk_Vehicle_off_Road_Data.NUMBER_OF_WORKING_DAYS_VOR"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.NUMBER_OF_WORKING_DAYS_VOR"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.NUMBER_OF_WORKING_DAYS_VOR"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "NUMBER_OF_WORKING_DAYS_VOR"
+    
+    COLUMN_24:
+        Name = "NUMBER_OF_DAYS_VOR"
+        SqlType = 3
+        Precision = 38
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 40
+        Derivation = "Lnk_Vehicle_off_Road_Data.NUMBER_OF_DAYS_VOR"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.NUMBER_OF_DAYS_VOR"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.NUMBER_OF_DAYS_VOR"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "NUMBER_OF_DAYS_VOR"
+    
+    COLUMN_25:
+        Name = "COMPLETION_TO_COLLECT_DAYS"
+        SqlType = 3
+        Precision = 38
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 40
+        Derivation = "Lnk_Vehicle_off_Road_Data.COMPLETION_TO_COLLECT_DAYS"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.COMPLETION_TO_COLLECT_DAYS"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.COMPLETION_TO_COLLECT_DAYS"
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "COMPLETION_TO_COLLECT_DAYS"
+
+// chunk pseudo code ended
+
+// Transformer Stage V0S2 Output Pin V0S2P3 Configuration
+CONFIGURE_TRANSFORMER_V0S2_OUTPUT_PIN_V0S2P3:
+    Parent_Identifier = "V0S2P3"
+    Output_Type = "TrxOutput"
+    Readonly = 0
+    Name = "Load_VOR_Exception_File"
+    Partner = "V96S0|V96S0P1"
+    Constraint = "svException=-1"
+    ParsedConstraint = "svException = -1"
+    StageVars = "svException"
+    Reject = 0
+    ErrorPin = 0
+    RowLimit = 0
+    LinkMinimised = 0
+    Collection_Columns_Name = "Columns"
+    Collection_Columns_Type = "OutputColumn"
+    Collection_Columns_ReferencedFile = "chunk_24.xml"
+
+// chunk pseudo code ended
+
+// Transformer Stage V0S2 Output Pin V0S2P3 Column Definitions Configuration
+CONFIGURE_TRANSFORMER_V0S2_OUTPUT_PIN_V0S2P3_COLUMNS:
+    Parent_Identifier = "V0S2P3"
+    Output_Type = "TrxOutput"
+    Readonly = 0
+    Collection_Name = "Columns"
+    Collection_Type = "OutputColumn"
+    
+    // Exception Column Definitions
+    COLUMN_1:
+        Name = "WORKSHEET_NUMBER"
+        SqlType = 12
+        Precision = 20
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 0
+        Derivation = "Lnk_Vehicle_off_Road_Data.WORKSHEET_NUMBER"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.WORKSHEET_NUMBER"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.WORKSHEET_NUMBER"
+        SortKey = 0
+        SortType = 0
+        AllowCRLF = 0
+        LevelNo = 0
+        Occurs = 0
+        PadNulls = 0
+        SignOption = 0
+        SortingOrder = 0
+        ArrayHandling = 0
+        SyncIndicator = 0
+        PadChar = ""
+        ExtendedPrecision = 0
+        TaggedSubrec = 0
+        OccursVarying = 0
+        PKeyIsCaseless = 0
+        SCDPurpose = 0
+    
+    COLUMN_2:
+        Name = "ORIGINAL_WORKSHEET_NUMBER"
+        SqlType = 12
+        Precision = 20
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 0
+        Derivation = "Lnk_Vehicle_off_Road_Data.ORIGINAL_WORKSHEET_NUMBER"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.ORIGINAL_WORKSHEET_NUMBER"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.ORIGINAL_WORKSHEET_NUMBER"
+        SortKey = 0
+        SortType = 0
+        AllowCRLF = 0
+        LevelNo = 0
+        Occurs = 0
+        PadNulls = 0
+        SignOption = 0
+        SortingOrder = 0
+        ArrayHandling = 0
+        SyncIndicator = 0
+        PadChar = ""
+        ExtendedPrecision = 0
+        TaggedSubrec = 0
+        OccursVarying = 0
+        PKeyIsCaseless = 0
+        SCDPurpose = 0
+    
+    COLUMN_3:
+        Name = "REGISTRATION_NUMBER"
+        SqlType = 12
+        Precision = 10
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 0
+        Derivation = "Lnk_Vehicle_off_Road_Data.VOR_REGISTRATION_NUMBER"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.VOR_REGISTRATION_NUMBER"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.VOR_REGISTRATION_NUMBER"
+        SortKey = 0
+        SortType = 0
+        AllowCRLF = 0
+        LevelNo = 0
+        Occurs = 0
+        PadNulls = 0
+        SignOption = 0
+        SortingOrder = 0
+        ArrayHandling = 0
+        SyncIndicator = 0
+        PadChar = ""
+        ExtendedPrecision = 0
+        TaggedSubrec = 0
+        OccursVarying = 0
+        PKeyIsCaseless = 0
+        SCDPurpose = 0
+    
+    COLUMN_4:
+        Name = "GARAGE_NAME"
+        SqlType = 12
+        Precision = 255
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 0
+        Derivation = "Lnk_Vehicle_off_Road_Data.CAPTURED_GARAGE_NAME"
+        ParsedDerivation = "Lnk_Vehicle_off_Road_Data.CAPTURED_GARAGE_NAME"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.CAPTURED_GARAGE_NAME"
+        SortKey = 0
+        SortType = 0
+        AllowCRLF = 0
+        LevelNo = 0
+        Occurs = 0
+        PadNulls = 0
+        SignOption = 0
+        SortingOrder = 0
+        ArrayHandling = 0
+        SyncIndicator = 0
+        PadChar = ""
+        ExtendedPrecision = 0
+        TaggedSubrec = 0
+        OccursVarying = 0
+        PKeyIsCaseless = 0
+        SCDPurpose = 0
+    
+    COLUMN_5:
+        Name = "DESCRIPTION"
+        SqlType = 12
+        Precision = 50
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 0
+        Derivation = "If Lnk_Vehicle_off_Road_Data.SUPP_SK=-99 then 'Unknown' Else 'Duplicates'"
+        ParsedDerivation = "\(20)If Lnk_Vehicle_off_Road_Data.SUPP_SK = -99 then 'Unknown' Else 'Duplicates'"
+        SourceColumn = "Lnk_Vehicle_off_Road_Data.SUPP_SK"
+        SortKey = 0
+        SortType = 0
+        AllowCRLF = 0
+        LevelNo = 0
+        Occurs = 0
+        PadNulls = 0
+        SignOption = 0
+        SortingOrder = 0
+        ArrayHandling = 0
+        SyncIndicator = 0
+        PadChar = ""
+        ExtendedPrecision = 0
+        TaggedSubrec = 0
+        OccursVarying = 0
+        PKeyIsCaseless = 0
+        SCDPurpose = 0
+
+// chunk pseudo code ended
+
+// Hashed File Stage V0S13 Configuration
+CONFIGURE_HASHED_FILE_V0S13:
+    Parent_Identifier = "V0S13"
+    Stage_Type = "HashedFileStage"
+    Readonly = 0
+    Name = "HF_FACT_VOR_DATA"
+    NextID = 4
+    InputPins = "V0S13P3"
+    OutputPins = "V0S13P1"
+    UVcompatible = 0
+    SQLNull = 0
+    StageType = "CHashedFileStage"
+
+// chunk pseudo code ended
+
+// Hashed File Stage V0S13 Input Pin V0S13P3 Configuration
+CONFIGURE_HASHED_FILE_V0S13_INPUT_PIN_PROPERTIES:
+    Parent_Identifier = "V0S13P3"
+    Input_Type = "HashedInput"
+    Readonly = 0
+    Link_Name = "Load_HFVehicleoffRoad"
+    Partner = "V0S2|V0S2P2"
+    FileName = "HF_FACT_VOR_DATA"
+    ClearFile = 1
+    Backup = 0
+    DisableCW = 0
+    CreateFileOptions = "DYNAMIC MINIMUM.MODULUS 1 GROUP.SIZE 1 GENERAL SPLIT.LOAD 80 MERGE.LOAD 50 LARGE.RECORD 1628"
+    DeleteFile = 1
+
+// chunk pseudo code ended
+
+// Hashed File Stage V0S13 Output Pin V0S13P1 Column Definitions
+CONFIGURE_HASHED_FILE_V0S13_OUTPUT_COLUMNS:
+    Parent_Identifier = "V0S13P1"
+    Output_Type = "HashedOutput"
+    Readonly = 0
+    Collection_Name = "Columns"
+    Collection_Type = "OutputColumn"
+    
+    // Column Definitions
+    COLUMN_1:
+        Name = "WORKSHEET_NUMBER"
+        SqlType = 12
+        Precision = 20
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 1
+        DisplaySize = 20
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "WORKSHEET_NUMBER"
+    
+    COLUMN_2:
+        Name = "ORIGINAL_WORKSHEET_NUMBER"
+        SqlType = 12
+        Precision = 20
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 20
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "ORIGINAL_WORKSHEET_NUMBER"
+    
+    COLUMN_3:
+        Name = "VOR_PROGRESS_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 21
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "VOR_NON_RETURN_REASON_SK"
+    
+    COLUMN_4:
+        Name = "REGISTERED_CUST_DRIVER_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 21
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "REGISTERED_CUST_DRIVER_SK"
+    
+    COLUMN_5:
+        Name = "VEHICLE_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 21
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "VEHICLE_SK"
+    
+    COLUMN_6:
+        Name = "VARIANT_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 0
+    
+    COLUMN_7:
+        Name = "SUPP_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 21
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "SUPP_SK"
+    
+    COLUMN_8:
+        Name = "CUSTOMER_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 21
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "CUSTOMER_SK"
+    
+    COLUMN_9:
+        Name = "RENTAL_BOOKING_SK"
+        SqlType = 3
+        Precision = 10
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 0
+    
+    COLUMN_10:
+        Name = "RENTAL_BOOKING_REFERENCE"
+        SqlType = 3
+        Precision = 10
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 12
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "BOOKING_REFERENCE"
+    
+    COLUMN_11:
+        Name = "VOR_NOTE_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 21
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "VOR_NOTE_SK"
+    
+    COLUMN_12:
+        Name = "ORIGINAL_APPOINTMENT_DATE_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 21
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "ORIGINAL_APPOINTMENT_DATE_SK"
+    
+    COLUMN_13:
+        Name = "JOB_CLOSED_DATE_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 21
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "JOB_CLOSED_DATE_SK"
+    
+    COLUMN_14:
+        Name = "VOR_PASSED_DATE_SK"
+        SqlType = 3
+        Precision = 19
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 21
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "VOR_PASSED_DATE_SK"
+    
+    COLUMN_15:
+        Name = "DRIVER_COLLECTION_DATE_SK"
+        SqlType = 3
+        Precision = 38
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 40
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "DRIVER_COLLECTION_DATE_SK"
+    
+    COLUMN_16:
+        Name = "VOR_REGISTRATION_NUMBER"
+        SqlType = 12
+        Precision = 10
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 10
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "VOR_REGISTRATION_NUMBER"
+    
+    COLUMN_17:
+        Name = "CAPTURED_GARAGE_NAME"
+        SqlType = 12
+        Precision = 255
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 255
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "CAPTURED_GARAGE_NAME"
+    
+    COLUMN_18:
+        Name = "CONTACT_DRIVER_NAME"
+        SqlType = 12
+        Precision = 255
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 255
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "CONTACT_DRIVER_NAME"
+    
+    COLUMN_19:
+        Name = "MILEAGE"
+        SqlType = 3
+        Precision = 38
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 40
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "MILEAGE"
+    
+    COLUMN_20:
+        Name = "VOR_INCIDENT_SOURCE"
+        SqlType = 12
+        Precision = 20
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 20
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "VOR_INCIDENT_SOURCE"
+    
+    COLUMN_21:
+        Name = "VOR_WORK"
+        SqlType = 12
+        Precision = 2000
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 2000
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "VOR_WORK"
+    
+    COLUMN_22:
+        Name = "CRS_LOG_ID"
+        SqlType = 12
+        Precision = 20
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 20
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "CRS_LOG_ID"
+    
+    COLUMN_23:
+        Name = "NUMBER_OF_WORKING_DAYS_VOR"
+        SqlType = 3
+        Precision = 38
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 40
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "NUMBER_OF_WORKING_DAYS_VOR"
+    
+    COLUMN_24:
+        Name = "NUMBER_OF_DAYS_VOR"
+        SqlType = 3
+        Precision = 38
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 40
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "NUMBER_OF_DAYS_VOR"
+    
+    COLUMN_25:
+        Name = "COMPLETION_TO_COLLECT_DAYS"
+        SqlType = 3
+        Precision = 38
+        Scale = 0
+        Nullable = 1
+        KeyPosition = 0
+        DisplaySize = 40
+        TableDef = "PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        ColumnReference = "COMPLETION_TO_COLLECT_DAYS"
+
+// chunk pseudo code ended
+
+// Hashed File Stage V0S13 Output Pin V0S13P1 Link Configuration
+CONFIGURE_HASHED_FILE_V0S13_OUTPUT_LINK:
+    Parent_Identifier = "V0S13P1"
+    Link_Name = "Load_StgVehicleoffRoad"
+    Partner = "V0S1|V0S1P2"
+    FileName = "HF_FACT_VOR_DATA"
+    InMemory = 0
+    Normalize = "Un-Normalized"
+    RecordLevelRead = 0
+    Collection_Columns_Name = "Columns"
+    Collection_Columns_Type = "OutputColumn"
+    Collection_Columns_ReferencedFile = "chunk_15.xml"
+
+// chunk pseudo code ended
+
+// Sequential File Stage V96S0 Configuration
+CONFIGURE_SEQUENTIAL_FILE_V96S0:
+    Parent_Identifier = "V96S0"
+    Stage_Type = "SeqFileStage"
+    Readonly = 0
+    Name = "Supp_VOR_Exception"
+    NextID = 2
+    InputPins = "V96S0P1"
+    UnixFormat = 1
+    PipeStage = 0
+    UnicodeBOM = 1
+    UnicodeSwapped = 1
+    AllowColumnMapping = 0
+    WithFilter = 0
+    StageType = "CSeqFileStage"
+
+// chunk pseudo code ended
+
+// Sequential File Stage V96S0 Input Pin V96S0P1 Configuration
+CONFIGURE_SEQUENTIAL_FILE_V96S0_INPUT_PIN:
+    Parent_Identifier = "V96S0P1"
+    Input_Type = "SeqInput"
+    Readonly = 0
+    Name = "Load_VOR_Exception_File"
+    Partner = "V0S2|V0S2P3"
+    FileName = "#pSMROutputPath#/#pVOR_Exception_FileName#_#pFiledate#.csv"
+    Delimiter = ","
+    QuoteChar = "\""
+    ColHeaders = 0
+    OmitNewLine = 0
+    Append = 0
+    Backup = 0
+    FixedWidth = 0
+    ColSpace = 0
+    EnforceMetaData = 0
+    Writetime = 0
+    WaitforReader = 0
+    Flushrow = 0
+    PadChar = "#"
+    UnixFormat = 1
+    PipeStage = 0
+    UnicodeBOM = 1
+    UnicodeSwapped = 1
+    AllowColumnMapping = 0
+    WithFilter = 0
+
+// chunk pseudo code ended
+
+// Job Flow Definition
+CONFIGURE_JOB_FLOW:
+    
+    // Stage Definitions
+    STAGE_LIST = [
+        "V0S0|ORA_Ext_Vehicle_Off_Road_Data|OracleConnector",
+        "V0S1|Ora_StgVehicleOffRoad|OracleConnector", 
+        "V0S2|Tfm_LoadRecords|CTransformerStage",
+        "V96S0|Supp_VOR_Exception|CSeqFileStage",
+        "V0S13|HF_FACT_VOR_DATA|CHashedFileStage",
+        "V116S0|HF_SMR_VEHICLE_DIM|CHashedFileStage"
+    ]
+    
+    // Link Definitions
+    LINK_CONFIGURATION = [
+        "Lnk_Vehicle_off_Road_Data|V0S0->V0S2|HasMetaData=True|Type=1",
+        "Load_HFVehicleoffRoad|V0S2->V0S13|HasMetaData=True|Type=1",
+        "Load_VOR_Exception_File|V0S2->V96S0|HasMetaData=True|Type=1|Constraint=svException=-1",
+        "Load_StgVehicleoffRoad|V0S13->V0S1|HasMetaData=True|Type=1",
+        "lkVehicleDim_REg|V116S0->V0S2|HasMetaData=True|Type=2"
+    ]
+
+// chunk pseudo code ended
+
+// ETL Data Flow Execution
+EXECUTE_ETL_FLOW:
+    
+    // Source Stage: Extract Vehicle Off Road Data
+    STAGE_V0S0_ORA_EXT_VEHICLE_OFF_ROAD_DATA:
+        Stage_Type = "OracleConnector"
+        Stage_Name = "ORA_Ext_Vehicle_Off_Road_Data"
+        Operation = "EXTRACT"
+        Output_Link = "Lnk_Vehicle_off_Road_Data"
+        Output_Pin = "V0S0P2"
+        
+        ESTABLISH_ORACLE_CONNECTION:
+            Server = "#psOraDB.pSID#"
+            Username = "#psOraDB.pUserID#"
+            Password = "#psOraDB.pPassword#"
+            Version = "10g"
+            ArraySize = 2000
+            RecordCount = 2000
+            PrefetchRowCount = 1
+            VariantName = "10"
+            VariantLibrary = "ccora10g"
+            VariantVersion = "1.0"
+            ConnectorName = "OracleConnector"
+            RejectFromLink = -1
+            RejectThreshold = 0
+            RejectNumber = 0
+            RejectUsesPercentage = false
+        
+        EXECUTE_SQL_QUERY:
+            Query = SelectStatement
+            Parameters = ["#PREV_BATCH_RUN_DATE_VOR#", "#DELTA_DAYS_PARAM#"]
+            
+        OUTPUT_COLUMNS = [
+            "WORKSHEET_NUMBER", "ORIGINAL_WORKSHEET_NUMBER", "VOR_PROGRESS_SK",
+            "REGISTERED_CUST_DRIVER_SK", "VEHICLE_SK", "VARIANT_SK", "SUPP_SK",
+            "CUSTOMER_SK", "RENTAL_BOOKING_SK", "RENTAL_BOOKING_REFERENCE",
+            "VOR_NOTE_SK", "ORIGINAL_APPOINTMENT_DATE_SK", "JOB_CLOSED_DATE_SK",
+            "VOR_PASSED_DATE_SK", "DRIVER_COLLECTION_DATE_SK", "VOR_REGISTRATION_NUMBER",
+            "CAPTURED_GARAGE_NAME", "CONTACT_DRIVER_NAME", "MILEAGE", "VOR_INCIDENT_SOURCE",
+            "VOR_WORK", "CRS_LOG_ID", "NUMBER_OF_WORKING_DAYS_VOR", "NUMBER_OF_DAYS_VOR",
+            "COMPLETION_TO_COLLECT_DAYS"
+        ]
+            
+        EXTRACT_DATA_FROM_ORACLE()
+        SEND_TO_LINK("Lnk_Vehicle_off_Road_Data", extracted_data)
+    
+    // Lookup Stage: Vehicle Dimension Data with Registration Number Key
+    STAGE_V116S0_HF_SMR_VEHICLE_DIM:
+        Stage_Type = "CHashhedFileStage"
+        Stage_Name = "HF_SMR_VEHICLE_DIM"
+        Operation = "LOOKUP"
+        Output_Link = "lkVehicleDim_REg"
+        Output_Pin = "V116S0P2"
+        Link_Type = 2
+        Lookup_Key = "REGISTRATION_NO"
+        KeyExpression = "Lnk_Vehicle_off_Road_Data.VOR_REGISTRATION_NUMBER"
+        PKeyParsedDerivation = "Lnk_Vehicle_off_Road_Data.VOR_REGISTRATION_NUMBER"
+        PKeySourceColumn = "Lnk_Vehicle_off_Road_Data.VOR_REGISTRATION_NUMBER"
+        Purpose = "To get rid of unmatched Vehicle sk look up with Vehicle dim with Registration number as key"
+        FileName = "HF_SMR_VEHICLE_DIM_REG"
+        InMemory = 0
+        Normalize = "Un-Normalized"
+        RecordLevelRead = 0
+        
+        LOOKUP_COLUMNS = [
+            {Name: "VEHICLE_SK", Type: "NUMERIC", Precision: 19, KeyPosition: 0},
+            {Name: "OBJECT_NO", Type: "VARCHAR", Precision: 15, KeyPosition: 0},
+            {Name: "REGISTRATION_NO", Type: "VARCHAR", Precision: 18, KeyPosition: 1},
+            {Name: "CUST_ID", Type: "NUMERIC", Precision: 19, KeyPosition: 0},
+            {Name: "VARIANT_SK", Type: "NUMERIC", Precision: 19, KeyPosition: 0}
+        ]
+        
+        LOAD_LOOKUP_DATA()
+        PROVIDE_LOOKUP("lkVehicleDim_REg", lookup_data)
+    
+    // Transformation Stage: Process and Transform Data with Vehicle Dimension Lookup, Duplicate Removal and Exception Handling
+    STAGE_V0S2_TFM_LOAD_RECORDS:
+        Stage_Type = "CTransformerStage"
+        Stage_Name = "Tfm_LoadRecords"
+        Operation = "TRANSFORM"
+        NextID = 8
+        InputPins = "V0S2P6|V0S2P7"
+        OutputPins = "V0S2P2|V0S2P3"
+        ValidationStatus = 0
+        BlockSize = 0
+        StageVarsMinimised = 0
+        LoopVarsMaximised = 0
+        MaxLoopIterations = 0
+        Input_Links = ["Lnk_Vehicle_off_Road_Data", "lkVehicleDim_REg"]
+        Output_Links = ["Load_HFVehicleoffRoad", "Load_VOR_Exception_File"]
+        
+        INPUT_PIN_V0S2P6:
+            Name = "Lnk_Vehicle_off_Road_Data"
+            Partner = "V0S0|V0S0P2"
+            LinkType = 1
+            MultiRow = 0
+            LinkMinimised = 0
+        
+        INPUT_PIN_V0S2P7:
+            Name = "lkVehicleDim_REg"
+            Partner = "V116S0|V116S0P2"
+            LinkType = 2
+            MultiRow = 0
+            LinkMinimised = 0
+        
+        STAGE_VARIABLES:
+            Collection_Name = "StageVars"
+            Collection_Type = "StageVar"
+            Collection_ReferencedFile = "chunk_20.xml"
+            svException = "If Lnk_Vehicle_off_Road_Data.SUPP_SK=-99 then -1 Else IF Lnk_Vehicle_off_Road_Data.SUPP_SK=-97  then -1 else 0"
+        
+        EXCEPTION_OUTPUT_CONSTRAINT:
+            Output_Pin = "V0S2P3"
+            Output_Name = "Load_VOR_Exception_File"
+            Constraint = "svException=-1"
+            ParsedConstraint = "svException = -1"
+            StageVars = "svException"
+        
+        RECEIVE_FROM_LINK("Lnk_Vehicle_off_Road_Data", source_data)
+        RECEIVE_LOOKUP("lkVehicleDim_REg", lookup_data)
+        
+        TRANSFORM_LOGIC:
+            duplicate_tracker = INITIALIZE_DUPLICATE_TRACKER()
+            
+            FOR EACH record IN source_data:
+                svException = IF record.SUPP_SK = -99 THEN -1 
+                             ELSE IF record.SUPP_SK = -97 THEN -1 
+                             ELSE 0
+                
+                WORKSHEET_NUMBER = record.WORKSHEET_NUMBER
+                ORIGINAL_WORKSHEET_NUMBER = record.ORIGINAL_WORKSHEET_NUMBER
+                VOR_PROGRESS_SK = record.VOR_PROGRESS_SK
+                REGISTERED_CUST_DRIVER_SK = record.REGISTERED_CUST_DRIVER_SK
+                
+                IF record.VEHICLE_SK = -99 THEN:
+                    lookup_result = LOOKUP_VEHICLE_DIM_BY_REGISTRATION(record.VOR_REGISTRATION_NUMBER, lookup_data)
+                    IF lookup_result.found THEN:
+                        VEHICLE_SK = lookup_result.VEHICLE_SK
+                        VARIANT_SK = lookup_result.VARIANT_SK
+                    ELSE:
+                        VEHICLE_SK = record.VEHICLE_SK
+                        VARIANT_SK = record.VARIANT_SK
+                    END IF
+                ELSE:
+                    VEHICLE_SK = record.VEHICLE_SK
+                    VARIANT_SK = record.VARIANT_SK
+                END IF
+                
+                SUPP_SK = record.SUPP_SK
+                CUSTOMER_SK = record.CUSTOMER_SK
+                RENTAL_BOOKING_SK = record.RENTAL_BOOKING_SK
+                RENTAL_BOOKING_REFERENCE = record.RENTAL_BOOKING_REFERENCE
+                VOR_NOTE_SK = record.VOR_NOTE_SK
+                ORIGINAL_APPOINTMENT_DATE_SK = record.ORIGINAL_APPOINTMENT_DATE_SK
+                JOB_CLOSED_DATE_SK = record.JOB_CLOSED_DATE_SK
+                VOR_PASSED_DATE_SK = record.VOR_PASSED_DATE_SK
+                DRIVER_COLLECTION_DATE_SK = record.DRIVER_COLLECTION_DATE_SK
+                VOR_REGISTRATION_NUMBER = record.VOR_REGISTRATION_NUMBER
+                CAPTURED_GARAGE_NAME = record.CAPTURED_GARAGE_NAME
+                CONTACT_DRIVER_NAME = record.CONTACT_DRIVER_NAME
+                MILEAGE = record.MILEAGE
+                VOR_INCIDENT_SOURCE = record.VOR_INCIDENT_SOURCE
+                VOR_WORK = record.VOR_WORK
+                CRS_LOG_ID = record.CRS_LOG_ID
+                NUMBER_OF_WORKING_DAYS_VOR = record.NUMBER_OF_WORKING_DAYS_VOR
+                NUMBER_OF_DAYS_VOR = record.NUMBER_OF_DAYS_VOR
+                COMPLETION_TO_COLLECT_DAYS = record.COMPLETION_TO_COLLECT_DAYS
+                
+                EXCEPTION_WORKSHEET_NUMBER = record.WORKSHEET_NUMBER
+                EXCEPTION_ORIGINAL_WORKSHEET_NUMBER = record.ORIGINAL_WORKSHEET_NUMBER
+                EXCEPTION_REGISTRATION_NUMBER = record.VOR_REGISTRATION_NUMBER
+                EXCEPTION_GARAGE_NAME = record.CAPTURED_GARAGE_NAME
+                EXCEPTION_DESCRIPTION = IF record.SUPP_SK = -99 THEN "Unknown" ELSE "Duplicates"
+                
+                duplicate_key = CREATE_DUPLICATE_KEY(VEHICLE_SK, REGISTERED_CUST_DRIVER_SK)
+                
+                IF NOT duplicate_tracker.EXISTS(duplicate_key):
+                    duplicate_tracker.ADD(duplicate_key)
+                    
+                    IF svException = -1:
+                        exception_record = CREATE_EXCEPTION_RECORD(
+                            EXCEPTION_WORKSHEET_NUMBER,
+                            EXCEPTION_ORIGINAL_WORKSHEET_NUMBER,
+                            EXCEPTION_REGISTRATION_NUMBER,
+                            EXCEPTION_GARAGE_NAME,
+                            EXCEPTION_DESCRIPTION
+                        )
+                        SEND_TO_EXCEPTION_OUTPUT(exception_record)
+                    ELSE:
+                        transformed_record = CREATE_MAIN_RECORD(all_transformed_columns)
+                        SEND_TO_MAIN_OUTPUT(transformed_record)
+                    END IF
+                ELSE:
+                    exception_record = CREATE_EXCEPTION_RECORD(
+                        EXCEPTION_WORKSHEET_NUMBER,
+                        EXCEPTION_ORIGINAL_WORKSHEET_NUMBER,
+                        EXCEPTION_REGISTRATION_NUMBER,
+                        EXCEPTION_GARAGE_NAME,
+                        "Duplicates"
+                    )
+                    SEND_TO_EXCEPTION_OUTPUT(exception_record)
+                END IF
+            END FOR
+        
+        SEND_TO_LINK("Load_HFVehicleoffRoad", transformed_data)
+        SEND_TO_LINK("Load_VOR_Exception_File", exception_data)
+    
+    // Exception File Output Stage
+    STAGE_V96S0_SUPP_VOR_EXCEPTION:
+        Stage_Type = "CSeqFileStage"
+        Stage_Name = "Supp_VOR_Exception"
+        Operation = "WRITE_FILE"
+        Input_Link = "Load_VOR_Exception_File"
+        Input_Pin = "V96S0P1"
+        FileName = "#pSMROutputPath#/#pVOR_Exception_FileName#_#pFiledate#.csv"
+        Delimiter = ","
+        QuoteChar = "\""
+        ColHeaders = 0
+        OmitNewLine = 0
+        Append = 0
+        Backup = 0
+        FixedWidth = 0
+        ColSpace = 0
+        EnforceMetaData = 0
+        Writetime = 0
+        WaitforReader = 0
+        Flushrow = 0
+        PadChar = "#"
+        UnixFormat = 1
+        PipeStage = 0
+        UnicodeBOM = 1
+        UnicodeSwapped = 1
+        AllowColumnMapping = 0
+        WithFilter = 0
+        
+        RECEIVE_FROM_LINK("Load_VOR_Exception_File", exception_data)
+        WRITE_TO_SEQUENTIAL_FILE(exception_data)
+    
+    // Intermediate Storage: Hashed File for Fact Data
+    STAGE_V0S13_HF_FACT_VOR_DATA:
+        Stage_Type = "CHashedFileStage"
+        Stage_Name = "HF_FACT_VOR_DATA"
+        Operation = "STORE_AND_RETRIEVE"
+        Input_Link = "Load_HFVehicleoffRoad"
+        Output_Link = "Load_StgVehicleoffRoad"
+        Input_Pin = "V0S13P3"
+        Output_Pin = "V0S13P1"
+        NextID = 4
+        UVcompatible = 0
+        SQLNull = 0
+        
+        CONFIGURE_HASHED_FILE_INPUT:
+            Link_Name = "Load_HFVehicleoffRoad"
+            Partner = "V0S2|V0S2P2"
+            FileName = "HF_FACT_VOR_DATA"
+            ClearFile = 1
+            Backup = 0
+            DisableCW = 0
+            CreateFileOptions = "DYNAMIC MINIMUM.MODULUS 1 GROUP.SIZE 1 GENERAL SPLIT.LOAD 80 MERGE.LOAD 50 LARGE.RECORD 1628"
+            DeleteFile = 1
+        
+        CONFIGURE_HASHED_FILE_SCHEMA:
+            Primary_Key = "WORKSHEET_NUMBER"
+            Key_Position = 1
+            FileName = "HF_FACT_VOR_DATA"
+            InMemory = 0
+            Normalize = "Un-Normalized"
+            RecordLevelRead = 0
+            
+            COLUMN_SCHEMA = [
+                {Name: "WORKSHEET_NUMBER", Type: "VARCHAR", Length: 20, Key: true},
+                {Name: "ORIGINAL_WORKSHEET_NUMBER", Type: "VARCHAR", Length: 20},
+                {Name: "VOR_PROGRESS_SK", Type: "NUMERIC", Precision: 19},
+                {Name: "REGISTERED_CUST_DRIVER_SK", Type: "NUMERIC", Precision: 19},
+                {Name: "VEHICLE_SK", Type: "NUMERIC", Precision: 19},
+                {Name: "VARIANT_SK", Type: "NUMERIC", Precision: 19},
+                {Name: "SUPP_SK", Type: "NUMERIC", Precision: 19},
+                {Name: "CUSTOMER_SK", Type: "NUMERIC", Precision: 19},
+                {Name: "RENTAL_BOOKING_SK", Type: "NUMERIC", Precision: 10},
+                {Name: "RENTAL_BOOKING_REFERENCE", Type: "NUMERIC", Precision: 10},
+                {Name: "VOR_NOTE_SK", Type: "NUMERIC", Precision: 19},
+                {Name: "ORIGINAL_APPOINTMENT_DATE_SK", Type: "NUMERIC", Precision: 19},
+                {Name: "JOB_CLOSED_DATE_SK", Type: "NUMERIC", Precision: 19},
+                {Name: "VOR_PASSED_DATE_SK", Type: "NUMERIC", Precision: 19},
+                {Name: "DRIVER_COLLECTION_DATE_SK", Type: "NUMERIC", Precision: 38},
+                {Name: "VOR_REGISTRATION_NUMBER", Type: "VARCHAR", Length: 10},
+                {Name: "CAPTURED_GARAGE_NAME", Type: "VARCHAR", Length: 255},
+                {Name: "CONTACT_DRIVER_NAME", Type: "VARCHAR", Length: 255},
+                {Name: "MILEAGE", Type: "NUMERIC", Precision: 38},
+                {Name: "VOR_INCIDENT_SOURCE", Type: "VARCHAR", Length: 20},
+                {Name: "VOR_WORK", Type: "VARCHAR", Length: 2000},
+                {Name: "CRS_LOG_ID", Type: "VARCHAR", Length: 20},
+                {Name: "NUMBER_OF_WORKING_DAYS_VOR", Type: "NUMERIC", Precision: 38},
+                {Name: "NUMBER_OF_DAYS_VOR", Type: "NUMERIC", Precision: 38},
+                {Name: "COMPLETION_TO_COLLECT_DAYS", Type: "NUMERIC", Precision: 38}
+            ]
+        
+        RECEIVE_FROM_LINK("Load_HFVehicleoffRoad", transformed_data)
+        
+        IF ClearFile = 1:
+            CLEAR_HASHED_FILE("HF_FACT_VOR_DATA")
+        END IF
+        
+        IF DeleteFile = 1:
+            DELETE_EXISTING_FILE("HF_FACT_VOR_DATA")
+        END IF
+        
+        CREATE_HASHED_FILE_WITH_OPTIONS("HF_FACT_VOR_DATA", CreateFileOptions)
+        STORE_TO_HASHED_FILE(transformed_data)
+        RETRIEVE_FROM_HASHED_FILE(stored_data)
+        SEND_TO_LINK("Load_StgVehicleoffRoad", stored_data)
+    
+    // Target Stage: Load to Oracle Staging Table
+    STAGE_V0S1_ORA_STG_VEHICLE_OFF_ROAD:
+        Stage_Type = "OracleConnector"
+        Stage_Name = "Ora_StgVehicleOffRoad"
+        Operation = "LOAD"
+        Input_Link = "Load_StgVehicleoffRoad"
+        Input_Pin = "V0S1P2"
+        Target_Table = "STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+        
+        CONFIGURE_INPUT_LINK:
+            Name = "Load_StgVehicleoffRoad"
+            Partner = "V0S13|V0S13P1"
+            LinkType = 1
+            ConditionNotMet = "fail"
+            LookupFail = "fail"
+            TransactionSize = 0
+            TXNBehaviour = 0
+            EnableTxGroup = 0
+            LinkMinimised = 0
+        
+        ESTABLISH_ORACLE_CONNECTION:
+            Server = "#psOraDB.pSID#"
+            Username = "#psOraDB.pUserID#"
+            Password = "#psOraDB.pPassword#"
+            Version = "10g"
+            ArraySize = 2000
+            RecordCount = 2000
+            VariantName = "10"
+            VariantLibrary = "ccora10g"
+            VariantVersion = "1.0"
+            ConnectorName = "OracleConnector"
+            Context = "target"
+            RejectFromLink = -1
+            RejectThreshold = 0
+            RejectNumber = 0
+            RejectUsesPercentage = false
+        
+        CONFIGURE_WRITE_OPERATION:
+            WriteMode = 0
+            GenerateSQL = true
+            TableName = "STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+            TableScope = 0
+            EnableQuotedIDs = false
+            TableAction = 3
+            GenerateTruncateStatement = true
+            FailOnError = true
+            TableActionFirst = true
+            IsolationLevel = 0
+            DropUnmatchedFields = false
+            TreatWarningsAsErrors = false
+            PreserveTrailingBlanks = true
+            FailOnRowErrorSE = false
+            LogColumnValues = false
+        
+        RECEIVE_FROM_LINK("Load_StgVehicleoffRoad", final_data)
+        TRUNCATE_TARGET_TABLE()
+        LOAD_TO_ORACLE_TABLE(final_data)
+
+// chunk pseudo code ended
+
+// MetaBag Collection Configuration
+CONFIGURE_METABAG_COLLECTION:
+    Collection_Name = "MetaBag"
+    Collection_Type = "MetaProperty"
+    Referenced_File = "chunk_1.xml"
+    Content_Status = "Content moved to chunk_1.xml"
+
+// chunk pseudo code ended
+
+JOB_END: DataStage_Job_Execution
+```

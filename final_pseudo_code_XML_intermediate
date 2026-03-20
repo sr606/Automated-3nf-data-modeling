@@ -1,0 +1,2660 @@
+```
+// DataStage Job Parameters and Metadata Initialization
+DECLARE PARAMETERS:
+  psOraDB = "(As pre-defined)"
+  PREV_BATCH_RUN_DATE_VOR = "20151204"
+  DELTA_DAYS_PARAM = 90
+  pSMROutputPath = "/d/ftpdata/tmp/TEST/VOR"
+  pVOR_Exception_FileName = "VOR_Supp_Exceptions"
+  pFiledate = "20151204"
+
+JOB_PROPERTIES:
+  JOB_NAME = "jbSMR3010220StgVehicleOffRoadFact"
+  JOB_DESCRIPTION = "Job to load the STAGE_SMR.STG_VEHICLE_OFF_ROAD table"
+  JOB_VERSION = "56.0.0"
+  JOB_TYPE = 0
+  JOB_CATEGORY = "\Jobs\003 Warehouse\04 SMR\QA\30 Operational Reports\10 Stage"
+  CONTAINER = "V0"
+  NEXT_ID = 117
+  CENTURY_BREAK_YEAR = 30
+  NEXT_ALIAS_ID = 2
+  PARAMETER_FILE_DD_NAME = "DD00001"
+  RESERVED_WORD_CHECK = 1
+  TRANSACTION_SIZE = 0
+  VALIDATION_STATUS = 0
+  UPLOADABLE = 0
+  PGM_CUSTOMIZATION_FLAG = 0
+  JOB_REPORT_FLAG = 0
+  ALLOW_MULTIPLE_INVOCATIONS = 0
+  ACT2ACT_OVERRIDE_DEFAULTS = 0
+  ACT2ACT_ENABLE_ROW_BUFFER = 0
+  ACT2ACT_USE_IPC = 0
+  ACT2ACT_BUFFER_SIZE = 0
+  ACT2ACT_IPC_TIMEOUT = 0
+  EXPRESSION_SEMANTIC_CHECK_FLAG = 0
+  TRACE_OPTION = 0
+  ENABLE_CACHE_SHARING = 0
+  RUNTIME_COLUMN_PROPAGATION = 0
+  REL_STAGES_IN_JOB_STATUS = -1
+  WEB_SERVICE_ENABLED = 0
+  MF_PROCESS_META_DATA = 0
+  MF_PROCESS_META_DATA_XML_FILE_EXCHANGE_METHOD = 0
+  IMS_PROG_TYPE = 0
+  COPY_LIB_PREFIX = "ARDT"
+  RECORD_PERFORMANCE_RESULTS = 0
+  NLS_LOCALE = ",,,,"
+  NULL_INDICATOR_POSITION = 0
+  IS_TEMPLATE = 0
+
+INITIALIZE_METADATA_COLLECTION:
+  CREATE MetaBag_Collection AS MetaProperty_Type
+  SET MetaBag_Collection.SubRecord.Owner = "APT"
+  SET MetaBag_Collection.SubRecord.Name = "AdvancedRuntimeOptions"
+  SET MetaBag_Collection.SubRecord.Value = "#DSProjectARTOptions#"
+  REGISTER_METADATA_COLLECTION(MetaBag_Collection)
+
+BEGIN JOB_EXECUTION:
+
+LINK_1_PARAMETER_VALIDATION:
+  VALIDATE_PARAMETERS:
+    IF psOraDB IS NULL OR EMPTY THEN
+      ABORT_JOB("Database connection parameter not defined")
+    END IF
+    
+    IF PREV_BATCH_RUN_DATE_VOR IS NULL OR EMPTY THEN
+      SET PREV_BATCH_RUN_DATE_VOR = pFiledate
+    END IF
+    
+    IF DELTA_DAYS_PARAM <= 0 THEN
+      SET DELTA_DAYS_PARAM = 90
+    END IF
+  
+  JOB_CONFIGURATION_SETUP:
+    INITIALIZE_JOB_PROPERTIES(JOB_NAME, JOB_VERSION, JOB_TYPE)
+    SET_JOB_CATEGORY(JOB_CATEGORY)
+    CONFIGURE_CONTAINER(CONTAINER)
+    SET_TRANSACTION_SIZE(TRANSACTION_SIZE)
+    ENABLE_RESERVED_WORD_CHECK(RESERVED_WORD_CHECK)
+    SET_CENTURY_BREAK_YEAR(CENTURY_BREAK_YEAR)
+    CONFIGURE_TRACE_OPTION(TRACE_OPTION)
+    SET_COPY_LIB_PREFIX(COPY_LIB_PREFIX)
+    CONFIGURE_NLS_LOCALE(NLS_LOCALE)
+  
+  APPLY_METADATA_CONFIGURATION:
+    LOAD_RUNTIME_OPTIONS(MetaBag_Collection.SubRecord.Value)
+    SET_ADVANCED_PROCESSING_MODE(MetaBag_Collection.SubRecord.Owner)
+  
+  GOTO LINK_2_ENVIRONMENT_SETUP
+
+LINK_2_ENVIRONMENT_SETUP:
+  CONNECTION_BUILDING:
+    ESTABLISH_DB_CONNECTION(psOraDB)
+    VALIDATE_CONNECTION_STATUS()
+    SET_CONNECTION_PROPERTIES(MetaBag_Collection)
+    CONFIGURE_ACT2ACT_SETTINGS(ACT2ACT_OVERRIDE_DEFAULTS, ACT2ACT_ENABLE_ROW_BUFFER, ACT2ACT_USE_IPC, ACT2ACT_BUFFER_SIZE, ACT2ACT_IPC_TIMEOUT)
+  
+  DIRECTORY_SETUP:
+    CREATE_OUTPUT_DIRECTORY(pSMROutputPath)
+    VALIDATE_WRITE_PERMISSIONS(pSMROutputPath)
+  
+  FILE_INITIALIZATION:
+    INITIALIZE_EXCEPTION_FILE(pSMROutputPath + "/" + pVOR_Exception_FileName + "_" + pFiledate + ".txt")
+    CREATE_LOG_FILE(pSMROutputPath + "/processing_log_" + pFiledate + ".log")
+    SET_PARAMETER_FILE_DD_NAME(PARAMETER_FILE_DD_NAME)
+  
+  PERFORMANCE_SETUP:
+    CONFIGURE_CACHE_SHARING(ENABLE_CACHE_SHARING)
+    SET_RUNTIME_COLUMN_PROPAGATION(RUNTIME_COLUMN_PROPAGATION)
+    ENABLE_PERFORMANCE_RECORDING(RECORD_PERFORMANCE_RESULTS)
+  
+  ANNOTATION_INITIALIZATION:
+    INITIALIZE V93A0:
+      SET annotation_name = "V93A0"
+      SET next_component_id = 0
+      SET annotation_type = 2
+      SET background_transparent = false
+      SET border_visible = true
+    END INITIALIZE
+    
+    INITIALIZE V94A0:
+      SET annotation_name = "Fetch_Source_Data"
+      SET description = "Fetch Source Data"
+      SET annotation_type = 2
+      SET background_transparent = false
+      SET border_visible = true
+    END INITIALIZE
+    
+    INITIALIZE V95A0:
+      SET annotation_name = "Load Data to Staging"
+      SET description = "Load Data to Staging"
+      SET target_table = "STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT"
+      SET operation_type = "TRUNCATE & LOAD"
+      SET annotation_type = 2
+      SET background_transparent = false
+      SET border_visible = true
+    END INITIALIZE
+  
+  GOTO LINK_3_DATE_CALCULATION
+
+LINK_3_DATE_CALCULATION:
+  CALCULATE_DATE_RANGE:
+    START_DATE = PREV_BATCH_RUN_DATE_VOR
+    END_DATE = ADD_DAYS(PREV_BATCH_RUN_DATE_VOR, DELTA_DAYS_PARAM)
+    CURRENT_PROCESS_DATE = pFiledate
+    VALIDATE_DATE_RANGE(START_DATE, END_DATE)
+  
+  BUSINESS_RULES_SETUP:
+    FILTER_CRITERIA = "DATE_FIELD BETWEEN '" + START_DATE + "' AND '" + END_DATE + "'"
+    EXCEPTION_CRITERIA = "VALIDATION_RULES_FOR_VOR_SUPPLIERS"
+    TRANSFORMATION_RULES = LOAD_VOR_TRANSFORMATION_RULES()
+    VEHICLE_OFF_ROAD_RULES = LOAD_VEHICLE_OFF_ROAD_BUSINESS_RULES()
+  
+  VALIDATION_SETUP:
+    SET_VALIDATION_STATUS(VALIDATION_STATUS)
+    CONFIGURE_EXPRESSION_SEMANTIC_CHECK(EXPRESSION_SEMANTIC_CHECK_FLAG)
+  
+  GOTO LINK_4_LOOKUP_STAGE_INITIALIZATION
+
+LINK_4_LOOKUP_STAGE_INITIALIZATION:
+  STAGE_V116S0_HF_SMR_VEHICLE_DIM:
+    TYPE: CHashedFileStage
+    OPERATION: LOAD_LOOKUP_DATA
+    LOAD_VEHICLE_DIMENSION_DATA:
+      OPEN_HASHED_FILE("HF_SMR_VEHICLE_DIM")
+      read_vehicle_dimension_records = READ_ALL_RECORDS()
+      VALIDATE_LOOKUP_DATA(read_vehicle_dimension_records)
+      CACHE_LOOKUP_DATA(read_vehicle_dimension_records)
+      CREATE_LOOKUP_INDEX(read_vehicle_dimension_records, "vehicle_id")
+    OUTPUT_LINK: lkVehicleDim_REg
+    LINK_TYPE: 2
+    EXECUTION_MODE: 0
+  
+  STAGE_HF_SMR_VEHICLE_DIM_REG:
+    TYPE: CHashedFileStage
+    OPERATION: LOAD_VEHICLE_REGISTRATION_LOOKUP_DATA
+    LOAD_VEHICLE_REGISTRATION_DIMENSION_DATA:
+      OPEN_HASHED_FILE("HF_SMR_VEHICLE_DIM_REG")
+      read_vehicle_reg_dimension_records = READ_ALL_RECORDS()
+      VALIDATE_LOOKUP_DATA(read_vehicle_reg_dimension_records)
+      CACHE_LOOKUP_DATA(read_vehicle_reg_dimension_records)
+      CREATE_LOOKUP_INDEX(read_vehicle_reg_dimension_records, "REGISTRATION_NO")
+    LOOKUP_COLUMNS:
+      VEHICLE_SK: BIGINT, PRECISION=19, NULLABLE=TRUE
+      OBJECT_NO: VARCHAR, PRECISION=15, NULLABLE=TRUE
+      REGISTRATION_NO: VARCHAR, PRECISION=18, NULLABLE=FALSE, KEY_POSITION=1
+      CUST_ID: BIGINT, PRECISION=19, NULLABLE=TRUE
+      VARIANT_SK: BIGINT, PRECISION=19, NULLABLE=TRUE
+    OUTPUT_LINK: lkVehicleDim_REg_Registration
+    LINK_TYPE: 2
+    EXECUTION_MODE: 0
+  
+  GOTO LINK_5_SOURCE_DATA_EXTRACTION
+
+LINK_5_SOURCE_DATA_EXTRACTION:
+  STAGE_SOURCE_DATA_INPUT:
+    TYPE: Connector
+    OPERATION: EXTRACT_SOURCE_DATA_FOR_VOR_PROCESSING
+    
+    EXTRACT_SOURCE_DATA:
+      source_data = READ_SOURCE_DATA()
+      VALIDATE_SOURCE_DATA_FORMAT(source_data)
+      APPLY_INITIAL_DATA_QUALITY_CHECKS(source_data)
+    
+    OUTPUT_LINK: Raw_Data_Stream
+    LINK_TYPE: 1
+    EXECUTION_MODE: 0
+    NEXT_LINK: Raw_Data_Stream -> Data_Transformation
+  
+  STAGE_SEQUENTIAL_FILE_1:
+    TYPE: CSequentialFileStage
+    OPERATION: READ_SEQUENTIAL_FILE_DATA
+    PROPERTIES:
+      Partner: V0S0|V0S0P2
+      LinkType: 1
+      MultiRow: 0
+      LinkMinimised: 0
+    READ_SEQUENTIAL_FILE_DATA:
+      OPEN_SEQUENTIAL_FILE("vehicle_data.txt")
+      sequential_file_data = READ_ALL_RECORDS()
+      VALIDATE_FILE_FORMAT(sequential_file_data)
+      COLUMNS: [vehicle_id, make, model, year, type, engine_size, fuel_type]
+    OUTPUT_LINK: DSLink3
+    LINK_TYPE: 1
+    EXECUTION_MODE: 0
+  
+  STAGE_SEQUENTIAL_FILE_SOURCE_VOR_DATA:
+    TYPE: CSequentialFileStage
+    OPERATION: READ_VOR_SOURCE_DATA
+    INPUT: Vehicle_Off_Road_Source_File
+    READ_VOR_SOURCE_DATA:
+      OPEN_SEQUENTIAL_FILE("Vehicle_Off_Road_Source_File")
+      vor_source_data = READ_ALL_RECORDS()
+      VALIDATE_FILE_FORMAT(vor_source_data)
+    COLUMNS:
+      VOR_REGISTRATION_NUMBER: VARCHAR, NULLABLE=TRUE
+      VOR_OBJECT_NO: VARCHAR, NULLABLE=TRUE
+      VOR_CUST_ID: BIGINT, NULLABLE=TRUE
+      VOR_VARIANT_SK: BIGINT, NULLABLE=TRUE
+    OUTPUT_LINK: Lnk_Vehicle_off_Road_Data
+    LINK_TYPE: 1
+    EXECUTION_MODE: 0
+    NEXT_LINK: Lnk_Vehicle_off_Road_Data -> Transformer_Data_Processing
+  
+  STAGE_V96S0_SUPP_VOR_EXCEPTION_SOURCE:
+    TYPE: CSeqFileStage
+    NAME: "Supp_VOR_Exception"
+    INPUT_PINS: V96S0P1
+    UNIX_FORMAT: 1
+    PIPE_STAGE: 0
+    UNICODE_BOM: 1
+    UNICODE_SWAPPED: 1
+    ALLOW_COLUMN_MAPPING: 0
+    WITH_FILTER: 0
+    NEXT_ID: 2
+    
+    READ_EXCEPTION_SOURCE_DATA:
+      OPEN_SEQUENTIAL_FILE("Supp_VOR_Exception_File")
+      CONFIGURE_UNIX_FORMAT(UNIX_FORMAT)
+      CONFIGURE_UNICODE_SETTINGS(UNICODE_BOM, UNICODE_SWAPPED)
+      SET_COLUMN_MAPPING_FLAG(ALLOW_COLUMN_MAPPING)
+      SET_FILTER_FLAG(WITH_FILTER)
+      
+      exception_source_data = READ_ALL_RECORDS()
+      VALIDATE_FILE_FORMAT(exception_source_data)
+      APPLY_UNICODE_PROCESSING(exception_source_data)
+    
+    OUTPUT_LINK: Supp_VOR_Exception_Out
+    LINK_TYPE: 1
+    EXECUTION_MODE: 0
+    NEXT_LINK: Supp_VOR_Exception_Out -> Next_Processing_Stage
+  
+  STAGE_V0S0_ORA_EXT_VEHICLE_OFF_ROAD_DATA:
+    TYPE: OracleConnector
+    OPERATION: EXTRACT_SOURCE_DATA
+    CONNECTION: psOraDB
+    STAGE_ID: NextID = 3
+    OUTPUT_PINS: V0S0P2
+    
+    CONNECTION_CONFIG:
+      Server = #psOraDB.pSID#
+      Username = #psOraDB.pUserID#
+      Password = #psOraDB.pPassword#
+      OSLevelAuthentication = false
+      Version = 10g
+      VariantName = 10
+      VariantLibrary = ccora10g
+      VariantVersion = 1.0
+    
+    DATABASE_ACCESS:
+      ReadMode = 0
+      GenerateSQL = false
+      EnableQuotedIDs = false
+      ReadFromFileSelect = false
+    
+    TRANSACTION_CONFIG:
+      IsolationLevel = 0
+      RecordCount = 2000
+      TransactionModel = 0
+      SupportedTransactionModel = local
+    
+    SESSION_CONFIG:
+      ArraySize = 2000
+      PrefetchRowCount = 1
+      PrefetchMemorySize = 0
+      PassLobLocator = false
+      BFILEasBLOB = false
+      TreatWarningsAsErrors = false
+      TreatFetchTruncateAsError = true
+    
+    ERROR_HANDLING:
+      RejectFromLink = -1
+      RejectThreshold = 0
+      RejectNumber = 0
+      RejectUsesPercentage = false
+      RejectConditions = NULL
+      RejectDataElements = NULL
+    
+    EXTRACT_VEHICLE_OFF_ROAD_DATA:
+      CONNECT_TO_DATABASE(Server, Username, Password)
+      SET_SESSION_PARAMETERS(ArraySize, PrefetchRowCount, IsolationLevel)
+      
+      SOURCE_SQL = "select /*+Parallel (5)*/ WORKSHEET_NUMBER,
+ORIGINAL_WORKSHEET_NUMBER,
+VOR_PROGRESS_SK,
+NVL (cd.cust_driver_sk,             -99)    AS REGISTERED_CUST_DRIVER_SK,
+SRC.VEHICLE_SK AS VEHICLE_SK,
+variant_sk,
+(Case WHEN CAPTURED_garage_name is null then -98
+  when supp_smr.supp_sk is not null and supp_smr.lkp_key='A' then supp_smr.supp_sk
+  when supp_nols.supp_sk is not null AND supp_nols.lkp_key='A' then supp_nols.supp_sk
+  when supp_smr.supp_sk is not null and supp_smr.lkp_key='B' then -97
+  when supp_nols.supp_sk is not null and supp_nols.lkp_key='B' then -97
+  Else -99 end) as SUPP_SK,
+CUSTOMER_SK,
+RENTAL_BOOKING_SK,
+RENTAL_BOOKING_REFERENCE,
+VOR_NOTE_SK,
+ORIGINAL_APPOINTMENT_DATE_SK,
+JOB_CLOSED_DATE_SK,
+VOR_PASSED_DATE_SK,
+DRIVER_COLLECTION_DATE_SK,
+VOR_REGISTRATION_NUMBER,
+CAPTURED_GARAGE_NAME,
+CONTACT_DRIVER_NAME,
+MILEAGE,
+VOR_INCIDENT_SOURCE,
+VOR_WORK,
+CRS_LOG_ID,
+NUMBER_OF_WORKING_DAYS_VOR,
+NUMBER_OF_DAYS_VOR,
+COMPLETION_TO_COLLECT_DAYS FROM
+(SELECT vor.worksheet_number as worksheet_number,
+  NVL (vor.original_worksheet_number,'N/A') AS ORIGINAL_WORKSHEET_NUMBER,
+  NVL (vnrr.vor_progress_sk, -99)    AS vor_progress_sk,
+ (CASE WHEN v.vehicle_sk IS NOT NULL THEN  v.vehicle_sk
+ WHEN VN.VEHICLE_SK IS NOT NULL THEN VN.VEHICLE_SK ELSE -99 END)    AS vehicle_sk,
+  (CASE WHEN v.variant_sk IS NOT NULL THEN  v.variant_sk
+WHEN VN.variant_sk IS NOT NULL THEN VN.variant_sk ELSE -99 END)    AS variant_sk,
+(CASE WHEN V.OBJECT_NO IS NOT NULL THEN  V.OBJECT_NO
+WHEN VN.OBJECT_NO IS NOT NULL THEN VN.OBJECT_NO ELSE NULL END)    AS OBJECT_NO,
+    NVL (cust.cust_sk,                  -99)    AS customer_sk,
+  NVL(b.booking_id,                   -99)    AS RENTAL_BOOKING_SK,
+  b.booking_reference as rental_booking_reference,
+  NVL (note.vor_note_sk, -99) AS vor_note_sk,
+  NVL(TO_CHAR (TO_DATE (vor.original_appointment_date, 'DD/MM/YYYY'), 'YYYYMMDD'),'19000101') AS original_appointment_date_sk,
+  CASE
+    WHEN vor.work_finish_date IS NULL
+    THEN '99991231'
+    WHEN vor.work_finish_date='In Progress'
+    THEN '99991231'
+    ELSE TO_CHAR (TO_DATE (vor.work_finish_date, 'DD/MM/YYYY'), 'YYYYMMDD')
+  END AS JOB_CLOSED_DATE_SK,
+  NVL (TO_CHAR (TO_DATE (vor.vor_passed_date, 'DD/MM/YYYY'), 'YYYYMMDD'), '99991231' )  as VOR_PASSED_DATE_SK,
+  NVL (TO_CHAR (TO_DATE (vor.driver_collection_date, 'DD/MM/YYYY'), 'YYYYMMDD'), '99991231' ) as  driver_collection_date_sk,
+  vor.registration_number as VOR_REGISTRATION_NUMBER,
+ (CASE WHEN GM.MAPPED_TO_GARAGE IS NOT NULL THEN GM.MAPPED_TO_GARAGE ELSE vor.garage_name end) as captured_garage_name,
+  vor.driver_name as contact_driver_name,
+  vor.mileage as mileage,
+  vor.vor_incident_source,
+  vor.work_info as VOR_WORK,
+  NVL(vor.crs_reference_no,'N/A') as crs_log_id,
+  vor.working_days_vor as number_of_working_days_vor,
+  vor.number_of_days_vor as number_of_days_vor ,
+  vor.completion_to_collection_days as COMPLETION_TO_COLLECT_DAYS,
+  INCIDENT_CREATION_DATE
+FROM
+     (SELECT worksheet_number,
+      original_worksheet_number,
+      original_appointment_date,
+      work_finish_date,
+      vor_passed_date,
+      driver_collection_date,
+      registration_number,
+      garage_name,
+      driver_name,
+      mileage,
+      vor_incident_source,
+      work_info,
+      crs_reference_no,
+      working_days_vor,
+      number_of_days_vor,
+      completion_to_collection_days,
+      INCIDENT_CREATION_DATE,
+      nols_customer_number,
+      (
+      CASE
+        WHEN rental_number IS NULL
+        THEN '-99'
+        WHEN DW_OWNER.F_IS_NUMBER(RENTAL_NUMBER)=1
+        THEN RENTAL_NUMBER
+        ELSE '-99'
+      END) AS RENTAL_NUMBER,LAST_UPDATED_ON
+    FROM supplierdata_ext.vor_vehicle_off_road VOR 
+        
+    ) vor
+LEFT OUTER JOIN smr_owner.d_vor_progress vnrr
+ON vor.original_worksheet_number = vnrr.original_worksheet_number
+and VNRR.LATEST_FLAG='Y'
+LEFT OUTER JOIN
+ (select vehicle_sk,variant_sk,
+     registration_no,OBJECT_NO,CUST_ID,EFFECTIVE_START_DATE,EFFECTIVE_END_DATE,ETL_TERMINATED_DATE FROM cdm_owner.vehicle_dim v 
+    WHERE   UPPER(V.BRAND)<>'NETWORK' 
+    )V 
+ON vor.registration_number = v.registration_no
+AND VOR.NOLS_CUSTOMER_NUMBER=V.CUST_ID
+and TO_DATE (VOR.INCIDENT_CREATION_DATE, 'DD/MM/YYYY') between v.EFFECTIVE_START_DATE and V.EFFECTIVE_END_DATE
+LEFT OUTER JOIN
+     (select vehicle_sk,variant_sk,
+     registration_no,OBJECT_NO,CUST_ID,EFFECTIVE_START_DATE,EFFECTIVE_END_DATE,ETL_TERMINATED_DATE FROM cdm_owner.vehicle_dim v 
+    WHERE   UPPER(V.BRAND)='NETWORK' ) VN
+    ON vor.registration_number = VN.registration_no
+AND VOR.NOLS_CUSTOMER_NUMBER=VN.CUST_ID and TO_DATE (VOR.INCIDENT_CREATION_DATE, 'DD/MM/YYYY') 
+between VN.EFFECTIVE_START_DATE and VN.EFFECTIVE_END_DATE
+LEFT OUTER JOIN cdm_owner.customer_dim cust
+ON cust.cust_id      = vor.nols_customer_number
+AND cust.latest_flag = 'Y'
+LEFT OUTER JOIN ldrdw.bookings b
+ON vor.rental_number =b.booking_reference
+LEFT OUTER JOIN smr_owner.d_vor_note note
+ON vor.worksheet_number = note.worksheet_number
+AND NOTE.LAST_RECORD    ='Y'
+LEFT OUTER JOIN SUPPLIERDATA_EXT.VOR_I247_GARAGE_MAPPING GM
+ON GM.FROM_I247_GARAGE= VOR.GARAGE_NAME
+WHERE VOR.LAST_UPDATED_ON>=TO_DATE('#PREV_BATCH_RUN_DATE_VOR#','YYYY-MM-DD')-#DELTA_DAYS_PARAM#) SRC 
+LEFT JOIN
+(SELECT distinct driver_id_no,VEHICLE_SK,OBJECT_NO,DRIVER_START_DATE,DRIVER_END_DATE
+ from CDM_OWNER.driver_alloc_veh_dim dav 
+ ORDER BY DRIVER_ID_NO ) dav
+ON SRC.object_no = dav.object_no
+AND TO_DATE(INCIDENT_CREATION_DATE,'DD/MM/YYYY') between DAV.DRIVER_START_DATE and DAV.DRIVER_END_DATE
+LEFT OUTER JOIN cdm_owner.cust_driver_dim cd
+ON cd.cust_driver_id = dav.driver_id_no
+AND cd.latest_flag   = 'Y' 
+LEFT OUTER JOIN
+(select supp_sk,supp_name,lkp_key from
+(SELECT supp_sk , supp_name, 'A'  AS LKP_KEY FROM 
+     ( 
+         SELECT sd.supp_sk ,  sd.supp_name, 
+                           COUNT (sd.supp_name) OVER (PARTITION BY sd.supp_name) AS record_count
+          FROM cdm_owner.supplier_dim sd
+          WHERE sd.latest_flag = 'Y' AND sd.delete_flag = 'N'  and sd.supp_type='SMR' AND
+               SUPP_ID IN (
+                                       select SITE_ID from supplierdata_ext.ONELINK_SUPPLIER_NETWORK 
+                                       where latest_record='Y' AND PREFERENCE_LEVEL <>'D'                                   
+                           )
+     ) 
+WHERE record_count  = 1
+UNION ALL
+SELECT supp_sk ,  supp_name, 'B' AS LKP_KEY FROM 
+     ( 
+         SELECT sd.supp_sk , sd.supp_id, sd.supp_name, row_number() over(partition by  sd.supp_name order by sd.supp_name) as row_val,
+                           COUNT (sd.supp_name) OVER (PARTITION BY sd.supp_name) AS record_count
+          FROM cdm_owner.supplier_dim sd
+          WHERE sd.latest_flag = 'Y' AND sd.delete_flag = 'N' and sd.supp_type='SMR' AND  
+               SUPP_ID IN (
+                                       select SITE_ID from supplierdata_ext.ONELINK_SUPPLIER_NETWORK 
+                                       where latest_record='Y' AND PREFERENCE_LEVEL <>'D'                                   
+                           )
+     ) 
+WHERE record_count  >1 and row_val=1))supp_smr
+ON supp_SMR.supp_name    = SRC.CAPTURED_GARAGE_NAME
+LEFT OUTER JOIN
+(select supp_sk,supp_name,lkp_key from
+(SELECT supp_sk , supp_name, 'A'  AS LKP_KEY FROM 
+     ( 
+         SELECT sd.supp_sk ,  sd.supp_name, 
+                           COUNT (sd.supp_name) OVER (PARTITION BY sd.supp_name) AS record_count
+          FROM cdm_owner.supplier_dim sd
+          WHERE sd.latest_flag = 'Y' AND sd.delete_flag = 'N'  and sd.supp_type='NOLS' AND
+               SUPP_ID IN (
+                                       select SITE_ID from supplierdata_ext.ONELINK_SUPPLIER_NETWORK 
+                                       where latest_record='Y' AND PREFERENCE_LEVEL <>'D'                                   
+                           )
+     ) 
+WHERE record_count  = 1
+UNION ALL
+SELECT supp_sk , supp_name, 'B' AS LKP_KEY FROM 
+     ( 
+         SELECT sd.supp_sk , supp_name, row_number() over(partition by  sd.supp_name order by sd.supp_name) as row_val,
+                           COUNT (sd.supp_name) OVER (PARTITION BY sd.supp_name) AS record_count
+          FROM cdm_owner.supplier_dim sd
+          WHERE sd.latest_flag = 'Y' AND sd.delete_flag = 'N' and sd.supp_type='NOLS' AND  
+               SUPP_ID IN (
+                                       select SITE_ID from supplierdata_ext.ONELINK_SUPPLIER_NETWORK 
+                                       where latest_record='Y' AND PREFERENCE_LEVEL <>'D'                                   
+                           )
+     ) 
+WHERE record_count  >1 and row_val=1))supp_nols
+ON supp_nols.supp_name    = SRC.CAPTURED_GARAGE_NAME
+ORDER BY worksheet_number,vehicle_sk,cd.cust_driver_sk"
+      
+      vehicle_off_road_dataset = EXECUTE_QUERY(SOURCE_SQL, psOraDB)
+      FETCH_RECORDS(RecordCount = 2000)
+      APPLY_PARALLEL_PROCESSING(Degree = 5)
+      VALIDATE_EXTRACTION_RESULTS(vehicle_off_road_dataset)
+      APPLY_METADATA_ENHANCEMENT(vehicle_off_road_dataset, MetaBag_Collection)
+      
+      VALIDATE_RECORD_COUNT()
+      CHECK_DATA_QUALITY()
+      HANDLE_FETCH_TRUNCATE_ERRORS()
+      LOG_WARNINGS_AS_ERRORS()
+    
+    COLUMN_DEFINITIONS:
+      WORKSHEET_NUMBER: SQL_TYPE=12, PRECISION=20, NULLABLE=1
+      ORIGINAL_WORKSHEET_NUMBER: SQL_TYPE=12, PRECISION=20, NULLABLE=1
+      VOR_PROGRESS_SK: SQL_TYPE=3, PRECISION=19, NULLABLE=1
+      REGISTERED_CUST_DRIVER_SK: SQL_TYPE=3, PRECISION=19, NULLABLE=1
+      VEHICLE_SK: SQL_TYPE=3, PRECISION=19, NULLABLE=1
+      VARIANT_SK: SQL_TYPE=3, PRECISION=19, NULLABLE=1
+      SUPP_SK: SQL_TYPE=3, PRECISION=19, NULLABLE=1
+      CUSTOMER_SK: SQL_TYPE=3, PRECISION=19, NULLABLE=1
+      RENTAL_BOOKING_SK: SQL_TYPE=3, PRECISION=10, NULLABLE=1
+      RENTAL_BOOKING_REFERENCE: SQL_TYPE=3, PRECISION=10, NULLABLE=1
+      VOR_NOTE_SK: SQL_TYPE=3, PRECISION=19, NULLABLE=1
+      ORIGINAL_APPOINTMENT_DATE_SK: SQL_TYPE=3, PRECISION=19, NULLABLE=1
+      JOB_CLOSED_DATE_SK: SQL_TYPE=3, PRECISION=19, NULLABLE=1
+      VOR_PASSED_DATE_SK: SQL_TYPE=3, PRECISION=19, NULLABLE=1
+      DRIVER_COLLECTION_DATE_SK: SQL_TYPE=3, PRECISION=38, NULLABLE=1
+      VOR_REGISTRATION_NUMBER: SQL_TYPE=12, PRECISION=10, NULLABLE=1
+      CAPTURED_GARAGE_NAME: SQL_TYPE=12, PRECISION=255, NULLABLE=1
+      CONTACT_DRIVER_NAME: SQL_TYPE=12, PRECISION=255, NULLABLE=1
+      MILEAGE: SQL_TYPE=3, PRECISION=38, NULLABLE=1
+      VOR_INCIDENT_SOURCE: SQL_TYPE=12, PRECISION=20, NULLABLE=1
+      VOR_WORK: SQL_TYPE=12, PRECISION=2000, NULLABLE=1
+      CRS_LOG_ID: SQL_TYPE=12, PRECISION=20, NULLABLE=1
+      NUMBER_OF_WORKING_DAYS_VOR: SQL_TYPE=3, PRECISION=38, NULLABLE=1
+      NUMBER_OF_DAYS_VOR: SQL_TYPE=3, PRECISION=38, NULLABLE=1
+      COMPLETION_TO_COLLECT_DAYS: SQL_TYPE=3, PRECISION=38, NULLABLE=1
+    
+    OUTPUT_LINK: Lnk_Vehicle_off_Road_Data
+    LINK_TYPE: 1
+    EXECUTION_MODE: 0
+    TARGET_STAGE: V0S2
+  
+  STAGE_VOR_VEHICLE_OFF_ROAD_SOURCE:
+    TYPE: OracleConnector
+    OPERATION: EXTRACT_VOR_VEHICLE_OFF_ROAD_DATA
+    CONNECTION: psOraDB
+    
+    SOURCE_SQL = "SELECT * FROM SUPPLIERDATA_EXT.VOR_VEHICLE_OFF_ROAD"
+    
+    EXTRACT_VOR_VEHICLE_OFF_ROAD_DATA:
+      CONNECT_TO_DATABASE(psOraDB)
+      vor_vehicle_off_road_dataset = EXECUTE_QUERY(SOURCE_SQL, psOraDB)
+      VALIDATE_EXTRACTION_RESULTS(vor_vehicle_off_road_dataset)
+    
+    OUTPUT_LINK: VOR_VEHICLE_OFF_ROAD_Data
+    LINK_TYPE: 1
+    EXECUTION_MODE: 0
+    NEXT_LINK: VOR_VEHICLE_OFF_ROAD_Data -> Data_Integration_Transform
+  
+  STAGE_VOR_PROGRESS_REPORTING_SOURCE:
+    TYPE: OracleConnector
+    OPERATION: EXTRACT_VOR_PROGRESS_REPORTING_DATA
+    CONNECTION: psOraDB
+    
+    SOURCE_SQL = "SELECT * FROM SUPPLIERDATA_EXT.VOR_PROGRESS_REPORTING"
+    
+    EXTRACT_VOR_PROGRESS_REPORTING_DATA:
+      CONNECT_TO_DATABASE(psOraDB)
+      vor_progress_reporting_dataset = EXECUTE_QUERY(SOURCE_SQL, psOraDB)
+      VALIDATE_EXTRACTION_RESULTS(vor_progress_reporting_dataset)
+    
+    OUTPUT_LINK: VOR_PROGRESS_REPORTING_Data
+    LINK_TYPE: 1
+    EXECUTION_MODE: 0
+    NEXT_LINK: VOR_PROGRESS_REPORTING_Data -> Data_Integration_Transform
+  
+  STAGE_D_VOR_NON_RETURN_REASON_SOURCE:
+    TYPE: OracleConnector
+    OPERATION: EXTRACT_D_VOR_NON_RETURN_REASON_DATA
+    CONNECTION: psOraDB
+    
+    SOURCE_SQL = "SELECT * FROM SMR_OWNER.D_VOR_NON_RETURN_REASON"
+    
+    EXTRACT_D_VOR_NON_RETURN_REASON_DATA:
+      CONNECT_TO_DATABASE(psOraDB)
+      d_vor_non_return_reason_dataset = EXECUTE_QUERY(SOURCE_SQL, psOraDB)
+      VALIDATE_EXTRACTION_RESULTS(d_vor_non_return_reason_dataset)
+    
+    OUTPUT_LINK: D_VOR_NON_RETURN_REASON_Data
+    LINK_TYPE: 1
+    EXECUTION_MODE: 0
+    NEXT_LINK: D_VOR_NON_RETURN_REASON_Data -> Data_Integration_Transform
+  
+  STAGE_VEHICLE_DIM_SOURCE:
+    TYPE: OracleConnector
+    OPERATION: EXTRACT_VEHICLE_DIM_DATA
+    CONNECTION: psOraDB
+    
+    SOURCE_SQL = "SELECT * FROM CDM_OWNER.VEHICLE_DIM"
+    
+    EXTRACT_VEHICLE_DIM_DATA:
+      CONNECT_TO_DATABASE(psOraDB)
+      vehicle_dim_dataset = EXECUTE_QUERY(SOURCE_SQL, psOraDB)
+      VALIDATE_EXTRACTION_RESULTS(vehicle_dim_dataset)
+    
+    OUTPUT_LINK: VEHICLE_DIM_Data
+    LINK_TYPE: 1
+    EXECUTION_MODE: 0
+    NEXT_LINK: VEHICLE_DIM_Data -> Data_Integration_Transform
+  
+  STAGE_SUPPLIER_DIM_SOURCE:
+    TYPE: OracleConnector
+    OPERATION: EXTRACT_SUPPLIER_DIM_DATA
+    CONNECTION: psOraDB
+    
+    SOURCE_SQL = "SELECT * FROM CDM_OWNER.SUPPLIER_DIM"
+    
+    EXTRACT_SUPPLIER_DIM_DATA:
+      CONNECT_TO_DATABASE(psOraDB)
+      supplier_dim_dataset = EXECUTE_QUERY(SOURCE_SQL, psOraDB)
+      VALIDATE_EXTRACTION_RESULTS(supplier_dim_dataset)
+    
+    OUTPUT_LINK: SUPPLIER_DIM_Data
+    LINK_TYPE: 1
+    EXECUTION_MODE: 0
+    NEXT_LINK: SUPPLIER_DIM_Data -> Data_Integration_Transform
+  
+  STAGE_CUSTOMER_DIM_SOURCE:
+    TYPE: OracleConnector
+    OPERATION: EXTRACT_CUSTOMER_DIM_DATA
+    CONNECTION: psOraDB
+    
+    SOURCE_SQL = "SELECT * FROM CDM_OWNER.CUSTOMER_DIM"
+    
+    EXTRACT_CUSTOMER_DIM_DATA:
+      CONNECT_TO_DATABASE(psOraDB)
+      customer_dim_dataset = EXECUTE_QUERY(SOURCE_SQL, psOraDB)
+      VALIDATE_EXTRACTION_RESULTS(customer_dim_dataset)
+    
+    OUTPUT_LINK: CUSTOMER_DIM_Data
+    LINK_TYPE: 1
+    EXECUTION_MODE: 0
+    NEXT_LINK: CUSTOMER_DIM_Data -> Data_Integration_Transform
+  
+  STAGE_DRIVER_ALLOC_VEH_DIM_SOURCE:
+    TYPE: OracleConnector
+    OPERATION: EXTRACT_DRIVER_ALLOC_VEH_DIM_DATA
+    CONNECTION: psOraDB
+    
+    SOURCE_SQL = "SELECT * FROM CDM_OWNER.DRIVER_ALLOC_VEH_DIM"
+    
+    EXTRACT_DRIVER_ALLOC_VEH_DIM_DATA:
+      CONNECT_TO_DATABASE(psOraDB)
+      driver_alloc_veh_dim_dataset = EXECUTE_QUERY(SOURCE_SQL, psOraDB)
+      VALIDATE_EXTRACTION_RESULTS(driver_alloc_veh_dim_dataset)
+    
+    OUTPUT_LINK: DRIVER_ALLOC_VEH_DIM_Data
+    LINK_TYPE: 1
+    EXECUTION_MODE: 0
+    NEXT_LINK: DRIVER_ALLOC_VEH_DIM_Data -> Data_Integration_Transform
+  
+  STAGE_D_VOR_NOTE_SOURCE:
+    TYPE: OracleConnector
+    OPERATION: EXTRACT_D_VOR_NOTE_DATA
+    CONNECTION: psOraDB
+    
+    SOURCE_SQL = "SELECT * FROM SMR_OWNER.D_VOR_NOTE"
+    
+    EXTRACT_D_VOR_NOTE_DATA:
+      CONNECT_TO_DATABASE(psOraDB)
+      d_vor_note_dataset = EXECUTE_QUERY(SOURCE_SQL, psOraDB)
+      VALIDATE_EXTRACTION_RESULTS(d_vor_note_dataset)
+    
+    OUTPUT_LINK: D_VOR_NOTE_Data
+    LINK_TYPE: 1
+    EXECUTION_MODE: 0
+    NEXT_LINK: D_VOR_NOTE_Data -> Data_Integration_Transform
+  
+  STAGE_VOR_I247_GARAGE_MAPPING_SOURCE:
+    TYPE: OracleConnector
+    OPERATION: EXTRACT_VOR_I247_GARAGE_MAPPING_DATA
+    CONNECTION: psOraDB
+    
+    SOURCE_SQL = "SELECT * FROM SUPPLIERDATA_EXT.VOR_I247_GARAGE_MAPPING"
+    
+    EXTRACT_VOR_I247_GARAGE_MAPPING_DATA:
+      CONNECT_TO_DATABASE(psOraDB)
+      vor_i247_garage_mapping_dataset = EXECUTE_QUERY(SOURCE_SQL, psOraDB)
+      VALIDATE_EXTRACTION_RESULTS(vor_i247_garage_mapping_dataset)
+    
+    OUTPUT_LINK: VOR_I247_GARAGE_MAPPING_Data
+    LINK_TYPE: 1
+    EXECUTION_MODE: 0
+    NEXT_LINK: VOR_I247_GARAGE_MAPPING_Data -> Data_Integration_Transform
+  
+  STAGE_SEQUENTIAL_FILE_SOURCE:
+    TYPE: CSeqFileStage
+    OPERATION: READ_RAW_VEHICLE_DATA
+    READ_VEHICLE_FILE_DATA:
+      OPEN_SEQUENTIAL_FILE("vehicle_data_file")
+      vehicle_raw_data = READ_ALL_RECORDS()
+      EXTRACT_VEHICLE_ATTRIBUTES(vehicle_raw_data)
+      EXTRACT_REGISTRATION_NUMBERS(vehicle_raw_data)
+    OUTPUT_LINK: vehicle_raw_data
+    LINK_TYPE: 1
+    EXECUTION_MODE: 0
+  
+  STAGE_SEQUENTIAL_FILE_SOURCE_V0A17:
+    TYPE: CSeqFileStage
+    OPERATION: READ_VEHICLE_DRIVER_ALLOCATION_DATA
+    READ_VEHICLE_DRIVER_ALLOCATION_DATA:
+      OPEN_SEQUENTIAL_FILE("vehicle_driver_allocation_input_file")
+      vehicle_driver_allocation_data = READ_ALL_RECORDS()
+      VALIDATE_FILE_FORMAT(vehicle_driver_allocation_data)
+    OUTPUT_LINK: source_data
+    LINK_TYPE: 1
+    EXECUTION_MODE: 0
+  
+  STAGE_SOURCE_DATA:
+    TYPE: CSequentialFileStage
+    OPERATION: READ_SOURCE_DATA_FOR_HASHED_FILE
+    READ_SOURCE_DATA_FOR_HASHED_FILE:
+      OPEN_SEQUENTIAL_FILE("source_data_file")
+      source_data_for_hf = READ_ALL_RECORDS()
+      VALIDATE_FILE_FORMAT(source_data_for_hf)
+    OUTPUT_LINK: lnk_source_to_transformer
+    LINK_TYPE: 1
+    EXECUTION_MODE: 0
+  
+  GOTO LINK_6_TRANSFORMATION_PROCESSING
+
+LINK_6_TRANSFORMATION_PROCESSING:
+  STAGE_DATA_TRANSFORMATION:
+    TYPE: Transformer
+    OPERATION: APPLY_BUSINESS_RULES_AND_DATA_VALIDATION
+    INPUT_LINK: Raw_Data_Stream (FROM SOURCE_DATA_INPUT)
+    PREVIOUS_LINK: Source_Data_Input -> Raw_Data_Stream
+    
+    TRANSFORMATION_OPERATIONS:
+      FOR EACH record IN Raw_Data_Stream:
+        APPLY_BUSINESS_RULES(record)
+        PERFORM_DATA_VALIDATION(record)
+        APPLY_DATA_TYPE_CONVERSIONS(record)
+        HANDLE_NULL_VALUE_PROCESSING(record)
+        APPLY_FIELD_MAPPINGS_AND_CALCULATIONS(record)
+        
+        IF VALIDATION_PASSED(record) THEN
+          OUTPUT record TO Transformed_Data_Stream
+        ELSE
+          OUTPUT record TO Exception_Data_Stream
+        END IF
+      END FOR
+    
+    OUTPUT_LINKS:
+      Transformed_Data_Stream (LINK_TYPE: 1, TARGET: Main_Data_Output)
+      Exception_Data_Stream (LINK_TYPE: 1, TARGET: Exception_Data_Processing)
+    NEXT_LINK: Transformed_Data_Stream -> Main_Data_Output
+    EXCEPTION_NEXT_LINK: Exception_Data_Stream -> Exception_Data_Processing
+  
+  STAGE_EXCEPTION_DATA_PROCESSING:
+    TYPE: Transformer
+    OPERATION: FORMAT_EXCEPTION_RECORDS_FOR_OUTPUT
+    INPUT_LINK: Exception_Data_Stream (FROM DATA_TRANSFORMATION)
+    PREVIOUS_LINK: Data_Transformation -> Exception_Data_Stream
+    
+    EXCEPTION_PROCESSING_OPERATIONS:
+      FOR EACH exception_record IN Exception_Data_Stream:
+        FORMAT_EXCEPTION_RECORDS_FOR_OUTPUT(exception_record)
+        ADD_ERROR_CODES_AND_DESCRIPTIONS(exception_record)
+        APPLY_EXCEPTION_HANDLING_BUSINESS_LOGIC(exception_record)
+        PREPARE_DATA_FOR_FILE_OUTPUT_FORMAT(exception_record)
+        
+        processed_exception = CREATE_PROCESSED_EXCEPTION_RECORD(exception_record)
+        OUTPUT processed_exception TO Processed_Exception_Stream
+      END FOR
+    
+    OUTPUT_LINK: Processed_Exception_Stream
+    LINK_TYPE: 1
+    TARGET_STAGE: Load_VOR_Exception_File
+    NEXT_LINK: Processed_Exception_Stream -> Load_VOR_Exception_File
+  
+  STAGE_TRANSFORMER_1:
+    TYPE: CTransformerStage
+    OPERATION: APPLY_INITIAL_TRANSFORMATIONS
+    INPUT_LINK: DSLink3 (FROM SEQUENTIAL_FILE_1)
+    
+    TRANSFORMATION_OPERATIONS:
+      FOR EACH record IN DSLink3:
+        transformed_record = APPLY_TRANSFORMATIONS(record)
+        OUTPUT transformed_record TO DSLink4
+      END FOR
+    
+    OUTPUT_LINK: DSLink4
+    LINK_TYPE: 1
+    TARGET_STAGE: LOOKUP_lkVehicleDim_REg
+  
+  STAGE_TRANSFORMER_2:
+    TYPE: CTransformerStage
+    OPERATION: APPLY_SECONDARY_TRANSFORMATIONS
+    INPUT_LINK: DSLink3 (FROM SEQUENTIAL_FILE_1)
+    
+    TRANSFORMATION_OPERATIONS:
+      FOR EACH record IN DSLink3:
+        APPLY_DATA_TYPE_CONVERSIONS(record)
+        APPLY_FIELD_MAPPINGS(record)
+        APPLY_BUSINESS_RULE_VALIDATIONS(record)
+        APPLY_DATA_CLEANSING_OPERATIONS(record)
+        transformed_data = FINALIZE_TRANSFORMATIONS(record)
+        OUTPUT transformed_data TO DSLink4
+      END FOR
+    
+    OUTPUT_LINK: DSLink4
+    LINK_TYPE: 1
+    TARGET_STAGE: TRANSFORMER_JOIN
+  
+  STAGE_TRANSFORMER_DATA_PROCESSING:
+    TYPE: CTransformerStage
+    OPERATION: CLEANSE_AND_VALIDATE_VOR_DATA
+    INPUT_LINK: Lnk_Vehicle_off_Road_Data (FROM SEQUENTIAL_FILE_SOURCE_VOR_DATA)
+    PREVIOUS_LINK: Sequential_File_Source_VOR_Data -> Lnk_Vehicle_off_Road_Data
+    
+    TRANSFORMATIONS:
+      FOR EACH record IN Lnk_Vehicle_off_Road_Data:
+        CLEAN_REGISTRATION_NO = TRIM_WHITESPACE(record.VOR_REGISTRATION_NUMBER)
+        REG_VALIDATION_FLAG = VALIDATE_NOT_NULL(record.VOR_REGISTRATION_NUMBER)
+        STANDARDIZED_REG_NO = UPPER_CASE(record.VOR_REGISTRATION_NUMBER)
+        PROCESSED_OBJECT_NO = COALESCE(record.VOR_OBJECT_NO, 'UNKNOWN')
+        CUST_ID_VALID = VALIDATE_NUMERIC(record.VOR_CUST_ID)
+        VARIANT_SK_VALID = VALIDATE_NUMERIC(record.VOR_VARIANT_SK)
+        
+        CONSTRAINT_LOGIC:
+          IF REG_VALIDATION_FLAG = FALSE THEN
+            REJECT_RECORD(record)
+          ELSE
+            transformed_record = CREATE_TRANSFORMED_RECORD(CLEAN_REGISTRATION_NO, STANDARDIZED_REG_NO, PROCESSED_OBJECT_NO, CUST_ID_VALID, VARIANT_SK_VALID)
+            OUTPUT transformed_record TO Lnk_Transformed_Vehicle_Data
+          END IF
+      END FOR
+    
+    OUTPUT_LINK: Lnk_Transformed_Vehicle_Data
+    LINK_TYPE: 1
+    TARGET_STAGE: Lookup_Vehicle_Dimension
+    NEXT_LINK: Lnk_Transformed_Vehicle_Data -> Lookup_Vehicle_Dimension
+  
+  STAGE_NEXT_PROCESSING_STAGE:
+    TYPE: CTransformerStage
+    OPERATION: PROCESS_EXCEPTION_SOURCE_DATA
+    INPUT_LINK: Supp_VOR_Exception_Out (FROM V96S0_SUPP_VOR_EXCEPTION_SOURCE)
+    PREVIOUS_LINK: V96S0_Supp_VOR_Exception_Source -> Supp_VOR_Exception_Out
+    
+    EXCEPTION_PROCESSING_OPERATIONS:
+      FOR EACH exception_record IN Supp_VOR_Exception_Out:
+        VALIDATE_EXCEPTION_FORMAT(exception_record)
+        APPLY_UNICODE_TRANSFORMATIONS(exception_record)
+        STANDARDIZE_EXCEPTION_DATA(exception_record)
+        ENRICH_EXCEPTION_METADATA(exception_record)
+        
+        processed_exception = CREATE_PROCESSED_EXCEPTION_RECORD(exception_record)
+        OUTPUT processed_exception TO Processed_Exception_Data
+      END FOR
+    
+    OUTPUT_LINK: Processed_Exception_Data
+    LINK_TYPE: 1
+    TARGET_STAGE: Exception_Data_Merger
+    NEXT_LINK: Processed_Exception_Data -> Exception_Data_Merger
+  
+  STAGE_V0S2_TFM_LOADRECORDS:
+    TYPE: CTransformerStage
+    OPERATION: TRANSFORM_AND_VALIDATE_WITH_EXCEPTION_HANDLING
+    INPUT_LINK: Lnk_Vehicle_off_Road_Data (FROM V0S0)
+    LOOKUP_LINK: lkVehicleDim_REg (FROM V116S0)
+    STAGE_ID: NextID = 8
+    
+    STAGE_CONFIGURATION:
+      BlockSize = 0
+      StageVarsMinimised = 0
+      LoopVarsMaximised = 0
+      MaxLoopIterations = 0
+      ValidationStatus = 0
+    
+    STAGE_VARIABLES:
+      svException = If Lnk_Vehicle_off_Road_Data.SUPP_SK=-99 then -1 Else IF Lnk_Vehicle_off_Road_Data.SUPP_SK=-97 then -1 else 0
+    
+    TRANSFORMATION_LOGIC:
+      FOR EACH record IN Lnk_Vehicle_off_Road_Data:
+        lookup_result = LOOKUP(lkVehicleDim_REg, record.vehicle_id)
+        
+        CALCULATE_EXCEPTION_FLAG:
+          IF record.SUPP_SK = -99 THEN
+            SET svException = -1
+          ELSE IF record.SUPP_SK = -97 THEN
+            SET svException = -1
+          ELSE
+            SET svException = 0
+          END IF
+        
+        IF lookup_result.FOUND THEN
+          transformed_record = APPLY_TRANSFORMATION_RULES(record, lookup_result.data, TRANSFORMATION_RULES)
+          enhanced_record = APPLY_VEHICLE_OFF_ROAD_RULES(transformed_record, VEHICLE_OFF_ROAD_RULES)
+          enhanced_record.svException = svException
+          
+          IF svException = 0 THEN
+            OUTPUT enhanced_record TO Load_HFVehicleoffRoad (V0S2P2)
+          ELSE
+            error_record = CREATE_ERROR_RECORD(enhanced_record, "SUPP_SK validation failed")
+            OUTPUT error_record TO Load_VOR_Exception_File (V0S2P3)
+          END IF
+        ELSE
+          error_record = CREATE_LOOKUP_ERROR_RECORD(record, "Vehicle dimension not found")
+          error_record.svException = -1
+          OUTPUT error_record TO Load_VOR_Exception_File (V0S2P3)
+        END IF
+      END FOR
+    
+    OUTPUT_LINKS:
+      Load_HFVehicleoffRoad (V0S2P2, LINK_TYPE: 1, TARGET: V0S13)
+      Load_VOR_Exception_File (V0S2P3, LINK_TYPE: 1, TARGET: V96S0)
+  
+  STAGE_TRANSFORMER_JOIN:
+    TYPE: CTransformerStage
+    OPERATION: JOIN_AND_MERGE_TRANSFORMER
+    INPUT_LINK_1: DSLink4 (FROM TRANSFORMER_2)
+    INPUT_LINK_2: V116S0P2 (FROM HF_SMR_VEHICLE_DIM)
+    
+    JOIN_OPERATIONS:
+      RECEIVE main_data FROM DSLink4
+      RECEIVE lookup_data FROM V116S0P2
+      
+      FOR EACH main_record IN main_data:
+        FOR EACH lookup_record IN lookup_data:
+          IF MATCH_RECORDS_ON_KEY_FIELDS(main_record, lookup_record) THEN
+            merged_record = MERGE_DATA_ATTRIBUTES(main_record, lookup_record)
+            APPLY_FINAL_TRANSFORMATIONS(merged_record)
+            OUTPUT merged_record TO DSLink5
+          ELSE
+            unmatched_record = HANDLE_UNMATCHED_RECORDS(main_record)
+            OUTPUT unmatched_record TO DSLink5
+          END IF
+        END FOR
+      END FOR
+    
+    OUTPUT_LINK: DSLink5
+    LINK_TYPE: 1
+    TARGET_STAGE: SEQUENTIAL_FILE_TARGET
+  
+  STAGE_OUTPUT_TRANSFORMER:
+    TYPE: CTransformerStage
+    OPERATION: TRANSFORM_AND_ROUTE_EXCEPTION_DATA
+    INPUT_LINK: Lnk_Vehicle_off_Road_Data (FROM V0S0_ORA_EXT_VEHICLE_OFF_ROAD_DATA)
+    
+    STAGE_VARIABLES:
+      svException = IF Lnk_Vehicle_off_Road_Data.SUPP_SK = -99 THEN -1 ELSE 0
+    
+    COLUMN_MAPPINGS:
+      WORKSHEET_NUMBER = Lnk_Vehicle_off_Road_Data.WORKSHEET_NUMBER
+        DATA_TYPE: VARCHAR(20)
+        NULLABLE: TRUE
+        
+      ORIGINAL_WORKSHEET_NUMBER = Lnk_Vehicle_off_Road_Data.ORIGINAL_WORKSHEET_NUMBER
+        DATA_TYPE: VARCHAR(20)
+        NULLABLE: TRUE
+        
+      REGISTRATION_NUMBER = Lnk_Vehicle_off_Road_Data.VOR_REGISTRATION_NUMBER
+        DATA_TYPE: VARCHAR(10)
+        NULLABLE: TRUE
+        
+      GARAGE_NAME = Lnk_Vehicle_off_Road_Data.CAPTURED_GARAGE_NAME
+        DATA_TYPE: VARCHAR(255)
+        NULLABLE: TRUE
+        
+      DESCRIPTION = IF Lnk_Vehicle_off_Road_Data.SUPP_SK = -99 THEN 'Unknown' ELSE 'Duplicates'
+        DATA_TYPE: VARCHAR(50)
+        NULLABLE: TRUE
+    
+    OUTPUT_LINK_CONDITIONS:
+      Load_VOR_Exception_File:
+        CONSTRAINT: svException = -1
+        REJECT: 0
+        ERROR_PIN: 0
+        ROW_LIMIT: 0
+        PARTNER: V96S0|V96S0P1
+        
+      Transformed_Data:
+        CONSTRAINT: svException <> -1
+        DEFAULT_OUTPUT: TRUE
+    
+    TRANSFORMATION_LOGIC:
+      FOR EACH record IN Lnk_Vehicle_off_Road_Data:
+        CALCULATE_EXCEPTION_FLAG:
+          IF record.SUPP_SK = -99 THEN
+            SET svException = -1
+          ELSE
+            SET svException = 0
+          END IF
+        
+        APPLY_COLUMN_MAPPINGS(record)
+        
+        IF svException = -1 THEN
+          OUTPUT record TO Load_VOR_Exception_File
+        ELSE
+          OUTPUT record TO Transformed_Data
+        END IF
+      END FOR
+    
+    OUTPUT_LINKS:
+      Load_VOR_Exception_File (LINK_TYPE: 1, TARGET: V96S0_SUPP_VOR_EXCEPTION)
+      Transformed_Data (LINK_TYPE: 1, TARGET: TARGET_OUTPUT)
+  
+  STAGE_TRANSFORMER_VOR_PROCESSING:
+    TYPE: CTransformerStage
+    OPERATION: TRANSFORM_VOR_DATA_WITH_LOOKUP_INTEGRATION
+    INPUT_LINK: Lnk_Vehicle_off_Road_Data (FROM V0S0_ORA_EXT_VEHICLE_OFF_ROAD_DATA)
+    LOOKUP_LINK: lkVehicleDim_REg (FROM V116S0_HF_SMR_VEHICLE_DIM)
+    
+    STAGE_PROPERTIES:
+      Name: Load_HFVehicleoffRoad
+      Partner: V0S13|V0S13P3
+      Reject_Limit: 0
+      Error_Pin: 0
+      Row_Limit: 0
+      Link_Minimised: 0
+    
+    TRANSFORMATION_LOGIC:
+      FOR EACH record IN Lnk_Vehicle_off_Road_Data:
+        lookup_result = LOOKUP(lkVehicleDim_REg, record.registration_number)
+        
+        WORKSHEET_NUMBER = record.WORKSHEET_NUMBER
+          [VARCHAR(20), Nullable: Yes, KeyPosition: 1]
+        
+        ORIGINAL_WORKSHEET_NUMBER = record.ORIGINAL_WORKSHEET_NUMBER
+          [VARCHAR(20), Nullable: Yes]
+        
+        VOR_PROGRESS_SK = record.VOR_PROGRESS_SK
+          [DECIMAL(19,0), Nullable: Yes]
+        
+        REGISTERED_CUST_DRIVER_SK = record.REGISTERED_CUST_DRIVER_SK
+          [DECIMAL(19,0), Nullable: Yes]
+        
+        VEHICLE_SK = IF (record.VEHICLE_SK = -99) 
+                     THEN lookup_result.VEHICLE_SK 
+                     ELSE record.VEHICLE_SK
+          [DECIMAL(19,0), Nullable: Yes]
+        
+        VARIANT_SK = IF (record.VEHICLE_SK = -99) 
+                     THEN lookup_result.VARIANT_SK 
+                     ELSE record.VARIANT_SK
+          [DECIMAL(19,0), Nullable: Yes]
+        
+        SUPP_SK = record.SUPP_SK
+          [DECIMAL(19,0), Nullable: Yes]
+        
+        CUSTOMER_SK = record.CUSTOMER_SK
+          [DECIMAL(19,0), Nullable: Yes]
+        
+        RENTAL_BOOKING_SK = record.RENTAL_BOOKING_SK
+          [DECIMAL(10,0), Nullable: Yes]
+        
+        RENTAL_BOOKING_REFERENCE = record.RENTAL_BOOKING_REFERENCE
+          [DECIMAL(10,0), Nullable: Yes]
+        
+        VOR_NOTE_SK = record.VOR_NOTE_SK
+          [DECIMAL(19,0), Nullable: Yes]
+        
+        ORIGINAL_APPOINTMENT_DATE_SK = record.ORIGINAL_APPOINTMENT_DATE_SK
+          [DECIMAL(19,0), Nullable: Yes]
+        
+        JOB_CLOSED_DATE_SK = record.JOB_CLOSED_DATE_SK
+          [DECIMAL(19,0), Nullable: Yes]
+        
+        VOR_PASSED_DATE_SK = record.VOR_PASSED_DATE_SK
+          [DECIMAL(19,0), Nullable: Yes]
+        
+        DRIVER_COLLECTION_DATE_SK = record.DRIVER_COLLECTION_DATE_SK
+          [DECIMAL(38,0), Nullable: Yes]
+        
+        VOR_REGISTRATION_NUMBER = record.VOR_REGISTRATION_NUMBER
+          [VARCHAR(10), Nullable: Yes]
+        
+        CAPTURED_GARAGE_NAME = record.CAPTURED_GARAGE_NAME
+          [VARCHAR(255), Nullable: Yes]
+        
+        CONTACT_DRIVER_NAME = record.CONTACT_DRIVER_NAME
+          [VARCHAR(255), Nullable: Yes]
+        
+        MILEAGE = record.MILEAGE
+          [DECIMAL(38,0), Nullable: Yes]
+        
+        VOR_INCIDENT_SOURCE = record.VOR_INCIDENT_SOURCE
+          [VARCHAR(20), Nullable: Yes]
+        
+        VOR_WORK = record.VOR_WORK
+          [VARCHAR(2000), Nullable: Yes]
+        
+        CRS_LOG_ID = record.CRS_LOG_ID
+          [VARCHAR(20), Nullable: Yes]
+        
+        NUMBER_OF_WORKING_DAYS_VOR = record.NUMBER_OF_WORKING_DAYS_VOR
+          [DECIMAL(38,0), Nullable: Yes]
+        
+        NUMBER_OF_DAYS_VOR = record.NUMBER_OF_DAYS_VOR
+          [DECIMAL(38,0), Nullable: Yes]
+        
+        COMPLETION_TO_COLLECT_DAYS = record.COMPLETION_TO_COLLECT_DAYS
+          [DECIMAL(38,0), Nullable: Yes]
+        
+        VALIDATE_RECORD_COMPLETENESS(transformed_record)
+        CHECK_MANDATORY_FIELDS(transformed_record)
+        APPLY_BUSINESS_RULES_VALIDATION(transformed_record)
+        
+        OUTPUT transformed_record TO Transformed_VOR_Data
+      END FOR
+    
+    OUTPUT_LINK: Transformed_VOR_Data
+    LINK_TYPE: 1
+    TARGET_STAGE: STG_VEHICLE_OFF_ROAD_FACT
+  
+  STAGE_VEHICLE_OFFROAD_TRANSFORMER:
+    TYPE: CTransformerStage
+    OPERATION: TRANSFORM_VEHICLE_OFFROAD_FACT_DATA
+    INPUT_LINK: source_data_link (FROM Source_Connector)
+    
+    COLUMN_DEFINITIONS:
+      WORKSHEET_NUMBER: VARCHAR(20), NULLABLE, PRIMARY_KEY_POSITION=1
+      ORIGINAL_WORKSHEET_NUMBER: VARCHAR(20), NULLABLE
+      VOR_PROGRESS_SK: DECIMAL(19,0), NULLABLE, MAPS_TO=VOR_NON_RETURN_REASON_SK
+      REGISTERED_CUST_DRIVER_SK: DECIMAL(19,0), NULLABLE
+      VEHICLE_SK: DECIMAL(19,0), NULLABLE
+      VARIANT_SK: DECIMAL(19,0), NULLABLE
+      SUPP_SK: DECIMAL(19,0), NULLABLE
+      CUSTOMER_SK: DECIMAL(19,0), NULLABLE
+      RENTAL_BOOKING_SK: DECIMAL(10,0), NULLABLE
+      VOR_NOTE_SK: DECIMAL(19,0), NULLABLE
+      ORIGINAL_APPOINTMENT_DATE_SK: DECIMAL(19,0), NULLABLE
+      JOB_CLOSED_DATE_SK: DECIMAL(19,0), NULLABLE
+      VOR_PASSED_DATE_SK: DECIMAL(19,0), NULLABLE
+      DRIVER_COLLECTION_DATE_SK: DECIMAL(38,0), NULLABLE
+      RENTAL_BOOKING_REFERENCE: DECIMAL(10,0), NULLABLE, MAPS_TO=BOOKING_REFERENCE
+      VOR_REGISTRATION_NUMBER: VARCHAR(10), NULLABLE
+      CAPTURED_GARAGE_NAME: VARCHAR(255), NULLABLE
+      CONTACT_DRIVER_NAME: VARCHAR(255), NULLABLE
+      VOR_INCIDENT_SOURCE: VARCHAR(20), NULLABLE
+      VOR_WORK: VARCHAR(2000), NULLABLE
+      CRS_LOG_ID: VARCHAR(20), NULLABLE
+      MILEAGE: DECIMAL(38,0), NULLABLE
+      NUMBER_OF_WORKING_DAYS_VOR: DECIMAL(38,0), NULLABLE
+      NUMBER_OF_DAYS_VOR: DECIMAL(38,0), NULLABLE
+      COMPLETION_TO_COLLECT_DAYS: DECIMAL(38,0), NULLABLE
+    
+    TRANSFORMATION_LOGIC:
+      INITIALIZE_TRANSFORMATION_CONTEXT()
+      SET_ERROR_HANDLING_MODE()
+      
+      FOR EACH input_row FROM source_data_link:
+        BEGIN_RECORD_PROCESSING()
+        
+        VALIDATE_RECORD_COMPLETENESS(input_row)
+        CHECK_MANDATORY_FIELDS(input_row)
+        
+        TRY:
+          VALIDATE_AND_CONVERT(WORKSHEET_NUMBER, VARCHAR, 20)
+          VALIDATE_AND_CONVERT(ORIGINAL_WORKSHEET_NUMBER, VARCHAR, 20)
+        CATCH validation_error:
+          LOG_VALIDATION_ERROR(validation_error)
+          SEND_TO_REJECT_LINK(input_row, reject_data_link)
+          CONTINUE
+        
+        PROCESS_SURROGATE_KEY_LOOKUP(VOR_PROGRESS_SK, VOR_NON_RETURN_REASON_SK)
+        PROCESS_SURROGATE_KEY_LOOKUP(REGISTERED_CUST_DRIVER_SK)
+        PROCESS_SURROGATE_KEY_LOOKUP(VEHICLE_SK)
+        PROCESS_SURROGATE_KEY_LOOKUP(VARIANT_SK)
+        PROCESS_SURROGATE_KEY_LOOKUP(SUPP_SK)
+        PROCESS_SURROGATE_KEY_LOOKUP(CUSTOMER_SK)
+        PROCESS_SURROGATE_KEY_LOOKUP(RENTAL_BOOKING_SK)
+        PROCESS_SURROGATE_KEY_LOOKUP(VOR_NOTE_SK)
+        
+        PROCESS_DATE_KEY_TRANSFORMATION(ORIGINAL_APPOINTMENT_DATE_SK)
+        PROCESS_DATE_KEY_TRANSFORMATION(JOB_CLOSED_DATE_SK)
+        PROCESS_DATE_KEY_TRANSFORMATION(VOR_PASSED_DATE_SK)
+        PROCESS_DATE_KEY_TRANSFORMATION(DRIVER_COLLECTION_DATE_SK)
+        
+        MAP_BUSINESS_REFERENCE(RENTAL_BOOKING_REFERENCE, BOOKING_REFERENCE)
+        VALIDATE_BUSINESS_REFERENCE_INTEGRITY()
+        
+        APPLY_STRING_CLEANSING_RULES(CAPTURED_GARAGE_NAME, 255)
+        APPLY_STRING_CLEANSING_RULES(CONTACT_DRIVER_NAME, 255)
+        APPLY_STRING_CLEANSING_RULES(VOR_REGISTRATION_NUMBER, 10)
+        APPLY_STRING_CLEANSING_RULES(VOR_INCIDENT_SOURCE, 20)
+        APPLY_STRING_CLEANSING_RULES(VOR_WORK, 2000)
+        APPLY_STRING_CLEANSING_RULES(CRS_LOG_ID, 20)
+        
+        VALIDATE_AND_PROCESS_NUMERIC(MILEAGE, DECIMAL, 38, 0)
+        VALIDATE_AND_PROCESS_NUMERIC(NUMBER_OF_WORKING_DAYS_VOR, DECIMAL, 38, 0)
+        VALIDATE_AND_PROCESS_NUMERIC(NUMBER_OF_DAYS_VOR, DECIMAL, 38, 0)
+        VALIDATE_AND_PROCESS_NUMERIC(COMPLETION_TO_COLLECT_DAYS, DECIMAL, 38, 0)
+        
+        APPLY_BUSINESS_RULES_VALIDATION()
+        CHECK_REFERENTIAL_INTEGRITY()
+        
+        APPLY_NULL_HANDLING_STRATEGY()
+        ASSIGN_DEFAULT_VALUES_WHERE_APPLICABLE()
+        
+        APPLY_DATA_ENRICHMENT_RULES()
+        CALCULATE_DERIVED_FIELDS()
+        
+        PERFORM_FINAL_RECORD_VALIDATION()
+        
+        IF validation_passed:
+          OUTPUT_TO_LINK(transformed_data_link, processed_row)
+        ELSE:
+          OUTPUT_TO_LINK(reject_data_link, input_row)
+        
+        END_RECORD_PROCESSING()
+      
+      FINALIZE_TRANSFORMATION_CONTEXT()
+      GENERATE_TRANSFORMATION_STATISTICS()
+    
+    OUTPUT_LINKS:
+      transformed_data_link (LINK_TYPE: 1, TARGET: Target_Connector)
+      reject_data_link (LINK_TYPE: 1, TARGET: Reject_Handler)
+  
+  STAGE_TRANSFORMER_V0A16:
+    TYPE: CTransformerStage
+    OPERATION: CLEANSE_MATCHED_VEHICLE_DATA
+    INPUT_LINK: vehicle_matched_data (FROM LOOKUP_VEHICLE_DIMENSION)
+    
+    CLEANSING_OPERATIONS:
+      FOR EACH record IN vehicle_matched_data:
+        IF record.vehicle_sk IS NOT NULL THEN
+          cleansed_record = APPLY_DATA_QUALITY_RULES(record)
+          standardized_record = STANDARDIZE_VEHICLE_ATTRIBUTES(cleansed_record)
+          validated_record = VALIDATE_REGISTRATION_NUMBER_FORMAT(standardized_record)
+          OUTPUT validated_record TO vehicle_processed_data
+        END IF
+      END FOR
+    
+    OUTPUT_LINK: vehicle_processed_data (LINK_TYPE: 1, TARGET: SEQUENTIAL_FILE_TARGET)
+  
+  STAGE_TRANSFORMER_ERROR_HANDLER:
+    TYPE: CTransformerStage
+    OPERATION: HANDLE_UNMATCHED_RECORDS
+    INPUT_LINK: vehicle_unmatched_data (FROM LOOKUP_VEHICLE_DIMENSION)
+    
+    ERROR_HANDLING_OPERATIONS:
+      FOR EACH record IN vehicle_unmatched_data:
+        error_record = LOG_UNMATCHED_REGISTRATION_NUMBER(record)
+        timestamped_record = ADD_TIMESTAMP(error_record)
+        coded_record = ADD_ERROR_CODES_AND_DESCRIPTIONS(timestamped_record)
+        OUTPUT coded_record TO error_log_data
+      END FOR
+    
+    OUTPUT_LINK: error_log_data (LINK_TYPE: 1, TARGET: ERROR_LOG_TARGET)
+  
+  STAGE_TRANSFORM_VOR_DATA:
+    TYPE: CTransformerStage
+    OPERATION: TRANSFORM_VOR_DATA_FOR_HASHED_FILE
+    INPUT_LINK: lnk_source_to_transformer (FROM SOURCE_DATA)
+    
+    TRANSFORMATION_OPERATIONS:
+      FOR EACH record IN lnk_source_to_transformer:
+        transformed_vor_record = APPLY_VOR_TRANSFORMATIONS(record)
+        validated_vor_record = VALIDATE_VOR_DATA(transformed_vor_record)
+        OUTPUT validated_vor_record TO lnk_transformer_to_hashed_file
+      END FOR
+    
+    OUTPUT_LINK: lnk_transformer_to_hashed_file
+    LINK_TYPE: 1
+    TARGET_STAGE: Load_HFVehicleoffRoad
+  
+  STAGE_DATA_INTEGRATION_TRANSFORM:
+    TYPE: CTransformerStage
+    OPERATION: INTEGRATE_MULTIPLE_SOURCE_DATA_STREAMS
+    INPUT_LINKS: [
+      VOR_VEHICLE_OFF_ROAD_Data (FROM VOR_VEHICLE_OFF_ROAD_SOURCE),
+      VOR_PROGRESS_REPORTING_Data (FROM VOR_PROGRESS_REPORTING_SOURCE),
+      D_VOR_NON_RETURN_REASON_Data (FROM D_VOR_NON_RETURN_REASON_SOURCE),
+      VEHICLE_DIM_Data (FROM VEHICLE_DIM_SOURCE),
+      SUPPLIER_DIM_Data (FROM SUPPLIER_DIM_SOURCE),
+      CUSTOMER_DIM_Data (FROM CUSTOMER_DIM_SOURCE),
+      DRIVER_ALLOC_VEH_DIM_Data (FROM DRIVER_ALLOC_VEH_DIM_SOURCE),
+      D_VOR_NOTE_Data (FROM D_VOR_NOTE_SOURCE),
+      VOR_I247_GARAGE_MAPPING_Data (FROM VOR_I247_GARAGE_MAPPING_SOURCE)
+    ]
+    PREVIOUS_LINKS: [
+      VOR_VEHICLE_OFF_ROAD_SOURCE -> VOR_VEHICLE_OFF_ROAD_Data,
+      VOR_PROGRESS_REPORTING_SOURCE -> VOR_PROGRESS_REPORTING_Data,
+      D_VOR_NON_RETURN_REASON_SOURCE -> D_VOR_NON_RETURN_REASON_Data,
+      VEHICLE_DIM_SOURCE -> VEHICLE_DIM_Data,
+      SUPPLIER_DIM_SOURCE -> SUPPLIER_DIM_Data,
+      CUSTOMER_DIM_SOURCE -> CUSTOMER_DIM_Data,
+      DRIVER_ALLOC_VEH_DIM_SOURCE -> DRIVER_ALLOC_VEH_DIM_Data,
+      D_VOR_NOTE_SOURCE -> D_VOR_NOTE_Data,
+      VOR_I247_GARAGE_MAPPING_SOURCE -> VOR_I247_GARAGE_MAPPING_Data
+    ]
+    
+    LOOKUP_OPERATIONS:
+      SETUP_LOOKUP_VEHICLE_DIM:
+        CACHE_LOOKUP_DATA(VEHICLE_DIM_Data)
+        CREATE_LOOKUP_INDEX(VEHICLE_DIM_Data, "vehicle_id")
+      
+      SETUP_LOOKUP_SUPPLIER_DIM:
+        CACHE_LOOKUP_DATA(SUPPLIER_DIM_Data)
+        CREATE_LOOKUP_INDEX(SUPPLIER_DIM_Data, "supplier_id")
+      
+      SETUP_LOOKUP_CUSTOMER_DIM:
+        CACHE_LOOKUP_DATA(CUSTOMER_DIM_Data)
+        CREATE_LOOKUP_INDEX(CUSTOMER_DIM_Data, "customer_id")
+      
+      SETUP_LOOKUP_DRIVER_ALLOC_VEH_DIM:
+        CACHE_LOOKUP_DATA(DRIVER_ALLOC_VEH_DIM_Data)
+        CREATE_LOOKUP_INDEX(DRIVER_ALLOC_VEH_DIM_Data, "driver_id")
+      
+      SETUP_LOOKUP_D_VOR_NON_RETURN_REASON:
+        CACHE_LOOKUP_DATA(D_VOR_NON_RETURN_REASON_Data)
+        CREATE_LOOKUP_INDEX(D_VOR_NON_RETURN_REASON_Data, "reason_id")
+      
+      SETUP_LOOKUP_D_VOR_NOTE:
+        CACHE_LOOKUP_DATA(D_VOR_NOTE_Data)
+        CREATE_LOOKUP_INDEX(D_VOR_NOTE_Data, "note_id")
+      
+      SETUP_LOOKUP_VOR_I247_GARAGE_MAPPING:
+        CACHE_LOOKUP_DATA(VOR_I247_GARAGE_MAPPING_Data)
+        CREATE_LOOKUP_INDEX(VOR_I247_GARAGE_MAPPING_Data, "garage_id")
+    
+    TRANSFORMATION_LOGIC:
+      FOR EACH vor_record IN VOR_VEHICLE_OFF_ROAD_Data:
+        progress_record = LOOKUP(VOR_PROGRESS_REPORTING_Data, vor_record.worksheet_number)
+        
+        IF progress_record.FOUND THEN
+          joined_record = JOIN_VOR_WITH_PROGRESS(vor_record, progress_record)
+        ELSE
+          joined_record = vor_record
+        END IF
+        
+        vehicle_lookup = LOOKUP(VEHICLE_DIM_Data, joined_record.vehicle_id)
+        IF vehicle_lookup.FOUND THEN
+          joined_record = ENRICH_WITH_VEHICLE_DIM(joined_record, vehicle_lookup)
+        END IF
+        
+        supplier_lookup = LOOKUP(SUPPLIER_DIM_Data, joined_record.supplier_id)
+        IF supplier_lookup.FOUND THEN
+          joined_record = ENRICH_WITH_SUPPLIER_DIM(joined_record, supplier_lookup)
+        END IF
+        
+        customer_lookup = LOOKUP(CUSTOMER_DIM_Data, joined_record.customer_id)
+        IF customer_lookup.FOUND THEN
+          joined_record = ENRICH_WITH_CUSTOMER_DIM(joined_record, customer_lookup)
+        END IF
+        
+        driver_lookup = LOOKUP(DRIVER_ALLOC_VEH_DIM_Data, joined_record.driver_id)
+        IF driver_lookup.FOUND THEN
+          joined_record = ENRICH_WITH_DRIVER_ALLOC_VEH_DIM(joined_record, driver_lookup)
+        END IF
+        
+        reason_lookup = LOOKUP(D_VOR_NON_RETURN_REASON_Data, joined_record.reason_id)
+        IF reason_lookup.FOUND THEN
+          joined_record = ENRICH_WITH_VOR_NON_RETURN_REASON(joined_record, reason_lookup)
+        END IF
+        
+        note_lookup = LOOKUP(D_VOR_NOTE_Data, joined_record.note_id)
+        IF note_lookup.FOUND THEN
+          joined_record = ENRICH_WITH_VOR_NOTE(joined_record, note_lookup)
+        END IF
+        
+        garage_lookup = LOOKUP(VOR_I247_GARAGE_MAPPING_Data, joined_record.garage_id)
+        IF garage_lookup.FOUND THEN
+          joined_record = ENRICH_WITH_GARAGE_MAPPING(joined_record, garage_lookup)
+        END IF
+        
+        PERFORM_DATA_VALIDATION_AND_CLEANSING(joined_record)
+        HANDLE_NULL_VALUES(joined_record)
+        APPLY_DATA_QUALITY_CHECKS(joined_record)
+        APPLY_BUSINESS_RULES_AND_CALCULATIONS(joined_record)
+        
+        transformed_record = FINALIZE_TRANSFORMATION(joined_record)
+        OUTPUT transformed_record TO Transformed_VOR_Data
+      END FOR
+    
+    OUTPUT_LINK: Transformed_VOR_Data
+    LINK_TYPE: 1
+    TARGET_STAGE: Target_Load
+    NEXT_LINK: Transformed_VOR_Data -> Target_Load
+  
+  STAGE_EXCEPTION_DATA_MERGER:
+    TYPE: CTransformerStage
+    OPERATION: MERGE_EXCEPTION_DATA_WITH_MAIN_FLOW
+    INPUT_LINK: Processed_Exception_Data (FROM NEXT_PROCESSING_STAGE)
+    PREVIOUS_LINK: Next_Processing_Stage -> Processed_Exception_Data
+    
+    EXCEPTION_MERGER_OPERATIONS:
+      FOR EACH processed_exception IN Processed_Exception_Data:
+        VALIDATE_EXCEPTION_COMPLETENESS(processed_exception)
+        APPLY_EXCEPTION_BUSINESS_RULES(processed_exception)
+        STANDARDIZE_EXCEPTION_FORMAT(processed_exception)
+        
+        merged_exception_record = CREATE_MERGED_EXCEPTION_RECORD(processed_exception)
+        OUTPUT merged_exception_record TO Exception_Output_Stream
+      END FOR
+    
+    OUTPUT_LINK: Exception_Output_Stream
+    LINK_TYPE: 1
+    TARGET_STAGE: Exception_File_Writer
+    NEXT_LINK: Exception_Output_Stream -> Exception_File_Writer
+  
+  GOTO LINK_7_LOOKUP_PROCESSING
+
+LINK_7_LOOKUP_PROCESSING:
+  STAGE_LOOKUP_lkVehicleDim_REg:
+    TYPE: CLookupStage
+    OPERATION: LOOKUP_VEHICLE_DIMENSION_DATA
+    INPUT_LINK: DSLink4 (FROM Transformer_1)
+    LOOKUP_PARTNER: V116S0|V116S0P2
+    LINK_TYPE: 2
+    MULTI_ROW: 0
+    LINK_MINIMISED: 0
+    
+    LOOKUP_OPERATIONS:
+      FOR EACH record IN DSLink4:
+        lookup_key = EXTRACT_LOOKUP_KEY(record)
+        lookup_result = LOOKUP_REFERENCE_DATA(lookup_key, V116S0|V116S0P2)
+        enriched_record = MERGE(record, lookup_result)
+        OUTPUT enriched_record TO lkVehicleDim_REg
+      END FOR
+    
+    OUTPUT_LINK: lkVehicleDim_REg
+    LINK_TYPE: 2
+    TARGET_STAGE: Sequential_File_2
+  
+  STAGE_LOOKUP_VEHICLE_DIMENSION:
+    TYPE: CLookupStage
+    OPERATION: RESOLVE_VEHICLE_SK_BY_REGISTRATION
+    INPUT_LINK: Lnk_Transformed_Vehicle_Data (FROM TRANSFORMER_DATA_PROCESSING)
+    LOOKUP_TABLE: HF_SMR_VEHICLE_DIM_REG
+    LOOKUP_KEY: STANDARDIZED_REG_NO = REGISTRATION_NO
+    PREVIOUS_LINK: Transformer_Data_Processing -> Lnk_Transformed_Vehicle_Data
+    STAGE_NAME: lkVehicleDim_REg
+    PARTNER: V0S2|V0S2P7
+    
+    LOOKUP_PROPERTIES:
+      IN_MEMORY: 0
+      NORMALIZE: Un-Normalized
+      RECORD_LEVEL_READ: 0
+    
+    LOOKUP_COLUMNS:
+      VEHICLE_SK: BIGINT, PRECISION=19, NULLABLE=TRUE
+      OBJECT_NO: VARCHAR, PRECISION=15, NULLABLE=TRUE
+      REGISTRATION_NO: VARCHAR, PRECISION=18, NULLABLE=FALSE, KEY_POSITION=1
+      CUST_ID: BIGINT, PRECISION=19, NULLABLE=TRUE
+      VARIANT_SK: BIGINT, PRECISION=19, NULLABLE=TRUE
+    
+    LOOKUP_CONDITION:
+      KEY_EXPRESSION: Lnk_Transformed_Vehicle_Data.STANDARDIZED_REG_NO
+      PARSED_DERIVATION: Lnk_Transformed_Vehicle_Data.STANDARDIZED_REG_NO
+      SOURCE_COLUMN: Lnk_Transformed_Vehicle_Data.STANDARDIZED_REG_NO
+    
+    LOOKUP_OPERATIONS:
+      FOR EACH record IN Lnk_Transformed_Vehicle_Data:
+        lookup_result = LOOKUP(HF_SMR_VEHICLE_DIM_REG, record.STANDARDIZED_REG_NO)
+        
+        IF lookup_result.FOUND THEN
+          matched_record = MERGE_RECORD(record, lookup_result.VEHICLE_SK, lookup_result.OBJECT_NO, lookup_result.CUST_ID, lookup_result.VARIANT_SK)
+          OUTPUT matched_record TO Lnk_Enriched_Vehicle_Data
+        ELSE
+          unmatched_record = MARK_AS_UNMATCHED(record)
+          OUTPUT unmatched_record TO Lnk_Enriched_Vehicle_Data
+        END IF
+      END FOR
+    
+    LOOKUP_FAILURE: REJECT
+    OUTPUT_LINK: Lnk_Enriched_Vehicle_Data
+    LINK_TYPE: 2
+    TARGET_STAGE: Transformer_Quality_Validation
+    NEXT_LINK: Lnk_Enriched_Vehicle_Data -> Transformer_Quality_Validation
+  
+  STAGE_LOOKUP_VEHICLE_DIMENSION_ORIGINAL:
+    TYPE: CLookupStage
+    OPERATION: RESOLVE_VEHICLE_SK
+    INPUT_LINK: vehicle_raw_data (FROM SEQUENTIAL_FILE_SOURCE)
+    REFERENCE_LINK: Vehicle_Dimension_Table
+    LOOKUP_KEY: Registration_Number
+    
+    LOOKUP_OPERATIONS:
+      FOR EACH record IN vehicle_raw_data:
+        lookup_result = LOOKUP(Vehicle_Dimension_Table, record.Registration_Number)
+        
+        IF lookup_result.FOUND THEN
+          matched_record = MERGE_RECORD(record, lookup_result.vehicle_sk)
+          OUTPUT matched_record TO vehicle_matched_data
+        ELSE
+          unmatched_record = MARK_AS_UNMATCHED(record)
+          OUTPUT unmatched_record TO vehicle_unmatched_data
+        END IF
+      END FOR
+    
+    OUTPUT_LINKS:
+      vehicle_matched_data (LINK_TYPE: 1, TARGET: TRANSFORMER_V0A16)
+      vehicle_unmatched_data (LINK_TYPE: 1, TARGET: TRANSFORMER_ERROR_HANDLER)
+  
+  GOTO LINK_8_VALIDATION_PROCESSING
+
+LINK_8_VALIDATION_PROCESSING:
+  STAGE_TRANSFORMER_QUALITY_VALIDATION:
+    TYPE: CTransformerStage
+    OPERATION: VALIDATE_DATA_QUALITY_AND_BUSINESS_RULES
+    INPUT_LINK: Lnk_Enriched_Vehicle_Data (FROM LOOKUP_VEHICLE_DIMENSION)
+    PREVIOUS_LINK: Lookup_Vehicle_Dimension -> Lnk_Enriched_Vehicle_Data
+    
+    VALIDATION_RULES:
+      FOR EACH record IN Lnk_Enriched_Vehicle_Data:
+        VEHICLE_VALID = CHECK_VEHICLE_SK_EXISTS(record.VEHICLE_SK)
+        REG_FORMAT_VALID = VALIDATE_REGISTRATION_FORMAT(record.REGISTRATION_NO)
+        CUST_RANGE_VALID = CHECK_CUSTOMER_ID_RANGE(record.CUST_ID)
+        VARIANT_VALID = VALIDATE_VARIANT_SK(record.VARIANT_SK)
+        
+        CONSTRAINT_LOGIC:
+          IF VEHICLE_VALID = FALSE OR REG_FORMAT_VALID = FALSE THEN
+            rejected_record = CREATE_REJECT_RECORD(record, "Vehicle validation failed or invalid registration format")
+            OUTPUT rejected_record TO Lnk_Rejected_Records
+          ELSE
+            validated_record = CREATE_VALIDATED_RECORD(record)
+            OUTPUT validated_record TO Lnk_Validated_Data
+          END IF
+      END FOR
+    
+    OUTPUT_LINKS:
+      Lnk_Validated_Data (LINK_TYPE: 1, TARGET: Sequential_File_Target_Vehicle_Processed)
+      Lnk_Rejected_Records (LINK_TYPE: 1, TARGET: Sequential_File_Reject_Handler)
+    NEXT_LINK: Lnk_Validated_Data -> Sequential_File_Target_Vehicle_Processed
+    REJECT_NEXT_LINK: Lnk_Rejected_Records -> Sequential_File_Reject_Handler
+  
+  GOTO LINK_9_COPY_PROCESSING
+
+LINK_9_COPY_PROCESSING:
+  STAGE_COPY_1:
+    TYPE: CCopyStage
+    OPERATION: COPY_DATA_TO_MULTIPLE_OUTPUTS
+    INPUT_LINK: V0S1P1 (FROM TRANSFORMER_1)
+    
+    COPY_OPERATIONS:
+      FOR EACH record IN V0S1P1:
+        OUTPUT record TO V0S2P1
+        OUTPUT record TO V0S2P2
+      END FOR
+    
+    OUTPUT_LINKS:
+      V0S2P1 (LINK_TYPE: 1, TARGET: JOIN_1)
+      V0S2P2 (LINK_TYPE: 1, TARGET: JOIN_1)
+  
+  GOTO LINK_10_JOIN_PROCESSING
+
+LINK_10_JOIN_PROCESSING:
+  STAGE_JOIN_1:
+    TYPE: CJoinStage
+    OPERATION: JOIN_DATA_STREAMS
+    INPUT_LINKS: V0S2P1, V0S2P2 (FROM COPY_1)
+    
+    JOIN_OPERATIONS:
+      left_data = INPUT FROM V0S2P1
+      right_data = INPUT FROM V0S2P2
+      joined_data = PERFORM_JOIN_OPERATION(left_data, right_data)
+      OUTPUT joined_data TO V0S3P1
+    
+    OUTPUT_LINK: V0S3P1
+    LINK_TYPE: 1
+    TARGET_STAGE: AGGREGATOR_1
+  
+  GOTO LINK_11_AGGREGATION_PROCESSING
+
+LINK_11_AGGREGATION_PROCESSING:
+  STAGE_AGGREGATOR_1:
+    TYPE: CAggregatorStage
+    OPERATION: AGGREGATE_DATA
+    INPUT_LINK: V0S3P1 (FROM JOIN_1)
+    
+    AGGREGATION_OPERATIONS:
+      aggregated_data = PERFORM_AGGREGATION_OPERATIONS(V0S3P1)
+      OUTPUT aggregated_data TO V0S4P1
+    
+    OUTPUT_LINK: V0S4P1
+    LINK_TYPE: 1
+    TARGET_STAGE: SORT_1
+  
+  GOTO LINK_12_SORT_PROCESSING
+
+LINK_12_SORT_PROCESSING:
+  STAGE_SORT_1:
+    TYPE: CSortStage
+    OPERATION: SORT_DATA
+    INPUT_LINK: V0S4P1 (FROM AGGREGATOR_1)
+    
+    SORT_OPERATIONS:
+      sorted_data = SORT_DATA_BY_SPECIFIED_COLUMNS(V0S4P1)
+      OUTPUT sorted_data TO V0S5P1
+    
+    OUTPUT_LINK: V0S5P1
+    LINK_TYPE: 1
+    TARGET_STAGE: REMOVE_DUPLICATES_1
+  
+  GOTO LINK_13_DEDUPLICATION_PROCESSING
+
+LINK_13_DEDUPLICATION_PROCESSING:
+  STAGE_REMOVE_DUPLICATES_1:
+    TYPE: CRemDupStage
+    OPERATION: REMOVE_DUPLICATE_RECORDS
+    INPUT_LINK: V0S5P1 (FROM SORT_1)
+    
+    DEDUPLICATION_OPERATIONS:
+      deduplicated_data = REMOVE_DUPLICATE_RECORDS(V0S5P1)
+      OUTPUT deduplicated_data TO V0S6P1
+    
+    OUTPUT_LINK: V0S6P1
+    LINK_TYPE: 1
+    TARGET_STAGE: FUNNEL_1
+  
+  STAGE_REMOVE_DUPLICATES_V0A17:
+    TYPE: CRemDupStage
+    OPERATION: REMOVE_DUPLICATES_VEHICLE_DRIVER_ALLOCATION
+    INPUT_LINK: source_data (FROM SEQUENTIAL_FILE_SOURCE_V0A17)
+    
+    DEDUPLICATION_LOGIC:
+      PARTITION_BY: vehicle_id, driver_id, allocation_date
+      SORT_BY: vehicle_id ASC, driver_id ASC, allocation_date ASC, record_timestamp DESC
+      RETAIN: FIRST record per partition group
+      DROP: subsequent duplicate records
+    
+    OUTPUT_LINK: deduplicated_data
+    LINK_TYPE: 1
+    TARGET_STAGE: DATA_QUALITY_CHECK
+  
+  STAGE_DATA_QUALITY_CHECK:
+    TYPE: CTransformerStage
+    OPERATION: VALIDATE_DATA_QUALITY
+    INPUT_LINK: deduplicated_data (FROM REMOVE_DUPLICATES_V0A17)
+    
+    VALIDATION_LOGIC:
+      FOR EACH record IN deduplicated_data:
+        IF record.vehicle_id IS NOT NULL AND record.driver_id IS NOT NULL AND record.allocation_date IS NOT NULL THEN
+          validated_record = APPLY_QUALITY_CHECKS(record)
+          OUTPUT validated_record TO validated_data
+        ELSE
+          reject_record = CREATE_QUALITY_REJECT_RECORD(record, "Missing required fields")
+          OUTPUT reject_record TO quality_rejects
+        END IF
+      END FOR
+    
+    OUTPUT_LINKS:
+      validated_data (LINK_TYPE: 1, TARGET: SEQUENTIAL_FILE_TARGET_CLEAN)
+      quality_rejects (LINK_TYPE: 1, TARGET: SEQUENTIAL_FILE_TARGET_REJECTS)
+  
+  GOTO LINK_14_FUNNEL_PROCESSING
+
+LINK_14_FUNNEL_PROCESSING:
+  STAGE_FUNNEL_1:
+    TYPE: CFunnelStage
+    OPERATION: FUNNEL_MULTIPLE_INPUTS
+    INPUT_LINK: V0S6P1 (FROM REMOVE_DUPLICATES_1)
+    
+    FUNNEL_OPERATIONS:
+      funneled_data = FUNNEL_MULTIPLE_INPUTS(V0S6P1)
+      OUTPUT funneled_data TO V0S7P1
+    
+    OUTPUT_LINK: V0S7P1
+    LINK_TYPE: 1
+    TARGET_STAGE: PEEK_1
+  
+  GOTO LINK_15_PEEK_PROCESSING
+
+LINK_15_PEEK_PROCESSING:
+  STAGE_PEEK_1:
+    TYPE: CPeekStage
+    OPERATION: PEEK_AT_DATA_FOR_DEBUGGING
+    INPUT_LINK: V0S7P1 (FROM FUNNEL_1)
+    
+    PEEK_OPERATIONS:
+      PEEK_AT_DATA_FOR_DEBUGGING(V0S7P1)
+      OUTPUT V0S7P1 TO V0S8P1
+    
+    OUTPUT_LINK: V0S8P1
+    LINK_TYPE: 1
+    TARGET_STAGE: COLUMN_GENERATOR_1
+  
+  GOTO LINK_16_ROW_GENERATION_PROCESSING
+
+LINK_16_ROW_GENERATION_PROCESSING:
+  STAGE_ROW_GENERATOR_1:
+    TYPE: CRowGeneratorStage
+    OPERATION: GENERATE_SYNTHETIC_ROWS
+    
+    ROW_GENERATION_OPERATIONS:
+      generated_data = GENERATE_SYNTHETIC_ROWS()
+      OUTPUT generated_data TO V0S9P1
+    
+    OUTPUT_LINK: V0S9P1
+    LINK_TYPE: 1
+    TARGET_STAGE: COLUMN_GENERATOR_1
+  
+  GOTO LINK_17_COLUMN_GENERATION_PROCESSING
+
+LINK_17_COLUMN_GENERATION_PROCESSING:
+  STAGE_COLUMN_GENERATOR_1:
+    TYPE: CColumnGeneratorStage
+    OPERATION: GENERATE_ADDITIONAL_COLUMNS
+    INPUT_LINK: V0S8P1 (FROM PEEK_1)
+    
+    COLUMN_GENERATION_OPERATIONS:
+      enhanced_data = GENERATE_ADDITIONAL_COLUMNS(V0S8P1)
+      OUTPUT enhanced_data TO V0S10P1
+    
+    OUTPUT_LINK: V0S10P1
+    LINK_TYPE: 1
+    TARGET_STAGE: FILTER_1
+  
+  GOTO LINK_18_FILTER_PROCESSING
+
+LINK_18_FILTER_PROCESSING:
+  STAGE_FILTER_1:
+    TYPE: CFilterStage
+    OPERATION: APPLY_FILTER_CONDITIONS
+    INPUT_LINK: V0S10P1 (FROM COLUMN_GENERATOR_1)
+    
+    FILTER_OPERATIONS:
+      filtered_data = APPLY_FILTER_CONDITIONS(V0S10P1)
+      OUTPUT filtered_data TO V0S11P1
+    
+    OUTPUT_LINK: V0S11P1
+    LINK_TYPE: 1
+    TARGET_STAGE: MODIFY_1
+  
+  GOTO LINK_19_MODIFY_PROCESSING
+
+LINK_19_MODIFY_PROCESSING:
+  STAGE_MODIFY_1:
+    TYPE: CModifyStage
+    OPERATION: MODIFY_COLUMN_SPECIFICATIONS
+    INPUT_LINK: V0S11P1 (FROM FILTER_1)
+    
+    MODIFY_OPERATIONS:
+      modified_data = MODIFY_COLUMN_SPECIFICATIONS(V0S11P1)
+      OUTPUT modified_data TO V0S12P1
+    
+    OUTPUT_LINK: V0S12P1
+    LINK_TYPE: 1
+    TARGET_STAGE: SWITCH_1
+  
+  GOTO LINK_20_SWITCH_PROCESSING
+
+LINK_20_SWITCH_PROCESSING:
+  STAGE_SWITCH_1:
+    TYPE: CSwitchStage
+    OPERATION: APPLY_SWITCH_LOGIC
+    INPUT_LINK: V0S12P1 (FROM MODIFY_1)
+    
+    SWITCH_OPERATIONS:
+      switched_data = APPLY_SWITCH_LOGIC(V0S12P1)
+      OUTPUT switched_data TO V0S13P3
+    
+    OUTPUT_LINK: V0S13P3
+    LINK_TYPE: 1
+    TARGET_STAGE: HF_FACT_VOR_DATA
+  
+  GOTO LINK_21_HASHED_FILE_STORAGE
+
+LINK_21_HASHED_FILE_STORAGE:
+  STAGE_HF_FACT_VOR_DATA:
+    TYPE: CHashedFileStage
+    OPERATION: PERFORM_HASHED_FILE_LOOKUP
+    INPUT_LINK: V0S13P3 (FROM SWITCH_1)
+    NEXT_ID: 4
+    UV_COMPATIBLE: 0
+    SQL_NULL: 0
+    
+    HASHED_FILE_OPERATIONS:
+      lookup_data = INPUT FROM V0S13P3
+      enriched_data = PERFORM_HASHED_FILE_LOOKUP(lookup_data)
+      OUTPUT enriched_data TO V0S13P1
+    
+    OUTPUT_LINK: V0S13P1
+    LINK_TYPE: 1
+    TARGET_STAGE: SEQUENTIAL_FILE_2
+  
+  STAGE_V0S13_HF_FACT_VOR_DATA:
+    TYPE: CHashedFileStage
+    OPERATION: STORE_PROCESSED_DATA
+    INPUT_LINK: Load_HFVehicleoffRoad (FROM V0S2)
+    
+    HASHED_FILE_OPERATIONS:
+      OPEN_HASHED_FILE("HF_FACT_VOR_DATA", "WRITE_MODE")
+      FOR EACH processed_record IN Load_HFVehicleoffRoad:
+        WRITE_RECORD(processed_record, "HF_FACT_VOR_DATA")
+        UPDATE_RECORD_COUNT()
+      END FOR
+      CLOSE_HASHED_FILE("HF_FACT_VOR_DATA")
+      VALIDATE_WRITE_OPERATIONS()
+    
+    read_for_staging:
+      OPEN_HASHED_FILE("HF_FACT_VOR_DATA", "READ_MODE")
+      staged_records = READ_ALL_RECORDS()
+      VALIDATE_READ_OPERATIONS(staged_records)
+    
+    OUTPUT_LINK: Load_StgVehicleoffRoad
+    LINK_TYPE: 1
+    TARGET_STAGE: V0S1
+  
+  STAGE_LOAD_HFVEHICLEOFFROAD:
+    TYPE: CHashedFileStage
+    OPERATION: LOAD_VOR_DATA_TO_HASHED_FILE
+    INPUT_LINK: Transformed_VOR_Data (FROM TRANSFORMER_VOR_PROCESSING)
+    PARTNER: V0S13|V0S13P3
+    FILENAME: HF_FACT_VOR_DATA
+    CLEARFILE: 1
+    BACKUP: 0
+    DISABLECW: 0
+    CREATEFILEOPTIONS: DYNAMIC MINIMUM.MODULUS 1 GROUP.SIZE 1 GENERAL SPLIT.LOAD 80 MERGE.LOAD 50 LARGE.RECORD 1628
+    DELETEFILE: 1
+    
+    HASHED_FILE_LOAD_OPERATIONS:
+      INITIALIZE_HASHED_FILE(HF_FACT_VOR_DATA)
+      SET_FILE_OPTIONS(CREATEFILEOPTIONS)
+      
+      IF CLEARFILE = 1 THEN
+        CLEAR_EXISTING_DATA(HF_FACT_VOR_DATA)
+      END IF
+      
+      IF DELETEFILE = 1 THEN
+        DELETE_EXISTING_FILE(HF_FACT_VOR_DATA)
+        CREATE_NEW_FILE(HF_FACT_VOR_DATA)
+      END IF
+      
+      CONFIGURE_BACKUP_SETTINGS(BACKUP)
+      CONFIGURE_CONTROL_WRITE_SETTINGS(DISABLECW)
+      
+      FOR EACH vor_record IN Transformed_VOR_Data:
+        WRITE_TO_HASHED_FILE(vor_record, HF_FACT_VOR_DATA)
+        UPDATE_LOAD_STATISTICS()
+      END FOR
+      
+      FINALIZE_HASHED_FILE_LOAD(HF_FACT_VOR_DATA)
+      VALIDATE_HASHED_FILE_INTEGRITY(HF_FACT_VOR_DATA)
+    
+    OUTPUT_LINK: Load_StgVehicleoffRoad
+    LINK_TYPE: 1
+    TARGET_STAGE: STG_VEHICLE_OFF_ROAD_FACT
+  
+  GOTO LINK_22_EXCEPTION_FILE_HANDLING
+
+LINK_22_EXCEPTION_FILE_HANDLING:
+  STAGE_LOAD_VOR_EXCEPTION_FILE:
+    TYPE: Sequential_File_Connector
+    OPERATION: WRITE_EXCEPTION_RECORDS_TO_FILE
+    INPUT_LINK: Processed_Exception_Stream (FROM EXCEPTION_DATA_PROCESSING)
+    PREVIOUS_LINK: Exception_Data_Processing -> Processed_Exception_Stream
+    
+    FILE_PROPERTIES:
+      Name: Load_VOR_Exception_File
+      Partner: V0S2|V0S2P3
+      FileName: #pSMROutputPath#/#pVOR_Exception_FileName#_#pFiledate#.csv
+      Delimiter: ,
+      QuoteChar: "
+      ColHeaders: 0
+      OmitNewLine: 0
+      Append: 0
+      Backup: 0
+      FixedWidth: 0
+      ColSpace: 0
+      EnforceMetaData: 0
+      Writetime: 0
+      WaitforReader: 0
+      Flushrow: 0
+      PadChar: #
+    
+    EXCEPTION_FILE_OPERATIONS:
+      exception_file_path = pSMROutputPath + "/" + pVOR_Exception_FileName + "_" + pFiledate + ".csv"
+      OPEN_SEQUENTIAL_FILE(exception_file_path, "WRITE_MODE")
+      SET_FILE_PROPERTIES(Delimiter, QuoteChar, ColHeaders, OmitNewLine, Append, Backup, FixedWidth, ColSpace, EnforceMetaData, Writetime, WaitforReader, Flushrow, PadChar)
+      
+      FOR EACH exception_record IN Processed_Exception_Stream:
+        formatted_exception = FORMAT_EXCEPTION_RECORD(exception_record)
+        WRITE_RECORD(formatted_exception, exception_file_path)
+        UPDATE_EXCEPTION_COUNT()
+      END FOR
+      
+      CLOSE_SEQUENTIAL_FILE(exception_file_path)
+      VALIDATE_EXCEPTION_FILE_CREATION(exception_file_path)
+      SET_FILE_PERMISSIONS(exception_file_path, "READ_WRITE")
+    
+    OUTPUT_LINK: None
+    LINK_TYPE: 1
+    EXECUTION_MODE: 0
+  
+  STAGE_V96S0_SUPP_VOR_EXCEPTION:
+    TYPE: CSeqFileStage
+    OPERATION: WRITE_EXCEPTION_RECORDS
+    INPUT_LINK: Load_VOR_Exception_File (FROM V0S2)
+    
+    EXCEPTION_FILE_OPERATIONS:
+      exception_file_path = pSMROutputPath + "/" + pVOR_Exception_FileName + "_" + pFiledate + ".txt"
+      OPEN_SEQUENTIAL_FILE(exception_file_path, "WRITE_MODE")
+      
+      FOR EACH exception_record IN Load_VOR_Exception_File:
+        formatted_exception = FORMAT_EXCEPTION_RECORD(exception_record)
+        WRITE_RECORD(formatted_exception, exception_file_path)
+        UPDATE_EXCEPTION_COUNT()
+      END FOR
+      
+      CLOSE_SEQUENTIAL_FILE(exception_file_path)
+      VALIDATE_EXCEPTION_FILE_CREATION(exception_file_path)
+      SET_FILE_PERMISSIONS(exception_file_path, "READ_WRITE")
+  
+  STAGE_EXCEPTION_OUTPUT:
+    TYPE: CSeqFileStage
+    OPERATION: WRITE_EXCEPTION_DATA_FROM_OUTPUT_TRANSFORMER
+    INPUT_LINK: Load_VOR_Exception_File (FROM OUTPUT_TRANSFORMER)
+    
+    EXCEPTION_OUTPUT_OPERATIONS:
+      exception_output_path = pSMROutputPath + "/" + pVOR_Exception_FileName + "_output_" + pFiledate + ".txt"
+      OPEN_SEQUENTIAL_FILE(exception_output_path, "WRITE_MODE")
+      
+      FOR EACH exception_record IN Load_VOR_Exception_File:
+        WRITE_COLUMNS:
+          WORKSHEET_NUMBER = exception_record.WORKSHEET_NUMBER
+          ORIGINAL_WORKSHEET_NUMBER = exception_record.ORIGINAL_WORKSHEET_NUMBER
+          REGISTRATION_NUMBER = exception_record.REGISTRATION_NUMBER
+          GARAGE_NAME = exception_record.GARAGE_NAME
+          DESCRIPTION = exception_record.DESCRIPTION
+        
+        formatted_exception = FORMAT_EXCEPTION_OUTPUT(exception_record)
+        WRITE_RECORD(formatted_exception, exception_output_path)
+        UPDATE_EXCEPTION_OUTPUT_COUNT()
+      END FOR
+      
+      CLOSE_SEQUENTIAL_FILE(exception_output_path)
+      VALIDATE_EXCEPTION_OUTPUT_FILE_CREATION(exception_output_path)
+  
+  STAGE_EXCEPTION_FILE_WRITER:
+    TYPE: CSeqFileStage
+    OPERATION: WRITE_MERGED_EXCEPTION_DATA
+    INPUT_LINK: Exception_Output_Stream (FROM EXCEPTION_DATA_MERGER)
+    PREVIOUS_LINK: Exception_Data_Merger -> Exception_Output_Stream
+    
+    EXCEPTION_FILE_WRITER_OPERATIONS:
+      merged_exception_file_path = pSMROutputPath + "/" + pVOR_Exception_FileName + "_merged_" + pFiledate + ".txt"
+      OPEN_SEQUENTIAL_FILE(merged_exception_file_path, "WRITE_MODE")
+      
+      FOR EACH merged_exception_record IN Exception_Output_Stream:
+        formatted_merged_exception = FORMAT_MERGED_EXCEPTION_RECORD(merged_exception_record)
+        WRITE_RECORD(formatted_merged_exception, merged_exception_file_path)
+        UPDATE_MERGED_EXCEPTION_COUNT()
+      END FOR
+      
+      CLOSE_SEQUENTIAL_FILE(merged_exception_file_path)
+      VALIDATE_MERGED_EXCEPTION_FILE_CREATION(merged_exception_file_path)
+      SET_FILE_PERMISSIONS(merged_exception_file_path, "READ_WRITE")
+  
+  STAGE_REJECT_HANDLER:
+    TYPE: CSeqFileStage
+    OPERATION: WRITE_REJECTED_RECORDS
+    INPUT_LINK: reject_data_link (FROM VEHICLE_OFFROAD_TRANSFORMER)
+    
+    REJECT_PROCESSING:
+      reject_file_path = "/error/rejected_records.txt"
+      OPEN_SEQUENTIAL_FILE(reject_file_path, "APPEND_MODE")
+      
+      FOR EACH rejected_row FROM reject_data_link:
+        LOG_REJECTION_REASON(rejected_row)
+        WRITE_REJECTED_RECORD_TO_FILE(rejected_row)
+        UPDATE_REJECTION_STATISTICS()
+      END FOR
+      
+      CLOSE_SEQUENTIAL_FILE(reject_file_path)
+  
+  STAGE_SEQUENTIAL_FILE_REJECT_HANDLER:
+    TYPE: CSeqFileStage
+    OPERATION: WRITE_REJECTED_VOR_RECORDS
+    INPUT_LINK: Lnk_Rejected_Records (FROM TRANSFORMER_QUALITY_VALIDATION)
+    TARGET_FILE: VEHICLE_REGISTRATION_REJECTS
+    PREVIOUS_LINK: Transformer_Quality_Validation -> Lnk_Rejected_Records
+    
+    REJECT_HANDLING_OPERATIONS:
+      OPEN_SEQUENTIAL_FILE("VEHICLE_REGISTRATION_REJECTS", "APPEND_MODE")
+      
+      FOR EACH rejected_record IN Lnk_Rejected_Records:
+        formatted_reject = FORMAT_REJECT_RECORD(rejected_record)
+        INCLUDE_REJECT_REASON(formatted_reject)
+        WRITE_RECORD(formatted_reject, "VEHICLE_REGISTRATION_REJECTS")
+        UPDATE_REJECT_COUNT()
+      END FOR
+      
+      CLOSE_SEQUENTIAL_FILE("VEHICLE_REGISTRATION_REJECTS")
+      VALIDATE_REJECT_FILE_CREATION("VEHICLE_REGISTRATION_REJECTS")
+  
+  GOTO LINK_23_TARGET_DATA_LOADING
+
+LINK_23_TARGET_DATA_LOADING:
+  STAGE_MAIN_DATA_OUTPUT:
+    TYPE: Connector
+    OPERATION: LOAD_PROCESSED_VALID_RECORDS_TO_TARGET_SYSTEM
+    INPUT_LINK: Transformed_Data_Stream (FROM DATA_TRANSFORMATION)
+    PREVIOUS_LINK: Data_Transformation -> Transformed_Data_Stream
+    
+    TARGET_LOADING_OPERATIONS:
+      FOR EACH valid_record IN Transformed_Data_Stream:
+        APPLY_FINAL_DATA_QUALITY_CHECKS(valid_record)
+        HANDLE_COMMIT_ROLLBACK_OPERATIONS(valid_record)
+        LOAD_TO_TARGET_SYSTEM(valid_record)
+        UPDATE_LOAD_STATISTICS()
+      END FOR
+    
+    OUTPUT_LINK: None
+    LINK_TYPE: 1
+    EXECUTION_MODE: 0
+  
+  STAGE_SEQUENTIAL_FILE_2:
+    TYPE: CSequentialFileStage
+    OPERATION: WRITE_FINAL_DATA_TO_OUTPUT_FILE
+    INPUT_LINK: lkVehicleDim_REg (FROM LOOKUP_lkVehicleDim_REg)
+    
+    FINAL_OUTPUT_OPERATIONS:
+      FOR EACH record IN lkVehicleDim_REg:
+        WRITE record TO target_file
+      END FOR
+  
+  STAGE_SEQUENTIAL_FILE_TARGET:
+    TYPE: CSequentialFileStage
+    OPERATION: WRITE_FINAL_DATA_TO_TARGET_FILE
+    INPUT_LINK: DSLink5 (FROM TRANSFORMER_JOIN)
+    
+    TARGET_FILE_OPERATIONS:
+      RECEIVE final_data FROM DSLink5
+      WRITE data TO target_file
+      COMPLETE data flow
+  
+  STAGE_SEQUENTIAL_FILE_TARGET_VEHICLE_PROCESSED:
+    TYPE: CSeqFileStage
+    OPERATION: WRITE_PROCESSED_VEHICLE_REGISTRATION_DATA
+    INPUT_LINK: Lnk_Validated_Data (FROM TRANSFORMER_QUALITY_VALIDATION)
+    TARGET_TABLE: PROCESSED_VEHICLE_REGISTRATION_DATA
+    PREVIOUS_LINK: Transformer_Quality_Validation -> Lnk_Validated_Data
+    
+    TARGET_LOADING_OPERATIONS:
+      OPEN_SEQUENTIAL_FILE("PROCESSED_VEHICLE_REGISTRATION_DATA", "APPEND_MODE")
+      SET_COMMIT_INTERVAL(1000)
+      
+      FOR EACH validated_record IN Lnk_Validated_Data:
+        WRITE_COLUMNS:
+          VEHICLE_SK = validated_record.VEHICLE_SK [BIGINT, NOT_NULL]
+          OBJECT_NO = validated_record.OBJECT_NO [VARCHAR(15), NULLABLE]
+          REGISTRATION_NO = validated_record.REGISTRATION_NO [VARCHAR(18), PRIMARY_KEY]
+          CUST_ID = validated_record.CUST_ID [BIGINT, NULLABLE]
+          VARIANT_SK = validated_record.VARIANT_SK [BIGINT, NULLABLE]
+        
+        formatted_record = FORMAT_TARGET_RECORD(validated_record)
+        WRITE_RECORD(formatted_record, "PROCESSED_VEHICLE_REGISTRATION_DATA")
+        UPDATE_PROCESSED_COUNT()
+        
+        IF processed_count MODULO 1000 = 0 THEN
+          COMMIT_BATCH()
+        END IF
+      END FOR
+      
+      COMMIT_FINAL_BATCH()
+      CLOSE_SEQUENTIAL_FILE("PROCESSED_VEHICLE_REGISTRATION_DATA")
+      VALIDATE_TARGET_FILE_CREATION("PROCESSED_VEHICLE_REGISTRATION_DATA")
+  
+  STAGE_STG_VEHICLE_OFF_ROAD_FACT:
+    TYPE: OracleConnector
+    OPERATION: LOAD_TO_STAGING_TABLE
+    INPUT_LINK: Transformed_VOR_Data (FROM TRANSFORMER_VOR_PROCESSING)
+    TARGET_TABLE: STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    WRITE_MODE: Insert
+    PRIMARY_KEY: WORKSHEET_NUMBER
+    
+    COLUMN_MAPPINGS:
+      WORKSHEET_NUMBER -> WORKSHEET_NUMBER
+      ORIGINAL_WORKSHEET_NUMBER -> ORIGINAL_WORKSHEET_NUMBER
+      VOR_PROGRESS_SK -> VOR_NON_RETURN_REASON_SK
+      REGISTERED_CUST_DRIVER_SK -> REGISTERED_CUST_DRIVER_SK
+      VEHICLE_SK -> VEHICLE_SK
+      VARIANT_SK -> VARIANT_SK
+      SUPP_SK -> SUPP_SK
+      CUSTOMER_SK -> CUSTOMER_SK
+      RENTAL_BOOKING_SK -> RENTAL_BOOKING_SK
+      RENTAL_BOOKING_REFERENCE -> BOOKING_REFERENCE
+      VOR_NOTE_SK -> VOR_NOTE_SK
+      ORIGINAL_APPOINTMENT_DATE_SK -> ORIGINAL_APPOINTMENT_DATE_SK
+      JOB_CLOSED_DATE_SK -> JOB_CLOSED_DATE_SK
+      VOR_PASSED_DATE_SK -> VOR_PASSED_DATE_SK
+      DRIVER_COLLECTION_DATE_SK -> DRIVER_COLLECTION_DATE_SK
+      VOR_REGISTRATION_NUMBER -> VOR_REGISTRATION_NUMBER
+      CAPTURED_GARAGE_NAME -> CAPTURED_GARAGE_NAME
+      CONTACT_DRIVER_NAME -> CONTACT_DRIVER_NAME
+      MILEAGE -> MILEAGE
+      VOR_INCIDENT_SOURCE -> VOR_INCIDENT_SOURCE
+      VOR_WORK -> VOR_WORK
+      CRS_LOG_ID -> CRS_LOG_ID
+      NUMBER_OF_WORKING_DAYS_VOR -> NUMBER_OF_WORKING_DAYS_VOR
+      NUMBER_OF_DAYS_VOR -> NUMBER_OF_DAYS_VOR
+      COMPLETION_TO_COLLECT_DAYS -> COMPLETION_TO_COLLECT_DAYS
+    
+    ERROR_HANDLING:
+      Handle insert/update conflicts
+      Log failed records
+      Maintain data integrity constraints
+  
+  STAGE_V0S1_ORA_STGVEHICLEOFFROAD:
+    TYPE: OracleConnector
+    OPERATION: INSERT_TO_STAGING_TABLE_WITH_TRUNCATE_AND_LOAD
+    INPUT_LINK: Load_StgVehicleoffRoad (FROM V0S13)
+    CONNECTION: psOraDB
+    STAGE_ID: NextID_3
+    INPUT_PIN: V0S1P2
+    
+    CONNECTION_CONFIG:
+      VARIANT_NAME: 10
+      VARIANT_LIBRARY: ccora10g
+      VARIANT_VERSION: 1.0
+      SERVER: #psOraDB.pSID#
+      USERNAME: #psOraDB.pUserID#
+      PASSWORD: #psOraDB.pPassword#
+      OS_LEVEL_AUTHENTICATION: false
+      VERSION: 10g
+    
+    USAGE_CONFIG:
+      WRITE_MODE: 0
+      GENERATE_SQL: true
+      TABLE_NAME: STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+      TABLE_SCOPE: 0
+      ENABLE_QUOTED_IDS: false
+      TABLE_ACTION: 3
+      GENERATE_TRUNCATE_STATEMENT: true
+      FAIL_ON_ERROR: true
+      TABLE_ACTION_FIRST: true
+      TRANSACTION_ISOLATION_LEVEL: 0
+      TRANSACTION_RECORD_COUNT: 2000
+      SESSION_ARRAY_SIZE: 2000
+      DROP_UNMATCHED_FIELDS: false
+      TREAT_WARNINGS_AS_ERRORS: false
+      PRESERVE_TRAILING_BLANKS: true
+      FAIL_ON_ROW_ERROR_SE: false
+      LOG_COLUMN_VALUES: false
+      BEFORE_AFTER: false
+      APPLICATION_FAILOVER_CONTROL: false
+    
+    REJECT_CONFIG:
+      REJECT_FROM_LINK: -1
+      REJECT_THRESHOLD: 0
+      REJECT_NUMBER: 0
+      REJECT_USES_PERCENTAGE: false
+      REJECT_CONDITIONS: null
+      REJECT_DATA_ELEMENTS: null
+    
+    TRUNCATE_AND_LOAD_OPERATIONS:
+      INITIALIZE_STAGE(STAGE_ID, INPUT_PIN)
+      SET_COLUMN_MAPPING_FLAG(0)
+      SET_RECORD_COUNTER(0)
+      
+      ESTABLISH_CONNECTION(CONNECTION_CONFIG)
+      VALIDATE_CONNECTION_PARAMETERS()
+      AUTHENTICATE_USER()
+      
+      CONFIGURE_SESSION(USAGE_CONFIG)
+      SET_TRANSACTION_PROPERTIES()
+      SET_ISOLATION_LEVEL(0)
+      SET_ARRAY_SIZE(2000)
+      SET_COMMIT_INTERVAL(2000)
+      
+      CONFIGURE_REJECT_HANDLING(REJECT_CONFIG)
+      SET_ERROR_HANDLING_MODE(FAIL_ON_ERROR)
+      SET_WARNING_TREATMENT(TREAT_WARNINGS_AS_ERRORS)
+      
+      TRUNCATE_OPERATION:
+        IF TABLE_ACTION_FIRST == true:
+          IF GENERATE_TRUNCATE_STATEMENT == true:
+            EXECUTE_SQL("TRUNCATE TABLE STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT")
+            VALIDATE_TRUNCATE_SUCCESS()
+            LOG_TRUNCATE_COMPLETION()
+          END IF
+        END IF
+      
+      PREPARE_TARGET_TABLE("STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT")
+      VALIDATE_TABLE_STRUCTURE()
+      PREPARE_INSERT_STATEMENTS()
+      
+      READY_FOR_INPUT_LINK(V0S1P2)
+      
+      BULK_LOAD_OPERATION:
+        WHILE INPUT_DATA_AVAILABLE FROM V0S1P2:
+          read_record_batch FROM INPUT_PIN V0S1P2
+          
+          FOR EACH record IN record_batch:
+            IF ALLOW_COLUMN_MAPPING == 0:
+              map_columns_direct()
+            ELSE:
+              apply_column_mapping_rules()
+            END IF
+            
+            IF PRESERVE_TRAILING_BLANKS == true:
+              preserve_trailing_spaces()
+            END IF
+            
+            validate_record_format()
+            
+            IF validation_fails AND FAIL_ON_ROW_ERROR_SE == true:
+              handle_row_error()
+              increment_error_count()
+            END IF
+            
+            IF LOG_COLUMN_VALUES == true:
+              log_column_data()
+            END IF
+            
+            buffer_record_for_insert()
+            increment_record_counter()
+            
+            IF record_counter MODULO TRANSACTION_RECORD_COUNT == 0:
+              execute_batch_insert()
+              commit_transaction()
+              reset_batch_buffer()
+            END IF
+          END FOR
+          
+          check_reject_threshold()
+          IF reject_count > REJECT_THRESHOLD:
+            abort_processing()
+          END IF
+        END WHILE
+        
+        IF remaining_records_in_buffer > 0:
+          execute_final_batch_insert()
+          commit_final_transaction()
+        END IF
+      
+      close_prepared_statements()
+      release_session_resources()
+      close_database_connection()
+      
+      report_processing_statistics()
+      report_record_counts()
+      report_error_summary()
+      
+      COMPLETE_STAGE_EXECUTION()
+  
+  STAGE_TARGET_CONNECTOR:
+    TYPE: OracleConnector
+    OPERATION: LOAD_VEHICLE_OFFROAD_FACT_DATA
+    INPUT_LINK: transformed_data_link (FROM VEHICLE_OFFROAD_TRANSFORMER)
+    CONNECTION: Oracle_Database
+    TARGET_TABLE: STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    WRITE_MODE: INSERT
+    TRANSACTION_SIZE: 1000
+    
+    TARGET_CONNECTION_SETUP:
+      ESTABLISH_TARGET_DATABASE_CONNECTION()
+      VALIDATE_TARGET_TABLE_EXISTENCE()
+      CHECK_TARGET_TABLE_PERMISSIONS()
+      SET_TRANSACTION_PARAMETERS()
+    
+    PRE_LOAD_PROCESSING:
+      VALIDATE_TARGET_SCHEMA_COMPATIBILITY()
+      PREPARE_BULK_LOAD_CONTEXT()
+      INITIALIZE_TRANSACTION_BATCH()
+    
+    COLUMN_MAPPING_AND_LOAD:
+      FOR EACH transformed_row FROM transformed_data_link:
+        MAP_COLUMNS:
+          WORKSHEET_NUMBER -> WORKSHEET_NUMBER
+          ORIGINAL_WORKSHEET_NUMBER -> ORIGINAL_WORKSHEET_NUMBER
+          VOR_PROGRESS_SK -> VOR_NON_RETURN_REASON_SK
+          REGISTERED_CUST_DRIVER_SK -> REGISTERED_CUST_DRIVER_SK
+          VEHICLE_SK -> VEHICLE_SK
+          VARIANT_SK -> VARIANT_SK
+          SUPP_SK -> SUPP_SK
+          CUSTOMER_SK -> CUSTOMER_SK
+          RENTAL_BOOKING_SK -> RENTAL_BOOKING_SK
+          RENTAL_BOOKING_REFERENCE -> BOOKING_REFERENCE
+          VOR_NOTE_SK -> VOR_NOTE_SK
+          ORIGINAL_APPOINTMENT_DATE_SK -> ORIGINAL_APPOINTMENT_DATE_SK
+          JOB_CLOSED_DATE_SK -> JOB_CLOSED_DATE_SK
+          VOR_PASSED_DATE_SK -> VOR_PASSED_DATE_SK
+          DRIVER_COLLECTION_DATE_SK -> DRIVER_COLLECTION_DATE_SK
+          VOR_REGISTRATION_NUMBER -> VOR_REGISTRATION_NUMBER
+          CAPTURED_GARAGE_NAME -> CAPTURED_GARAGE_NAME
+          CONTACT_DRIVER_NAME -> CONTACT_DRIVER_NAME
+          MILEAGE -> MILEAGE
+          VOR_INCIDENT_SOURCE -> VOR_INCIDENT_SOURCE
+          VOR_WORK -> VOR_WORK
+          CRS_LOG_ID -> CRS_LOG_ID
+          NUMBER_OF_WORKING_DAYS_VOR -> NUMBER_OF_WORKING_DAYS_VOR
+          NUMBER_OF_DAYS_VOR -> NUMBER_OF_DAYS_VOR
+          COMPLETION_TO_COLLECT_DAYS -> COMPLETION_TO_COLLECT_DAYS
+        
+        EXECUTE_INSERT_STATEMENT(mapped_row)
+        
+        IF batch_size_reached(TRANSACTION_SIZE):
+          COMMIT_TRANSACTION_BATCH()
+          BEGIN_NEW_TRANSACTION_BATCH()
+    
+    POST_LOAD_PROCESSING:
+      COMMIT_FINAL_TRANSACTION_BATCH()
+      GENERATE_LOAD_STATISTICS()
+      UPDATE_DATA_LINEAGE_METADATA()
+      CLOSE_TARGET_CONNECTION()
+  
+  STAGE_TARGET_OUTPUT:
+    TYPE: CSeqFileStage
+    OPERATION: WRITE_NORMAL_DATA_FROM_OUTPUT_TRANSFORMER
+    INPUT_LINK: Transformed_Data (FROM OUTPUT_TRANSFORMER)
+    
+    TARGET_OUTPUT_OPERATIONS:
+      target_output_path = pSMROutputPath + "/normal_output_" + pFiledate + ".txt"
+      OPEN_SEQUENTIAL_FILE(target_output_path, "WRITE_MODE")
+      
+      FOR EACH normal_record IN Transformed_Data:
+        WRITE_COLUMNS:
+          WORKSHEET_NUMBER = normal_record.WORKSHEET_NUMBER
+          ORIGINAL_WORKSHEET_NUMBER = normal_record.ORIGINAL_WORKSHEET_NUMBER
+          REGISTRATION_NUMBER = normal_record.REGISTRATION_NUMBER
+          GARAGE_NAME = normal_record.GARAGE_NAME
+          DESCRIPTION = normal_record.DESCRIPTION
+        
+        formatted_normal = FORMAT_NORMAL_OUTPUT(normal_record)
+        WRITE_RECORD(formatted_normal, target_output_path)
+        UPDATE_NORMAL_OUTPUT_COUNT()
+      END FOR
+      
+      CLOSE_SEQUENTIAL_FILE(target_output_path)
+      VALIDATE_NORMAL_OUTPUT_FILE_CREATION(target_output_path)
+  
+  STAGE_SEQUENTIAL_FILE_TARGET_ORIGINAL:
+    TYPE: CSeqFileStage
+    OPERATION: WRITE_PROCESSED_VEHICLE_RECORDS
+    INPUT_LINK: vehicle_processed_data (FROM TRANSFORMER_V0A16)
+    
+    TARGET_FILE_OPERATIONS:
+      target_file_path = pSMROutputPath + "/processed_vehicle_data_" + pFiledate + ".txt"
+      OPEN_SEQUENTIAL_FILE(target_file_path, "WRITE_MODE")
+      
+      FOR EACH processed_record IN vehicle_processed_data:
+        formatted_record = APPLY_FINAL_FORMATTING(processed_record)
+        WRITE_RECORD(formatted_record, target_file_path)
+        UPDATE_LOAD_STATISTICS()
+      END FOR
+      
+      CLOSE_SEQUENTIAL_FILE(target_file_path)
+      VALIDATE_TARGET_FILE_CREATION(target_file_path)
+  
+  STAGE_ERROR_LOG_TARGET:
+    TYPE: CSeqFileStage
+    OPERATION: WRITE_ERROR_LOG_RECORDS
+    INPUT_LINK: error_log_data (FROM TRANSFORMER_ERROR_HANDLER)
+    
+    ERROR_LOG_OPERATIONS:
+      error_log_path = pSMROutputPath + "/vehicle_error_log_" + pFiledate + ".txt"
+      OPEN_SEQUENTIAL_FILE(error_log_path, "WRITE_MODE")
+      
+      FOR EACH error_record IN error_log_data:
+        formatted_error = FORMAT_ERROR_RECORD(error_record)
+        WRITE_RECORD(formatted_error, error_log_path)
+        MAINTAIN_AUDIT_TRAIL(error_record)
+      END FOR
+      
+      CLOSE_SEQUENTIAL_FILE(error_log_path)
+      VALIDATE_ERROR_LOG_CREATION(error_log_path)
+  
+  STAGE_SEQUENTIAL_FILE_TARGET_CLEAN:
+    TYPE: CSeqFileStage
+    OPERATION: WRITE_CLEAN_VEHICLE_DRIVER_ALLOCATION_DATA
+    INPUT_LINK: validated_data (FROM DATA_QUALITY_CHECK)
+    
+    CLEAN_DATA_OUTPUT_OPERATIONS:
+      clean_file_path = pSMROutputPath + "/clean_vehicle_driver_allocation_" + pFiledate + ".txt"
+      OPEN_SEQUENTIAL_FILE(clean_file_path, "WRITE_MODE")
+      
+      FOR EACH validated_record IN validated_data:
+        formatted_clean_record = FORMAT_CLEAN_RECORD(validated_record)
+        WRITE_RECORD(formatted_clean_record, clean_file_path)
+        UPDATE_CLEAN_RECORD_COUNT()
+      END FOR
+      
+      CLOSE_SEQUENTIAL_FILE(clean_file_path)
+      VALIDATE_CLEAN_FILE_CREATION(clean_file_path)
+  
+  STAGE_SEQUENTIAL_FILE_TARGET_REJECTS:
+    TYPE: CSeqFileStage
+    OPERATION: WRITE_REJECTED_VEHICLE_DRIVER_ALLOCATION_DATA
+    INPUT_LINK: quality_rejects (FROM DATA_QUALITY_CHECK)
+    
+    REJECT_DATA_OUTPUT_OPERATIONS:
+      reject_file_path = pSMROutputPath + "/rejected_vehicle_driver_allocation_" + pFiledate + ".txt"
+      OPEN_SEQUENTIAL_FILE(reject_file_path, "WRITE_MODE")
+      
+      FOR EACH reject_record IN quality_rejects:
+        formatted_reject_record = FORMAT_REJECT_RECORD(reject_record)
+        WRITE_RECORD(formatted_reject_record, reject_file_path)
+        UPDATE_REJECT_RECORD_COUNT()
+      END FOR
+      
+      CLOSE_SEQUENTIAL_FILE(reject_file_path)
+      VALIDATE_REJECT_FILE_CREATION(reject_file_path)
+  
+  STAGE_TARGET_LOAD:
+    TYPE: OracleConnector
+    OPERATION: LOAD_INTEGRATED_VOR_DATA_TO_TARGET_TABLE
+    INPUT_LINK: Transformed_VOR_Data (FROM DATA_INTEGRATION_TRANSFORM)
+    CONNECTION: psOraDB
+    TARGET_TABLE: TARGET_SCHEMA.VOR_FACT_TABLE
+    LOAD_TYPE: INSERT/UPDATE
+    PREVIOUS_LINK: Data_Integration_Transform -> Transformed_VOR_Data
+    
+    TARGET_LOAD_OPERATIONS:
+      ESTABLISH_CONNECTION(psOraDB)
+      VALIDATE_TARGET_TABLE_EXISTENCE("TARGET_SCHEMA.VOR_FACT_TABLE")
+      PREPARE_LOAD_STATEMENTS()
+      
+      FOR EACH integrated_record IN Transformed_VOR_Data:
+        IF LOAD_TYPE = "INSERT/UPDATE" THEN
+          existing_record = CHECK_RECORD_EXISTS(integrated_record.primary_key)
+          
+          IF existing_record.FOUND THEN
+            UPDATE_RECORD(integrated_record, "TARGET_SCHEMA.VOR_FACT_TABLE")
+          ELSE
+            INSERT_RECORD(integrated_record, "TARGET_SCHEMA.VOR_FACT_TABLE")
+          END IF
+        ELSE
+          INSERT_RECORD(integrated_record, "TARGET_SCHEMA.VOR_FACT_TABLE")
+        END IF
+        
+        UPDATE_LOAD_STATISTICS()
+      END FOR
+      
+      COMMIT_TRANSACTION()
+      CLOSE_CONNECTION()
+      VALIDATE_LOAD_COMPLETION()
+    
+    ERROR_HANDLING:
+      HANDLE_INSERT_UPDATE_CONFLICTS()
+      LOG_FAILED_RECORDS()
+      MAINTAIN_DATA_INTEGRITY_CONSTRAINTS()
+    
+    OUTPUT_LINK: Load_Completion_Status
+    LINK_TYPE: 1
+    TARGET_STAGE: JOB_COMPLETION_HANDLER
+    NEXT_LINK: Load_Completion_Status -> JOB_COMPLETION_HANDLER
+  
+  GOTO LINK_24_ORACLE_CONNECTOR_ENHANCED_PROCESSING
+
+LINK_24_ORACLE_CONNECTOR_ENHANCED_PROCESSING:
+  STAGE_ORACLE_CONNECTOR_ENHANCED:
+    TYPE: OracleConnector
+    OPERATION: ENHANCED_RECORD_LEVEL_PROCESSING
+    INPUT_LINK: Load_StgVehicleoffRoad (FROM V0S13)
+    
+    PROPERTIES:
+      VariantName = "10"
+      VariantLibrary = "ccora10g"
+      VariantVersion = "1.0"
+      ConnectorName = "OracleConnector"
+      RejectFromLink = -1
+      RejectThreshold = 0
+      RejectNumber = 0
+      RejectUsesPercentage = false
+      XMLProperties = ""
+      RejectConditions = ""
+      RejectDataElements = ""
+      XMLRejectSettings = ""
+    
+    LOAD_CONFIG:
+      Name = "Load_StgVehicleoffRoad"
+      Partner = "V0S13|V0S13P1"
+      LinkType = 1
+      ConditionNotMet = "fail"
+      LookupFail = "fail"
+      TransactionSize = 0
+      TXNBehaviour = 0
+      EnableTxGroup = 0
+      LinkMinimised = 0
+    
+    CONNECTION_HANDLING:
+      INITIALIZE_ORACLE_CONNECTION()
+      ESTABLISH_PARTNER_CONNECTION(Partner)
+      VALIDATE_CONNECTION_STATUS()
+    
+    DATA_PROCESSING:
+      FETCH_SOURCE_DATA()
+      
+      FOR_EACH_RECORD:
+        APPLY_RECORD_LEVEL_VALIDATION()
+        
+        IF CONDITION_CHECK_FAILS THEN
+          IF ConditionNotMet == "fail" THEN
+            TERMINATE_PROCESSING()
+            SEND_TO_ERROR_HANDLER()
+          END IF
+        END IF
+        
+        IF LOOKUP_OPERATION_REQUIRED THEN
+          PERFORM_LOOKUP()
+          IF LOOKUP_FAILS THEN
+            IF LookupFail == "fail" THEN
+              TERMINATE_PROCESSING()
+              SEND_TO_ERROR_HANDLER()
+            END IF
+          END IF
+        END IF
+        
+        TRANSFORM_RECORD()
+        STAGE_RECORD_FOR_LOAD()
+      END FOR
+    
+    TRANSACTION_MANAGEMENT:
+      IF TransactionSize > 0 THEN
+        PROCESS_IN_BATCHES(TransactionSize)
+      ELSE
+        PROCESS_ALL_RECORDS_IN_SINGLE_TRANSACTION()
+      END IF
+      
+      APPLY_TRANSACTION_BEHAVIOUR(TXNBehaviour)
+      
+      IF EnableTxGroup == 1 THEN
+        ENABLE_TRANSACTION_GROUPING()
+      END IF
+    
+    ERROR_HANDLING:
+      IF RejectThreshold > 0 THEN
+        CAPTURE_REJECTS_TO_LINK(RejectFromLink)
+      END IF
+      
+      IF RejectUsesPercentage == true THEN
+        CALCULATE_REJECT_PERCENTAGE(RejectNumber)
+      ELSE
+        COUNT_REJECT_RECORDS(RejectNumber)
+      END IF
+      
+      HANDLE_CONDITION_FAILURES()
+      HANDLE_LOOKUP_FAILURES()
+    
+    DATA_LOADING:
+      LOAD_TO_TARGET_TABLE("StgVehicleoffRoad")
+      COMMIT_TRANSACTIONS()
+      UPDATE_LOAD_STATISTICS()
+    
+    OUTPUT_LINKS:
+      Main_Output -> NEXT_STAGE
+      Reject_Output -> REJECT_HANDLER (IF RejectFromLink != -1)
+      Error_Output -> ERROR_HANDLER (IF ConditionNotMet == "fail" OR LookupFail == "fail")
+      Success_Output -> COMPLETION_HANDLER
+  
+  GOTO LINK_25_OUTPUT_GENERATION_AND_REPORTING
+
+LINK_25_OUTPUT_GENERATION_AND_REPORTING:
+  OUTPUT_FILE_CREATION:
+    GENERATE_MAIN_OUTPUT:
+      OUTPUT_PATH = pSMROutputPath + "/VOR_Output_" + pFiledate
+      WRITE_DATASET_TO_FILE(VALID_RECORDS, OUTPUT_PATH)
+    
+    GENERATE_STAGE_TABLE_OUTPUT:
+      STAGE_OUTPUT_PATH = pSMROutputPath + "/STG_VEHICLE_OFF_ROAD_" + pFiledate
+      WRITE_DATASET_TO_FILE(VALID_RECORDS, STAGE_OUTPUT_PATH)
+    
+    GENERATE_SUMMARY_REPORT:
+      SUMMARY_DATA = CREATE_PROCESSING_SUMMARY(START_DATE, END_DATE, DELTA_DAYS_PARAM, CURRENT_PROCESS_DATE, VALID_RECORDS.ROW_COUNT, EXCEPTION_RECORDS.ROW_COUNT, JOB_NAME, JOB_VERSION)
+      WRITE_SUMMARY_REPORT(SUMMARY_DATA, pSMROutputPath + "/processing_summary_" + pFiledate + ".txt")
+  
+  STORAGE_OPERATIONS:
+    VALIDATE_OUTPUT_FILES:
+      VERIFY_FILE_INTEGRITY(OUTPUT_PATH)
+      VERIFY_FILE_INTEGRITY(STAGE_OUTPUT_PATH)
+      VERIFY_FILE_INTEGRITY(exception_file_path)
+      VERIFY_FILE_INTEGRITY(exception_output_path)
+      VERIFY_FILE_INTEGRITY(merged_exception_file_path)
+      VERIFY_FILE_INTEGRITY(target_output_path)
+      VERIFY_FILE_INTEGRITY(target_file_path)
+      VERIFY_FILE_INTEGRITY(error_log_path)
+      VERIFY_FILE_INTEGRITY(clean_file_path)
+      VERIFY_FILE_INTEGRITY(reject_file_path)
+    
+    APPLY_FILE_PERMISSIONS:
+      SET_FILE_PERMISSIONS(OUTPUT_PATH, "READ_WRITE")
+      SET_FILE_PERMISSIONS(STAGE_OUTPUT_PATH, "READ_WRITE")
+      SET_FILE_PERMISSIONS(exception_output_path, "READ_WRITE")
+      SET_FILE_PERMISSIONS(merged_exception_file_path, "READ_WRITE")
+      SET_FILE_PERMISSIONS(target_output_path, "READ_WRITE")
+      SET_FILE_PERMISSIONS(target_file_path, "READ_WRITE")
+      SET_FILE_PERMISSIONS(error_log_path, "READ_WRITE")
+      SET_FILE_PERMISSIONS(clean_file_path, "READ_WRITE")
+      SET_FILE_PERMISSIONS(reject_file_path, "READ_WRITE")
+  
+  GOTO LINK_26_CLEANUP_FINALIZATION
+
+LINK_26_CLEANUP_FINALIZATION:
+  CONNECTION_CLEANUP:
+    CLOSE_DB_CONNECTION(psOraDB)
+    RELEASE_CONNECTION_RESOURCES()
+    CLEANUP_ACT2ACT_RESOURCES()
+    CLOSE_DATABASE_CONNECTION()
+    RELEASE_MEMORY_BUFFERS()
+    COMMIT_TRANSACTION()
+  
+  FILE_FINALIZATION:
+    FINALIZE_OUTPUT_FILES()
+    CLOSE_EXCEPTION_FILE()
+    CLOSE_LOG_FILE()
+    CLEANUP_TEMPORARY_FILES()
+    CLOSE_HASHED_FILE("HF_FACT_VOR_DATA")
+    CLOSE_HASHED_FILE("HF_SMR_VEHICLE_DIM")
+    CLOSE_HASHED_FILE("HF_SMR_VEHICLE_DIM_REG")
+    CLOSE_SEQUENTIAL_FILE(exception_output_path)
+    CLOSE_SEQUENTIAL_FILE(merged_exception_file_path)
+    CLOSE_SEQUENTIAL_FILE(target_output_path)
+    CLOSE_SEQUENTIAL_FILE(target_file_path)
+    CLOSE_SEQUENTIAL_FILE(error_log_path)
+    CLOSE_SEQUENTIAL_FILE(clean_file_path)
+    CLOSE_SEQUENTIAL_FILE(reject_file_path)
+  
+  METADATA_CLEANUP:
+    UNREGISTER_METADATA_COLLECTION(MetaBag_Collection)
+    CLEAR_RUNTIME_OPTIONS()
+    RESET_JOB_PROPERTIES()
+  
+  JOB_STATUS_UPDATE:
+    LOG_PROCESSING_STATS(START_DATE, END_DATE, DELTA_DAYS_PARAM, CURRENT_PROCESS_DATE, VALID_RECORDS.ROW_COUNT, EXCEPTION_RECORDS.ROW_COUNT, JOB_NAME, JOB_VERSION)
+    UPDATE_JOB_STATUS("COMPLETED")
+    SET_REL_STAGES_IN_JOB_STATUS(REL_STAGES_IN_JOB_STATUS)
+    GENERATE_JOB_COMPLETION_REPORT()
+    
+    IF JOB_REPORT_FLAG = 1 THEN
+      GENERATE_DETAILED_JOB_REPORT()
+    END IF
+
+ERROR_HANDLING_AND_MONITORING:
+  GLOBAL_ERROR_STRATEGY: CONTINUE_ON_WARNING
+  RECORD_LEVEL_ERROR_STRATEGY: REJECT_RECORDS_ON_DATA_TYPE_MISMATCH
+  TRANSFORMATION_ERROR_STRATEGY: LOG_AND_CONTINUE
+  TARGET_ERROR_STRATEGY: ROLLBACK_ON_FAILURE
+
+MONITORING_AND_LOGGING:
+  LOG_JOB_START_TIME()
+  LOG_RECORD_COUNTS_PER_LINK()
+  LOG_TRANSFORMATION_STATISTICS()
+  LOG_ERROR_COUNTS_AND_TYPES()
+  LOG_PERFORMANCE_METRICS()
+  LOG_JOB_COMPLETION_STATUS()
+
+CLEANUP_AND_FINALIZATION:
+  CLOSE_ALL_DATABASE_CONNECTIONS()
+  CLEANUP_TEMPORARY_RESOURCES()
+  GENERATE_JOB_EXECUTION_REPORT()
+  UPDATE_JOB_EXECUTION_METADATA()
+
+END JOB_EXECUTION
+```
