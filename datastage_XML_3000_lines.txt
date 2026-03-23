@@ -1,0 +1,759 @@
+```
+// DataStage Export Configuration
+EXPORT_METADATA:
+    Character_Set: ENGLISH
+    Export_Tool: IBM InfoSphere DataStage Export
+    Tool_Version: 8
+    Server_Name: LPGBMIS1003.EMEA.LEASEPLANCORP.NET
+    Tool_Instance_ID: All_ODS_DW_DWDev
+    Export_Date: 2016-10-04
+    Export_Time: 10.36.48
+    Server_Version: 9.1
+
+// Parent Tag: DSExport
+// Child Tag: Header
+// Input Links: None
+// Output Links: None
+
+JOB: jbSMR3010220StgVehicleOffRoadFact
+PARENT: ROOT
+TYPE: JobDefn
+DESCRIPTION: Job to load the STAGE_SMR.STG_VEHICLE_OFF_ROAD table
+CATEGORY: \Jobs\003 Warehouse\04 SMR\QA\30 Operational Reports\10 Stage
+JOB_VERSION: 56.0.0
+CONTAINER: V0
+NEXT_ID: 117
+JOB_TYPE: 0
+CENTURY_BREAK_YEAR: 30
+NEXT_ALIAS_ID: 2
+PARAMETER_FILE_DD_NAME: DD00001
+RESERVED_WORD_CHECK: 1
+TRANSACTION_SIZE: 0
+VALIDATION_STATUS: 0
+UPLOADABLE: 0
+PROGRAM_CUSTOMIZATION_FLAG: 0
+JOB_REPORT_FLAG: 0
+ALLOW_MULTIPLE_INVOCATIONS: 0
+ACT2ACT_OVERRIDE_DEFAULTS: 0
+ACT2ACT_ENABLE_ROW_BUFFER: 0
+ACT2ACT_USE_IPC: 0
+ACT2ACT_BUFFER_SIZE: 0
+ACT2ACT_IPC_TIMEOUT: 0
+EXPRESSION_SEMANTIC_CHECK_FLAG: 0
+TRACE_OPTION: 0
+ENABLE_CACHE_SHARING: 0
+RUNTIME_COLUMN_PROPAGATION: 0
+REL_STAGES_IN_JOB_STATUS: -1
+WEB_SERVICE_ENABLED: 0
+MF_PROCESS_META_DATA: 0
+MF_PROCESS_META_DATA_XML_FILE_EXCHANGE_METHOD: 0
+IMS_PROG_TYPE: 0
+COPY_LIB_PREFIX: ARDT
+RECORD_PERFORMANCE_RESULTS: 0
+CONTROL_AFTER_SUBR: 0
+NULL_INDICATOR_POSITION: 0
+IS_TEMPLATE: 0
+NLS_LOCALE: ,,,,
+
+PARAMETERS:
+  psOraDB = "(As pre-defined)" (ParamType: 13)
+  PREV_BATCH_RUN_DATE_VOR = "20151204" (ParamType: 0)
+  DELTA_DAYS_PARAM = "90" (ParamType: 0)
+  pSMROutputPath = "/d/ftpdata/tmp/TEST/VOR" (ParamType: 0)
+  pVOR_Exception_FileName = "VOR_Supp_Exceptions" (ParamType: 0)
+  pFiledate = "20151204" (ParamType: 0)
+
+INITIALIZE JOB EXECUTION
+
+Job Properties:
+    Date Modified: 2016-09-21
+    Time Modified: 21.18.30
+    Job Definition Record: ROOT (Type: JobDefn, Readonly: 0)
+
+Configuration Settings:
+    MetaBag Collection (Type: MetaProperty):
+        Advanced Runtime Options:
+            Owner: APT
+            Name: AdvancedRuntimeOptions
+            Value: #DSProjectARTOptions#
+
+ANNOTATIONS:
+  ANNOTATION: V94A0
+    Parent Tag: Job
+    Child Tag: Record
+    Type: Documentation
+    Description: "Fetch Source Data"
+    Source_Tables_Reference: SUPPLIERDATA_EXT.VOR_VEHICLE_OFF_ROAD, SUPPLIERDATA_EXT.VOR_PROGRESS_REPORTING, SMR_OWNER.D_VOR_NON_RETURN_REASON, CDM_OWNER.VEHICLE_DIM, CDM_OWNER.SUPPLIER_DIM, CDM_OWNER.CUSTOMER_DIM, CDM_OWNER.DRIVER_ALLOC_VEH_DIM, SMR_OWNER.D_VOR_NOTE, SUPPLIERDATA_EXT.VOR_I247_GARAGE_MAPPING
+    Input Link: None
+    Output Link: [To next stage]
+
+  ANNOTATION: V93A0
+    Parent Tag: Job
+    Child Tag: Record
+    Stage_Type: Annotation
+    Stage_Name: V93A0
+    Read_Only: False
+    Annotation_Type: 2
+    Input Link: None
+    Output Link: [To next stage]
+
+  ANNOTATION: V0A16
+    Parent Tag: Job
+    Child Tag: Record
+    AnnotationText: "To get rid of unmatched Vehicle sk look up with Vehicle dim with Registration number as key"
+    Input Link: None
+    Output Link: None
+
+  ANNOTATION: V0A17
+    Parent Tag: Job
+    Child Tag: Record
+    AnnotationText: "To get rid of duplicates due to bad data in Vehicle and Driver allocation dimension"
+    Input Link: None
+    Output Link: None
+
+  ANNOTATION: V95A0
+    Parent Tag: Job
+    Child Tag: Record
+    Type: Documentation
+    Description: "Load Data to Staging - Table Name: STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT - Type of Statement: TRUNCATE & LOAD"
+    Input Link: None
+    Output Link: [To next stage]
+
+chunk pseudo code ended
+
+STAGE: V0S0 (CustomStage)
+  Parent Tag: Job
+  Child Tag: Stage (Identifier: V0S0, Type: CustomStage)
+  Input Link: None (Start of Job)
+  Output Link: V0S0P2 -> ORA_Ext_Vehicle_Off_Road_Data
+  Properties:
+    ConnectorName: OracleConnector
+    Engine: SE
+    Context: source
+    VariantName: 10
+    VariantLibrary: ccora10g
+    VariantVersion: 1.0
+    SupportedVariants: V1;10:"10g":ccora10g;11:"11g":ccora11g
+    SupportedVariantsLibraries: ccora10g,ccora11g
+    SupportedVariantsVersions: "1.0,1.0"
+    XMLConnectorDescriptor: Custom stage with XML connector descriptor configuration
+    ConnectionString: /Connection/Server
+    Username: /Connection/Username
+    Password: /Connection/Password
+    xaoDbName: /Connection/xaoDbName
+    OSLevelAuthentication: /Connection/OSLevelAuthentication
+    transactionModel: 0
+    transactionManager: configured
+    supportedTransactionModel: local
+    readonly: 0
+    RejectUsesPercentage: false
+    XMLRejectSettings: configured
+    Orientation: link
+    RejectFromLink: -1
+    RejectThreshold: 0
+    RejectNumber: 0
+  Processing Steps:
+    1. Initialize Job: jbSMR3010220StgVehicleOffRoadFact
+    2. Connection Building Phase:
+       - Establish Oracle database connection using ConnectionString and xaoDbName
+       - Authenticate using Username and Password with OSLevelAuthentication
+       - Set connection context to source
+    3. Configuration Phase:
+       - Set VariantLibrary = ccora10g
+       - Configure XMLRejectSettings for data quality control
+       - Set RejectUsesPercentage to false
+       - Initialize RejectConditions for validation rules
+       - Initialize RejectDataElements for data element rejection
+       - Set transactionModel = 0 with local transaction support
+       - Configure transactionManager for transaction handling
+       - Configure stage as read-write (readonly=0)
+    4. Processing Phase:
+       - Configure Oracle connection properties
+       - Apply custom stage processing rules
+       - Handle XML rejection criteria based on configured settings
+       - Process data through OracleConnector
+    5. End CustomStage initialization
+
+STAGE: V0S0P2 (CustomOutput)
+  Parent Tag: Job
+  Child Tag: Record (Identifier: V0S0P2, Type: CustomOutput)
+  Input Link: V0S0 (from CustomStage)
+  Output Link: V0S0P2_Output -> ORA_Ext_Vehicle_Off_Road_Data
+  Target Table: STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+  Record Properties:
+    Readonly: 0
+    VariantName: 10
+    VariantLibrary: ccora10g
+    VariantVersion: 1.0
+    RejectFromLink: -1
+    RejectThreshold: 0
+    RejectNumber: 0
+    RejectUsesPercentage: false
+    ConnectorName: OracleConnector
+  Processing Steps:
+    1. Receive initialization from V0S0 CustomStage
+    2. Configure output columns with technical metadata
+    3. Set column properties (SqlType, Precision, Scale, Nullable)
+    4. Apply custom output formatting for all columns
+    5. Map columns to target table STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+  Output Column Definitions:
+    WORKSHEET_NUMBER: SqlType=12, Precision=20, Scale=0, Nullable=1, KeyPosition=0, DisplaySize=20
+    ORIGINAL_WORKSHEET_NUMBER: SqlType=12, Precision=20, Scale=0, Nullable=1, KeyPosition=0, DisplaySize=20
+    VOR_PROGRESS_SK: SqlType=3, Precision=19, Scale=0, Nullable=1
+    REGISTERED_CUST_DRIVER_SK: SqlType=3, Precision=19, Scale=0, Nullable=1, DisplaySize=21, TableDef=PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    VEHICLE_SK: SqlType=3, Precision=19, Scale=0, Nullable=1, KeyPosition=0, DisplaySize=21, SortKey=0, TableDef=PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    VARIANT_SK: SqlType=3, Precision=19, Scale=0, Nullable=1, KeyPosition=0, DisplaySize=0, SortKey=0, TableDef=PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    SUPP_SK: SqlType=3, Precision=19, Scale=0, Nullable=1, KeyPosition=0, TableDef=PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    CUSTOMER_SK: SqlType=3, Precision=19, Scale=0, Nullable=1, DisplaySize=21, TableDef=PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    RENTAL_BOOKING_SK: SqlType=3, Precision=10, Scale=0, Nullable=1, KeyPosition=0, TableDef=PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    RENTAL_BOOKING_REFERENCE: SqlType=3, Precision=10, Scale=0, Nullable=1, DisplaySize=12, TableDef=PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    VOR_NOTE_SK: SqlType=3, Precision=19, Scale=0, Nullable=1, TableDef=PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    ORIGINAL_APPOINTMENT_DATE_SK: SqlType=3, Precision=19, Scale=0, Nullable=1, TableDef=PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    JOB_CLOSED_DATE_SK: SqlType=3, Precision=19, Scale=0, Nullable=1, TableDef=PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    VOR_PASSED_DATE_SK: SqlType=BIGINT, Precision=19, Scale=0, Nullable=1, TableDef=PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    DRIVER_COLLECTION_DATE_SK: SqlType=DECIMAL, Precision=38, Scale=0, Nullable=1, TableDef=STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    VOR_REGISTRATION_NUMBER: SqlType=VARCHAR, Precision=10, Scale=0, Nullable=1, TableDef=STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    CAPTURED_GARAGE_NAME: SqlType=VARCHAR, Precision=255, Scale=0, Nullable=1, TableDef=STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    CONTACT_DRIVER_NAME: SqlType=VARCHAR, Precision=255, Scale=0, Nullable=1, TableDef=STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    MILEAGE: SqlType=3, Precision=38, Scale=0, Nullable=1, TableDef=PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    VOR_INCIDENT_SOURCE: SqlType=12, Precision=20, Scale=0, Nullable=1, TableDef=PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    VOR_WORK: SqlType=12, Precision=2000, Scale=0, Nullable=1, TableDef=PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    CRS_LOG_ID: SqlType=12, Precision=20, Scale=0, Nullable=1, TableDef=PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    NUMBER_OF_WORKING_DAYS_VOR: SqlType=3, Precision=38, Scale=0, Nullable=1, TableDef=PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    NUMBER_OF_DAYS_VOR: SqlType=INTEGER, Precision=38, Scale=0, Nullable=1, TableDef=PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    COMPLETION_TO_COLLECT_DAYS: SqlType=INTEGER, Precision=38, Scale=0, Nullable=1, TableDef=PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+  Error Handling:
+    RejectThreshold: 0 (No rejects allowed)
+    RejectNumber: 0 (No records rejected)
+    RejectUsesPercentage: false (Rejects not in percentage)
+    RejectFromLink: -1 (No reject link specified)
+  Connector Configuration:
+    Type: OracleConnector
+    Library: ccora10g
+    Version: 1.0
+
+chunk pseudo code ended
+
+STAGE: ORA_Ext_Vehicle_Off_Road_Data
+  Type: OracleConnector (Source)
+  Parent Tag: Job
+  Child Tag: Record (Identifier: V0S0)
+  Input Link: V0S0P2_Output (from V0S0P2 CustomOutput)
+  Output Link: Lnk_Vehicle_off_Road_Data
+  Target Stage: Tfm_LoadRecords
+  Connection Properties:
+    Server: #psOraDB.pSID#
+    Username: #psOraDB.pUserID#
+    Password: #psOraDB.pPassword#
+    OSLevelAuthentication: 0
+    Version: 10g
+  Transaction Properties:
+    IsolationLevel: 0
+    RecordCount: 2000
+  Session Properties:
+    ArraySize: 2000
+    PrefetchRowCount: 1
+    PrefetchMemorySize: 0
+    PassLobLocator: 0
+    BFILEasBLOB: 0
+    TreatWarningsAsErrors: 0
+    TreatFetchTruncateAsError: 1
+  Processing Steps:
+    1. Receive schema definition from V0S0P2 CustomOutput
+    2. Establish connection to Oracle database using psOraDB parameter
+    3. Configure session and transaction properties
+    4. Execute source query with date filtering using PREV_BATCH_RUN_DATE_VOR and DELTA_DAYS_PARAM parameters
+    5. SQL query found - Complex multi-table join query for vehicle off-road data extraction
+    6. Output extracted data to link Lnk_Vehicle_off_Road_Data
+  SQL Query:
+    select /*+Parallel (5)*/ WORKSHEET_NUMBER,
+    ORIGINAL_WORKSHEET_NUMBER,
+    VOR_PROGRESS_SK,
+    NVL (cd.cust_driver_sk, -99) AS REGISTERED_CUST_DRIVER_SK,
+    SRC.VEHICLE_SK AS VEHICLE_SK,
+    variant_sk,
+    (Case WHEN CAPTURED_garage_name is null then -98
+      when supp_smr.supp_sk is not null and supp_smr.lkp_key='A' then supp_smr.supp_sk
+      when supp_nols.supp_sk is not null AND supp_nols.lkp_key='A' then supp_nols.supp_sk
+      when supp_smr.supp_sk is not null and supp_smr.lkp_key='B' then -97
+      when supp_nols.supp_sk is not null and supp_nols.lkp_key='B' then -97
+      Else -99 end) as SUPP_SK,
+    CUSTOMER_SK,
+    RENTAL_BOOKING_SK,
+    RENTAL_BOOKING_REFERENCE,
+    VOR_NOTE_SK,
+    ORIGINAL_APPOINTMENT_DATE_SK,
+    JOB_CLOSED_DATE_SK,
+    VOR_PASSED_DATE_SK,
+    DRIVER_COLLECTION_DATE_SK,
+    VOR_REGISTRATION_NUMBER,
+    CAPTURED_GARAGE_NAME,
+    CONTACT_DRIVER_NAME,
+    MILEAGE,
+    VOR_INCIDENT_SOURCE,
+    VOR_WORK,
+    CRS_LOG_ID,
+    NUMBER_OF_WORKING_DAYS_VOR,
+    NUMBER_OF_DAYS_VOR,
+    COMPLETION_TO_COLLECT_DAYS
+    FROM (SELECT vor.worksheet_number as worksheet_number,
+      NVL (vor.original_worksheet_number,'N/A') AS ORIGINAL_WORKSHEET_NUMBER,
+      NVL (vnrr.vor_progress_sk, -99) AS vor_progress_sk,
+      (CASE WHEN v.vehicle_sk IS NOT NULL THEN v.vehicle_sk
+       WHEN VN.VEHICLE_SK IS NOT NULL THEN VN.VEHICLE_SK ELSE -99 END) AS vehicle_sk,
+      (CASE WHEN v.variant_sk IS NOT NULL THEN v.variant_sk
+       WHEN VN.variant_sk IS NOT NULL THEN VN.variant_sk ELSE -99 END) AS variant_sk,
+      (CASE WHEN V.OBJECT_NO IS NOT NULL THEN V.OBJECT_NO
+       WHEN VN.OBJECT_NO IS NOT NULL THEN VN.OBJECT_NO ELSE NULL END) AS OBJECT_NO,
+      NVL (cust.cust_sk, -99) AS customer_sk,
+      NVL(b.booking_id, -99) AS RENTAL_BOOKING_SK,
+      b.booking_reference as rental_booking_reference,
+      NVL (note.vor_note_sk, -99) AS vor_note_sk,
+      NVL(TO_CHAR (TO_DATE (vor.original_appointment_date, 'DD/MM/YYYY'), 'YYYYMMDD'),'19000101') AS original_appointment_date_sk,
+      CASE WHEN vor.work_finish_date IS NULL THEN '99991231'
+           WHEN vor.work_finish_date='In Progress' THEN '99991231'
+           ELSE TO_CHAR (TO_DATE (vor.work_finish_date, 'DD/MM/YYYY'), 'YYYYMMDD')
+      END AS JOB_CLOSED_DATE_SK,
+      NVL (TO_CHAR (TO_DATE (vor.vor_passed_date, 'DD/MM/YYYY'), 'DD/MM/YYYY'), '99991231' ) as VOR_PASSED_DATE_SK,
+      NVL (TO_CHAR (TO_DATE (vor.driver_collection_date, 'DD/MM/YYYY'), 'YYYYMMDD'), '99991231' ) as driver_collection_date_sk,
+      vor.registration_number as VOR_REGISTRATION_NUMBER,
+      (CASE WHEN GM.MAPPED_TO_GARAGE IS NOT NULL THEN GM.MAPPED_TO_GARAGE ELSE vor.garage_name end) as captured_garage_name,
+      vor.driver_name as contact_driver_name,
+      vor.mileage as mileage,
+      vor.vor_incident_source,
+      vor.work_info as VOR_WORK,
+      NVL(vor.crs_reference_no,'N/A') as crs_log_id,
+      vor.working_days_vor as number_of_working_days_vor,
+      vor.number_of_days_vor as number_of_days_vor,
+      vor.completion_to_collection_days as COMPLETION_TO_COLLECT_DAYS,
+      INCIDENT_CREATION_DATE
+    FROM (SELECT worksheet_number, original_worksheet_number, original_appointment_date, work_finish_date, vor_passed_date, driver_collection_date, registration_number, garage_name, driver_name, mileage, vor_incident_source, work_info, crs_reference_no, working_days_vor, number_of_days_vor, completion_to_collection_days, INCIDENT_CREATION_DATE, nols_customer_number,
+      (CASE WHEN rental_number IS NULL THEN '-99'
+            WHEN DW_OWNER.F_IS_NUMBER(RENTAL_NUMBER)=1 THEN RENTAL_NUMBER
+            ELSE '-99' END) AS RENTAL_NUMBER,LAST_UPDATED_ON
+      FROM supplierdata_ext.vor_vehicle_off_road VOR) vor
+    LEFT OUTER JOIN smr_owner.d_vor_progress vnrr ON vor.original_worksheet_number = vnrr.original_worksheet_number and VNRR.LATEST_FLAG='Y'
+    LEFT OUTER JOIN (select vehicle_sk,variant_sk, registration_no,OBJECT_NO,CUST_ID,EFFECTIVE_START_DATE,EFFECTIVE_END_DATE,ETL_TERMINATED_DATE FROM cdm_owner.vehicle_dim v WHERE UPPER(V.BRAND)<>'NETWORK')V ON vor.registration_number = v.registration_no AND VOR.NOLS_CUSTOMER_NUMBER=V.CUST_ID and TO_DATE (VOR.INCIDENT_CREATION_DATE, 'DD/MM/YYYY') between v.EFFECTIVE_START_DATE and V.EFFECTIVE_END_DATE
+    LEFT OUTER JOIN (select vehicle_sk,variant_sk, registration_no,OBJECT_NO,CUST_ID,EFFECTIVE_START_DATE,EFFECTIVE_END_DATE,ETL_TERMINATED_DATE FROM cdm_owner.vehicle_dim v WHERE UPPER(V.BRAND)='NETWORK') VN ON vor.registration_number = VN.registration_no AND VOR.NOLS_CUSTOMER_NUMBER=VN.CUST_ID and TO_DATE (VOR.INCIDENT_CREATION_DATE, 'DD/MM/YYYY') between VN.EFFECTIVE_START_DATE and VN.EFFECTIVE_END_DATE
+    LEFT OUTER JOIN cdm_owner.customer_dim cust ON cust.cust_id = vor.nols_customer_number AND cust.latest_flag = 'Y'
+    LEFT OUTER JOIN ldrdw.bookings b ON vor.rental_number =b.booking_reference
+    LEFT OUTER JOIN smr_owner.d_vor_note note ON vor.worksheet_number = note.worksheet_number AND NOTE.LAST_RECORD ='Y'
+    LEFT OUTER JOIN SUPPLIERDATA_EXT.VOR_I247_GARAGE_MAPPING GM ON GM.FROM_I247_GARAGE= VOR.GARAGE_NAME
+    WHERE VOR.LAST_UPDATED_ON>=TO_DATE('#PREV_BATCH_RUN_DATE_VOR#','YYYY-MM-DD')-#DELTA_DAYS_PARAM#) SRC
+    LEFT JOIN (SELECT distinct driver_id_no,VEHICLE_SK,OBJECT_NO,DRIVER_START_DATE,DRIVER_END_DATE from CDM_OWNER.driver_alloc_veh_dim dav ORDER BY DRIVER_ID_NO) dav ON SRC.object_no = dav.object_no AND TO_DATE(INCIDENT_CREATION_DATE,'DD/MM/YYYY') between DAV.DRIVER_START_DATE and DAV.DRIVER_END_DATE
+    LEFT OUTER JOIN cdm_owner.cust_driver_dim cd ON cd.cust_driver_id = dav.driver_id_no AND cd.latest_flag = 'Y'
+    LEFT OUTER JOIN (select supp_sk,supp_name,lkp_key from (SELECT supp_sk , supp_name, 'A' AS LKP_KEY FROM (SELECT sd.supp_sk , sd.supp_name, COUNT (sd.supp_name) OVER (PARTITION BY sd.supp_name) AS record_count FROM cdm_owner.supplier_dim sd WHERE sd.latest_flag = 'Y' AND sd.delete_flag = 'N' and sd.supp_type='SMR' AND SUPP_ID IN (select SITE_ID from supplierdata_ext.ONELINK_SUPPLIER_NETWORK where latest_record='Y' AND PREFERENCE_LEVEL <>'D')) WHERE record_count = 1 UNION ALL SELECT supp_sk , supp_name, 'B' AS LKP_KEY FROM (SELECT sd.supp_sk , sd.supp_id, sd.supp_name, row_number() over(partition by sd.supp_name order by sd.supp_name) as row_val, COUNT (sd.supp_name) OVER (PARTITION BY sd.supp_name) AS record_count FROM cdm_owner.supplier_dim sd WHERE sd.latest_flag = 'Y' AND sd.delete_flag = 'N' and sd.supp_type='SMR' AND SUPP_ID IN (select SITE_ID from supplierdata_ext.ONELINK_SUPPLIER_NETWORK where latest_record='Y' AND PREFERENCE_LEVEL <>'D')) WHERE record_count >1 and row_val=1))supp_smr ON supp_SMR.supp_name = SRC.CAPTURED_GARAGE_NAME
+    LEFT OUTER JOIN (select supp_sk,supp_name,lkp_key from (SELECT supp_sk , supp_name, 'A' AS LKP_KEY FROM (SELECT sd.supp_sk , sd.supp_name, COUNT (sd.supp_name) OVER (PARTITION BY sd.supp_name) AS record_count FROM cdm_owner.supplier_dim sd WHERE sd.latest_flag = 'Y' AND sd.delete_flag = 'N' and sd.supp_type='NOLS' AND SUPP_ID IN (select SITE_ID from supplierdata_ext.ONELINK_SUPPLIER_NETWORK where latest_record='Y' AND PREFERENCE_LEVEL <>'D')) WHERE record_count = 1 UNION ALL SELECT supp_sk , supp_name, 'B' AS LKP_KEY FROM (SELECT sd.supp_sk , sd.supp_name, row_number() over(partition by sd.supp_name order by sd.supp_name) as row_val, COUNT (sd.supp_name) OVER (PARTITION BY sd.supp_name) AS record_count FROM cdm_owner.supplier_dim sd WHERE sd.latest_flag = 'Y' AND sd.delete_flag = 'N' and sd.supp_type='NOLS' AND SUPP_ID IN (select SITE_ID from supplierdata_ext.ONELINK_SUPPLIER_NETWORK where latest_record='Y' AND PREFERENCE_LEVEL <>'D')) WHERE record_count >1 and row_val=1))supp_nols ON supp_nols.supp_name = SRC.CAPTURED_GARAGE_NAME
+    ORDER BY worksheet_number,vehicle_sk,cd.cust_driver_sk;
+
+STAGE: HF_SMR_VEHICLE_DIM
+  Type: CHashedFileStage (Lookup)
+  Parent Tag: Job
+  Child Tag: Record
+  Stage_ID: V116S0
+  Input Link: None (Lookup File)
+  Output Link: lkVehicleDim_REg
+  Target Stage: Tfm_LoadRecords
+  Link Type: Reference Lookup
+  UV_Compatible: 0
+  SQL_Null: 0
+  Processing Steps:
+    1. Load vehicle dimension data from hashed file
+    2. Prepare lookup cache for registration number key matching
+    3. Provide reference data for vehicle dimension lookup
+
+chunk pseudo code ended
+
+STAGE: Tfm_LoadRecords
+  Type: CTransformerStage (Processing)
+  Parent Tag: Job
+  Child Tag: Record
+  Input Link: Lnk_Vehicle_off_Road_Data (from ORA_Ext_Vehicle_Off_Road_Data)
+  Input Link: lkVehicleDim_REg (from HF_SMR_VEHICLE_DIM)
+  Output Link: Load_HFVehicleoffRoad
+  Output Link: Load_VOR_Exception_File
+  Output Link: Load_StgVehicleoffRoad
+  Output Link: V0S2P7 (to V116S0P2 HashedOutput)
+  Target Stage: TrxOutput_V0S2P2_V0S2P3 (via Load_HFVehicleoffRoad)
+  Target Stage: Load_VOR_Exception_File (via Load_VOR_Exception_File)
+  Target Stage: V0S1 (via Load_StgVehicleoffRoad)
+  Target Stage: V116S0P2 (via V0S2P7)
+  Stage Variables:
+    svException:
+      EXPRESSION: If Lnk_Vehicle_off_Road_Data.SUPP_SK == -99 then svException = -1 Else If Lnk_Vehicle_off_Road_Data.SUPP_SK == -97 then svException = -1 Else svException = 0
+      SOURCE_COLUMN: Lnk_Vehicle_off_Road_Data.SUPP_SK (SqlType=3, Precision=0, ColScale=0, ExtendedPrecision=0)
+  Properties:
+    STAGE_TYPE: CTransformerStage
+    BLOCK_SIZE: 0
+    VALIDATION_STATUS: 0
+  Processing Steps:
+    1. Receive vehicle off-road data from source connector
+    2. Perform lookup on HF_SMR_VEHICLE_DIM using registration number as key
+    3. Handle unmatched vehicle dimension lookups as per annotation V0A16
+    4. Remove duplicates due to bad data in Vehicle and Driver allocation dimension as per annotation V0A17
+    5. Apply business transformation rules
+    6. Apply svException business logic validation based on SUPP_SK values
+    7. Transform data based on SUPP_SK values (-99, -97 trigger exception flag)
+    8. Validate data quality and identify exception records
+    9. Route valid records to Load_HFVehicleoffRoad and Load_StgVehicleoffRoad
+    10. Route exception records to Load_VOR_Exception_File
+    11. Route hashed file data to V0S2P7 for V116S0P2 HashedOutput
+  Error Handling:
+    1. Capture lookup failures and route to exception file
+    2. Handle duplicate records and data quality issues
+    3. Log transformation errors for monitoring
+  Business Logic:
+    1. Vehicle dimension matching using registration number
+    2. Data deduplication logic
+    3. Exception record identification and routing based on svException variable
+
+STAGE: V116S0P2 (HashedOutput)
+  Parent Tag: Job
+  Child Tag: Record (Identifier: V116S0P2, Type: HashedOutput)
+  Input Link: V0S2P7 (from Tfm_LoadRecords)
+  Output Link: HF_SMR_VEHICLE_DIM_REG
+  Target File: HF_SMR_VEHICLE_DIM_REG
+  Properties:
+    In_Memory: 0
+    Normalize: Un-Normalized
+    Record_Level_Read: 0
+  Processing Steps:
+    1. Receive data from Tfm_LoadRecords via V0S2P7 link
+    2. Map REGISTRATION_NO from Lnk_Vehicle_off_Road_Data.VOR_REGISTRATION_NUMBER
+    3. Write VEHICLE_SK, OBJECT_NO, CUST_ID to hashed file
+    4. Store data to HF_SMR_VEHICLE_DIM_REG file
+  Column Definitions:
+    REGISTRATION_NO: SqlType=12, Precision=18, Scale=0, Nullable=0, KeyPosition=1, KeyExpression=Lnk_Vehicle_off_Road_Data.VOR_REGISTRATION_NUMBER, TableDef=Saved\HF_SMR_VEHICLE_DIM_REG\HF_SMR_VEHICLE_DIM_REG
+    VEHICLE_SK: SqlType=3, Precision=19, Scale=0, Nullable=1
+    VARIANT_SK: SqlType=INTEGER, Precision=19, Scale=0, Nullable=1, TableDef=HF_SMR_VEHICLE_DIM_REG
+    OBJECT_NO: SqlType=12, Precision=15, Scale=0, Nullable=1
+    CUST_ID: SqlType=3, Precision=19, Scale=0, Nullable=1
+
+STAGE: TrxOutput_V0S2P2_V0S2P3 (Merged Transformer Output)
+  Type: Target Connector
+  Parent Tag: DSExport
+  Child Tag: Record (Identifier: TrxOutput_V0S2P2_V0S2P3, Type: Target_Connector)
+  Input Link: Load_HFVehicleoffRoad (from Tfm_LoadRecords)
+  Input Link: lkVehicleDim_REg (from HF_SMR_VEHICLE_DIM)
+  Output Link: STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+  Target Table: STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+  Processing Configuration:
+    READONLY: False
+    REJECT_HANDLING: Disabled
+    ERROR_PIN: Disabled
+    ROW_LIMIT: Unlimited
+  Processing Steps:
+    1. Receive data from Tfm_LoadRecords via Load_HFVehicleoffRoad link
+    2. Read lookup data from lkVehicleDim_REg
+    3. Apply transformation logic for all output columns
+    4. Load transformed data into target table STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    5. Process all rows without limit restrictions
+  Transformation Logic:
+    READ data FROM Lnk_Vehicle_off_Road_Data
+    READ lookup data FROM lkVehicleDim_REg
+    MAP WORKSHEET_NUMBER = Lnk_Vehicle_off_Road_Data.WORKSHEET_NUMBER
+    MAP ORIGINAL_WORKSHEET_NUMBER = Lnk_Vehicle_off_Road_Data.ORIGINAL_WORKSHEET_NUMBER
+    MAP VOR_PROGRESS_SK = Lnk_Vehicle_off_Road_Data.VOR_PROGRESS_SK
+    MAP REGISTERED_CUST_DRIVER_SK = Lnk_Vehicle_off_Road_Data.REGISTERED_CUST_DRIVER_SK
+    IF Lnk_Vehicle_off_Road_Data.VEHICLE_SK = -99 THEN
+      MAP VEHICLE_SK = lkVehicleDim_REg.VEHICLE_SK
+      MAP VARIANT_SK = lkVehicleDim_REg.VARIANT_SK
+    ELSE
+      MAP VEHICLE_SK = Lnk_Vehicle_off_Road_Data.VEHICLE_SK
+      MAP VARIANT_SK = Lnk_Vehicle_off_Road_Data.VARIANT_SK
+    END IF
+    MAP SUPP_SK = Lnk_Vehicle_off_Road_Data.SUPP_SK
+    MAP CUSTOMER_SK = Lnk_Vehicle_off_Road_Data.CUSTOMER_SK
+    MAP RENTAL_BOOKING_SK = Lnk_Vehicle_off_Road_Data.RENTAL_BOOKING_SK
+    MAP RENTAL_BOOKING_REFERENCE = Lnk_Vehicle_off_Road_Data.RENTAL_BOOKING_REFERENCE
+    MAP VOR_NOTE_SK = Lnk_Vehicle_off_Road_Data.VOR_NOTE_SK
+    MAP ORIGINAL_APPOINTMENT_DATE_SK = Lnk_Vehicle_off_Road_Data.ORIGINAL_APPOINTMENT_DATE_SK
+    MAP JOB_CLOSED_DATE_SK = Lnk_Vehicle_off_Road_Data.JOB_CLOSED_DATE_SK
+    MAP VOR_PASSED_DATE_SK = Lnk_Vehicle_off_Road_Data.VOR_PASSED_DATE_SK
+    MAP DRIVER_COLLECTION_DATE_SK = Lnk_Vehicle_off_Road_Data.DRIVER_COLLECTION_DATE_SK
+    MAP VOR_REGISTRATION_NUMBER = Lnk_Vehicle_off_Road_Data.VOR_REGISTRATION_NUMBER
+    MAP CAPTURED_GARAGE_NAME = Lnk_Vehicle_off_Road_Data.CAPTURED_GARAGE_NAME
+    MAP CONTACT_DRIVER_NAME = Lnk_Vehicle_off_Road_Data.CONTACT_DRIVER_NAME
+    MAP MILEAGE = Lnk_Vehicle_off_Road_Data.MILEAGE
+    MAP VOR_INCIDENT_SOURCE = Lnk_Vehicle_off_Road_Data.VOR_INCIDENT_SOURCE
+    MAP VOR_WORK = Lnk_Vehicle_off_Road_Data.VOR_WORK
+    MAP CRS_LOG_ID = Lnk_Vehicle_off_Road_Data.CRS_LOG_ID
+    MAP NUMBER_OF_WORKING_DAYS_VOR = Lnk_Vehicle_off_Road_Data.NUMBER_OF_WORKING_DAYS_VOR
+    MAP NUMBER_OF_DAYS_VOR = Lnk_Vehicle_off_Road_Data.NUMBER_OF_DAYS_VOR
+    MAP COMPLETION_TO_COLLECT_DAYS = Lnk_Vehicle_off_Road_Data.COMPLETION_TO_COLLECT_DAYS
+    MAP GARAGE_NAME = Lnk_Vehicle_off_Road_Data.CAPTURED_GARAGE_NAME
+    MAP DESCRIPTION = If Lnk_Vehicle_off_Road_Data.SUPP_SK = -99 then 'Unknown' Else 'Duplicates'
+
+STAGE: TrxOutput_V0S2P3 (Additional Transformer Output)
+  Object Type: Transformer Output
+  Parent Tag: Job
+  Child Tag: Record
+  INPUT_LINK: Lnk_Vehicle_off_Road_Data
+  OUTPUT_COLUMNS:
+    GARAGE_NAME: VARCHAR(255), Nullable: TRUE, Derivation: Lnk_Vehicle_off_Road_Data.CAPTURED_GARAGE_NAME
+    DESCRIPTION: VARCHAR(50), Nullable: True, Derivation: If Lnk_Vehicle_off_Road_Data.SUPP_SK = -99 then 'Unknown' Else 'Duplicates'
+  TRANSFORMATION_LOGIC:
+    MAP Lnk_Vehicle_off_Road_Data.CAPTURED_GARAGE_NAME TO GARAGE_NAME
+    Apply conditional logic on SUPP_SK column from input link
+    Generate DESCRIPTION column based on SUPP_SK value comparison
+  OUTPUT_LINK: TrxOutput_V0S2P3_Out
+
+chunk pseudo code ended
+
+STAGE: Load_VOR_Exception_File
+  Type: SeqFileStage (Sequential File Output)
+  Parent Tag: Job
+  Child Tag: Record
+  Input Link: V96S0P1 (from Tfm_LoadRecords)
+  Output Link: V0S2|V0S2P3
+  Target Stage: Supp_VOR_Exception
+  File Configuration:
+    File Name: #pSMROutputPath#/#pVOR_Exception_FileName#_#pFiledate#.csv
+    Delimiter: ,
+    Quote Character: "
+    Column Headers Present: No
+    Omit New Line: No
+    Append Mode: No
+    Backup: No
+    Fixed Width: No
+    Column Space: No
+    Enforce MetaData: No
+    Write Time: No
+    Wait for Reader: No
+    Flush Row: No
+    Pad Character: #
+  Constraint: svException = -1
+  Properties:
+    REJECT: 0
+    ERROR_PIN: 0
+    ROW_LIMIT: 0
+    STAGE_VARIABLES: svException
+  Processing Steps:
+    1. Receive data from input link V96S0P1
+    2. Evaluate constraint svException = -1 for each row
+    3. If constraint satisfied then output row to V0S2|V0S2P3
+    4. If constraint not satisfied then skip row
+    5. No row rejection (Reject = 0)
+    6. No error pin handling (ErrorPin = 0)
+    7. No row limit applied (RowLimit = 0)
+    8. Configure sequential file output with CSV format
+    9. Apply file naming convention using parameters
+
+STAGE: V0S1 (CustomStage)
+  Parent Tag: Job
+  Child Tag: Record (Identifier: V0S1, Type: CustomStage)
+  Input Link: Load_StgVehicleoffRoad (from Tfm_LoadRecords)
+  Output Link: V0S1P2 -> transactionManager
+  Properties:
+    Engine: SE
+    Context: target
+    VariantName: 10
+    VariantLibrary: ccora10g
+    VariantVersion: 1.0
+    SupportedVariants: V1;10:"10g":ccora10g;11:"11g":ccora11g
+    SupportedVariantsLibraries: ["ccora10g", "ccora11g"]
+    SupportedVariantsVersions: [1.0, 1.0]
+    XMLConnectorDescriptor: Custom stage with XML connector descriptor configuration
+    ConnectionString: /Connection/Server
+    Username: /Connection/Username
+    Password: /Connection/Password
+    xaoDbName: /Connection/xaoDbName
+    OSLevelAuthentication: /Connection/OSLevelAuthentication
+    transactionModel: 0
+    supportedTransactionModel: "local"
+    Readonly: 0
+    Orientation: link
+    RejectFromLink: -1
+    RejectThreshold: 0
+    RejectNumber: 0
+    RejectUsesPercentage: false
+    RejectConditions: configured
+    XMLRejectSettings: configured
+  Processing Steps:
+    1. Receive transformed data from Tfm_LoadRecords
+    2. Initialize CustomStage with variant configuration
+    3. Configure XMLConnectorDescriptor properties
+    4. Set VariantLibrary = ccora10g and VariantVersion = 1.0
+    5. Configure connection properties (ConnectionString, Username, Password, xaoDbName, OSLevelAuthentication)
+    6. Set transactionModel = 0 with supportedTransactionModel = "local"
+    7. Apply reject logic (RejectFromLink, RejectThreshold, RejectNumber, RejectUsesPercentage, RejectConditions, XMLRejectSettings)
+    8. Process data through custom stage logic
+    9. Output to V0S1P2 connector
+
+STAGE: transactionManager (CustomStage)
+  Parent Tag: Job
+  Child Tag: Record (Identifier: transactionManager, Type: CustomStage)
+  Input Link: V0S1P2 (from V0S1 CustomStage)
+  Output Link: V0S1P2 (to V0S1P2 OracleConnector)
+  Processing Steps:
+    1. Receive data from V0S1 CustomStage
+    2. Manage transaction processing for target operations
+    3. Coordinate transaction boundaries and commit/rollback operations
+    4. Output to V0S1P2 OracleConnector
+
+STAGE: V0S1P2 (OracleConnector)
+  Parent Tag: Job
+  Child Tag: Record (Identifier: V0S1P2, Type: Connector)
+  Input Link: transactionManager (from transactionManager CustomStage)
+  Output Link: 3 -> RejectDataElements
+  Connector Type: OracleConnector
+  Connection_Config: Server=#psOraDB.pSID#, Username=#psOraDB.pUserID#, Password=#psOraDB.pPassword#, OSLevelAuthentication=false, Version=10g
+  Target_Table_Config: WriteMode=0, GenerateSQL=true, TableName=STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT, TableScope=0, EnableQuotedIDs=false, TableAction=3, GenerateTruncateStatement=true, FailOnError=true, TableActionFirst=true
+  Transaction_Config: IsolationLevel=0, RecordCount=2000
+  Session_Config: ArraySize=2000, DropUnmatchedFields=false, TreatWarningsAsErrors=false, PreserveTrailingBlanks=true, FailOnRowErrorSE=false
+  Logging_Config: LogColumnValues=false
+  Properties:
+    AllowColumnMapping: 0
+    NextRecordId: 0
+  Processing Steps:
+    1. Receive data from transactionManager CustomStage
+    2. Configure Oracle connector properties
+    3. Execute TRUNCATE TABLE STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    4. Execute INSERT INTO STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    5. COMMIT TRANSACTION EVERY 2000 RECORDS
+    6. Apply ARRAY_SIZE: 2000
+    7. Set PRESERVE_TRAILING_BLANKS: true
+    8. Apply ERROR_HANDLING: CONTINUE_ON_ROW_ERROR
+    9. Process data through OracleConnector
+    10. Output to RejectDataElements stage (Record ID: 3)
+
+STAGE: RejectDataElements (CustomStage)
+  Parent Tag: Job
+  Child Tag: Record (Identifier: RejectDataElements, Type: CustomStage)
+  Input Link: 3 (from V0S1P2 OracleConnector)
+  Output Link: Target Table STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+  Target Table: STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+  Properties:
+    Mode: Readonly=0
+  Processing Steps:
+    1. Receive data from V0S1P2 OracleConnector
+    2. Configure custom stage for reject data element handling
+    3. Map columns to target table STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    4. Enable write mode for data insertion
+    5. Output all columns to target table
+  Output Column Definitions:
+    All columns defined in STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT including:
+    NUMBER_OF_DAYS_VOR: INTEGER(38,0) NULLABLE, TableDef=PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+    COMPLETION_TO_COLLECT_DAYS: INTEGER(38,0) NULLABLE, TableDef=PlugIn\ORAOCI9\STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+  Stage Logic:
+    BEGIN RejectDataElements
+      DEFINE all_columns as per STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT schema
+      SET target_table = STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+      MAP all columns TO target_table columns
+      OUTPUT all columns to target_table
+    END RejectDataElements
+
+STAGE: Supp_VOR_Exception
+  Type: SeqFileStage (Sequential File Output)
+  Parent Tag: Job
+  Child Tag: Record
+  Input Link: V0S2|V0S2P3 (from Load_VOR_Exception_File)
+  Input Pin: V96S0P1
+  Configuration: Unix Format: Enabled, Unicode BOM: Enabled, Unicode Swapped: Enabled, Column Mapping: Disabled, Filter: Disabled
+  Processing Steps:
+    1. Receive exception records from Load_VOR_Exception_File via V0S2|V0S2P3 link
+    2. Receive additional input from V96S0P1 pin
+    3. Create sequential file using pSMROutputPath and pVOR_Exception_FileName parameters
+    4. Write exception records with pFiledate parameter for file naming
+    5. Apply Unix format configuration
+    6. Enable Unicode BOM and Unicode Swapped settings
+    7. Store exception data for analysis and reprocessing
+
+chunk pseudo code ended
+
+EXECUTION_FLOW:
+1. Initialize job with parameters and configuration settings
+2. Process annotations V94A0 (Fetch Source Data), V93A0 (General annotation), V0A16 (Vehicle lookup handling), V0A17 (Duplicate handling), V95A0 (Load Data to Staging)
+3. Start CustomStage V0S0 with enhanced OracleConnector configuration including XMLRejectSettings, RejectConditions, transactionManager, and database connection properties
+4. Initialize connection building, authentication, XML rejection criteria handling, and database connection properties
+5. Process CustomOutput Record V0S0P2 with enhanced column mapping, technical metadata including additional columns (MILEAGE, VOR_INCIDENT_SOURCE, VOR_WORK, CRS_LOG_ID, NUMBER_OF_WORKING_DAYS_VOR, NUMBER_OF_DAYS_VOR, COMPLETION_TO_COLLECT_DAYS), and target table schema definition for STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+6. Extract data from ORA_Ext_Vehicle_Off_Road_Data using complex SQL query with date filtering via Lnk_Vehicle_off_Road_Data
+7. Lookup reference data from HF_SMR_VEHICLE_DIM via lkVehicleDim_REg
+8. Transform data in Tfm_LoadRecords stage with business logic, error handling, and svException validation based on SUPP_SK values
+9. Route valid records to TrxOutput_V0S2P2_V0S2P3 (Load_HFVehicleoffRoad) with enhanced transformation logic including vehicle dimension lookup handling and additional column mappings
+10. Route valid records to Load_StgVehicleoffRoad
+11. Route exception records to Load_VOR_Exception_File with constraint svException = -1 and sequential file configuration
+12. Route hashed file data to V116S0P2 HashedOutput for HF_SMR_VEHICLE_DIM_REG file creation with VARIANT_SK column
+13. Process data through TrxOutput_V0S2P2_V0S2P3 Target Connector with vehicle dimension lookup logic and enhanced column mapping to STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+14. Process additional transformation output through TrxOutput_V0S2P3 with GARAGE_NAME and DESCRIPTION columns
+15. Process data through V0S1 CustomStage with variant configuration, connection properties, and reject logic
+16. Manage transactions through transactionManager CustomStage for coordinating transaction boundaries
+17. Connect data through V0S1P2 OracleConnector with TRUNCATE, INSERT, COMMIT operations and error handling
+18. Process reject data elements through RejectDataElements CustomStage to STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+19. Load exception records to Supp_VOR_Exception sequential file with Unix format and Unicode configurations
+
+DATA_FLOW_SUMMARY:
+V0S0 (CustomStage/OracleConnector) --> V0S0P2 (CustomOutput with enhanced schema) --> ORA_Ext_Vehicle_Off_Road_Data (Oracle Database with Complex SQL)
+  |
+  |--[Lnk_Vehicle_off_Road_Data]--> Tfm_LoadRecords (Transformer with svException logic)
+  |                                      |
+Lookup: HF_SMR_VEHICLE_DIM                |
+  |                                      |
+  |--[lkVehicleDim_REg]----------------> |
+                                         |
+                                         |--[Load_HFVehicleoffRoad]--> TrxOutput_V0S2P2_V0S2P3 (Target Connector) --> STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+                                         |
+                                         |--[Load_StgVehicleoffRoad]--> V0S1 (CustomStage) --> transactionManager (CustomStage) --> V0S1P2 (OracleConnector) --> RejectDataElements (CustomStage) --> STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT
+                                         |
+                                         |--[V96S0P1]--> Load_VOR_Exception_File (SeqFileStage) --> V0S2|V0S2P3 --> Supp_VOR_Exception (SeqFileStage with Unix/Unicode config)
+                                         |
+                                         |--[V0S2P7]--> V116S0P2 (HashedOutput with VARIANT_SK) --> HF_SMR_VEHICLE_DIM_REG
+                                         |
+                                         |--[TrxOutput_V0S2P3_Out]--> TrxOutput_V0S2P3 (Additional Transformer Output)
+
+STAGES_SUMMARY:
+- V0S0 (CustomStage/OracleConnector - Initialization with XML rejection handling)
+- V0S0P2 (CustomOutput - Enhanced schema definition with target table mapping)
+- ORA_Ext_Vehicle_Off_Road_Data (OracleConnector - Source)
+- HF_SMR_VEHICLE_DIM (CHashedFileStage - Lookup)
+- Tfm_LoadRecords (CTransformerStage - Processing with svException validation)
+- V116S0P2 (HashedOutput - Hashed file creation with VARIANT_SK column)
+- TrxOutput_V0S2P2_V0S2P3 (Target Connector - Enhanced transformation)
+- TrxOutput_V0S2P3 (Additional Transformer Output)
+- Load_VOR_Exception_File (SeqFileStage - Exception handling with CSV configuration)
+- V0S1 (CustomStage - Secondary processing with variant configuration)
+- transactionManager (CustomStage - Transaction management)
+- V0S1P2 (OracleConnector - Secondary connector with TRUNCATE/INSERT/COMMIT)
+- RejectDataElements (CustomStage - Reject data element handling)
+- Supp_VOR_Exception (SeqFileStage - Target with Unix/Unicode configuration)
+
+LINKS_SUMMARY:
+- V0S0P2 (CustomStage to CustomOutput)
+- V0S0P2_Output (CustomOutput to Source)
+- Lnk_Vehicle_off_Road_Data (Source to Transformer)
+- lkVehicleDim_REg (Lookup to Transformer)
+- Load_HFVehicleoffRoad (Transformer to TrxOutput_V0S2P2_V0S2P3)
+- Load_StgVehicleoffRoad (Transformer to V0S1 CustomStage)
+- V96S0P1 (Transformer to Load_VOR_Exception_File)
+- V0S2|V0S2P3 (Load_VOR_Exception_File to Supp_VOR_Exception)
+- V0S2P7 (Transformer to V116S0P2 HashedOutput)
+- TrxOutput_V0S2P3_Out (Transformer to TrxOutput_V0S2P3)
+- V0S1P2 (V0S1 CustomStage to transactionManager CustomStage)
+- transactionManager (transactionManager CustomStage to V0S1P2 OracleConnector)
+- 3 (OracleConnector to RejectDataElements)
+
+PARENT_CHILD_HIERARCHY:
+DSExport
+  └── Job: jbSMR3010220StgVehicleOffRoadFact
+        ├── Annotation: V94A0 (Fetch Source Data)
+        ├── Annotation: V93A0 (General annotation)
+        ├── Annotation: V0A16 (Vehicle lookup handling)
+        ├── Annotation: V0A17 (Duplicate handling)
+        ├── Annotation: V95A0 (Load Data to Staging)
+        ├── Stage: V0S0 (CustomStage/OracleConnector)
+        │   └── Record: V0S0P2 (CustomOutput)
+        ├── Record: ORA_Ext_Vehicle_Off_Road_Data (OracleConnector)
+        ├── Record: HF_SMR_VEHICLE_DIM (CHashedFileStage)
+        ├── Record: Tfm_LoadRecords (CTransformerStage)
+        ├── Record: V116S0P2 (HashedOutput with VARIANT_SK)
+        ├── Record: TrxOutput_V0S2P2_V0S2P3 (Target Connector)
+        ├── Record: TrxOutput_V0S2P3 (Additional Transformer Output)
+        ├── Record: Load_VOR_Exception_File (SeqFileStage with CSV config)
+        ├── Record: V0S1 (CustomStage)
+        ├── Record: transactionManager (CustomStage)
+        │   └── Record: V0S1P2 (OracleConnector)
+        │       └── Record: RejectDataElements (CustomStage)
+        └── Record: Supp_VOR_Exception (SeqFileStage with Unix/Unicode config)
+
+chunk pseudo code ended
+```
