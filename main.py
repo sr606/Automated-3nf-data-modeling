@@ -1,124 +1,142 @@
+#!/usr/bin/env python3
 """
-Main Entry Point
-Run the complete automated 3NF data modeling workflow
-
-Usage:
-    python main.py
+Unified Lineage Agent Entry Point
+Processes all files in data/uploads folder and generates lineage outputs
 """
 
 import sys
 from pathlib import Path
-from langgraph_app import NormalizationWorkflow
+from typing import Any
+
+from dotenv import load_dotenv
+
+from lineage_agent.brain import ensure_data_layout, run_lineage_pipeline
 
 
-def main():
-    """Main execution function"""
-    print("""
-    ╔═══════════════════════════════════════════════════════════════════╗
-    ║                                                                   ║
-    ║         AUTOMATED 3NF DATA MODELING SYSTEM                       ║
-    ║         Using Python + LangGraph                                 ║
-    ║                                                                   ║
-    ║  Features:                                                        ║
-    ║  • Load unlimited CSV/JSON files                                 ║
-    ║  • Extract comprehensive metadata                                ║
-    ║  • Auto-detect Primary Keys & Foreign Keys                       ║
-    ║  • Enforce 1NF, 2NF, 3NF normalization                          ║
-    ║  • Generate Oracle SQL DDL scripts                               ║
-    ║  • Export normalized tables (CSV/JSON)                           ║
-    ║  • Generate ERD diagrams                                         ║
-    ║                                                                   ║
-    ╚═══════════════════════════════════════════════════════════════════╝
-    """)
-    
-    # Configuration
-    INPUT_FOLDER = "./input_files"
-    OUTPUT_FOLDER = "./normalized_output"
-    SQL_OUTPUT_FOLDER = "./sql_output"
-    ERD_OUTPUT_FOLDER = "./erd"
-    
-    # Check if input folder exists
-    input_path = Path(INPUT_FOLDER)
-    if not input_path.exists():
-        print(f"❌ Error: Input folder '{INPUT_FOLDER}' does not exist!")
-        print(f"   Please create it and add your CSV/JSON files.")
-        sys.exit(1)
-    
-    # Check if there are files to process
-    csv_files = list(input_path.glob('*.csv'))
-    json_files = list(input_path.glob('*.json'))
-    total_files = len(csv_files) + len(json_files)
-    
-    if total_files == 0:
-        print(f"❌ Error: No CSV or JSON files found in '{INPUT_FOLDER}'!")
-        print(f"   Please add data files to process.")
-        sys.exit(1)
-    
-    print(f"\n📁 Found {total_files} files to process:")
-    print(f"   • CSV files: {len(csv_files)}")
-    print(f"   • JSON files: {len(json_files)}")
-    print(f"\n🚀 Starting normalization workflow...\n")
-    
+load_dotenv()
+
+DEFAULT_INPUT_DIR = Path("data") / "uploads"
+DEFAULT_OUTPUT_DIR = Path("data") / "output"
+
+
+def find_input_files(uploads_dir: Path) -> list[Path]:
+    """Find all input files in the uploads directory."""
+    if not uploads_dir.exists():
+        return []
+
+    # Look for text files (pseudocode, XML exports, etc.)
+    files = list(uploads_dir.glob("*.txt"))
+    files.extend(uploads_dir.glob("*.xml"))
+    files.extend(uploads_dir.glob("*.json"))
+
+    return sorted(files)
+
+
+def process_single_file(input_file: Path, output_dir: Path, model_override: str = "") -> dict[str, Any]:
+    """Process a single input file through the lineage pipeline."""
+    print(f"\n{'=' * 80}")
+    print(f"Processing: {input_file.name}")
+    print(f"{'=' * 80}")
+
     try:
-        # Create and run workflow
-        workflow = NormalizationWorkflow()
-        
-        result = workflow.run(
-            input_folder=INPUT_FOLDER,
-            output_folder=OUTPUT_FOLDER,
-            sql_output_folder=SQL_OUTPUT_FOLDER,
-            erd_output_folder=ERD_OUTPUT_FOLDER
+        result = run_lineage_pipeline(
+            input_path=str(input_file),
+            output_dir=str(output_dir),
+            model_override=model_override,
         )
-        
-        # Check final status
-        if result['status'] == 'completed':
-            print("\n" + "="*70)
-            print("✅ WORKFLOW COMPLETED SUCCESSFULLY!")
-            print("="*70)
-            print("\n📊 Generated Outputs:")
-            print(f"   1. Normalized Tables (CSV/JSON): {OUTPUT_FOLDER}/")
-            if result.get('sql_script_path'):
-                print(f"   2. SQL DDL Script: {result['sql_script_path']}")
-            if result.get('erd_path'):
-                print(f"   3. ERD Diagram: {result['erd_path']}")
-            
-            print("\n💡 Next Steps:")
-            print("   • Review the normalized tables in the output folder")
-            print("   • Import the SQL script into Oracle SQL Developer")
-            print("   • Verify the ERD diagram for correctness")
-            print("\n" + "="*70)
-            
-            return 0
-        else:
-            print("\n" + "="*70)
-            print("⚠️  WORKFLOW COMPLETED WITH ISSUES")
-            print("="*70)
-            print(f"Status: {result['status']}")
-            
-            if result['errors']:
-                print("\n❌ Errors encountered:")
-                for error in result['errors']:
-                    print(f"   • {error}")
-            
-            return 1
-            
+        result["status"] = "success"
+        result["input_file"] = str(input_file)
+        print(f"Successfully processed {input_file.name}")
+        return result
     except Exception as e:
-        print("\n" + "="*70)
-        print("❌ WORKFLOW FAILED")
-        print("="*70)
-        print(f"Error: {str(e)}")
-        print("\n💡 Troubleshooting:")
-        print("   1. Check that all required dependencies are installed")
-        print("   2. Verify input files are valid CSV/JSON format")
-        print("   3. Ensure sufficient disk space for outputs")
-        
-        import traceback
-        print("\nFull error trace:")
-        traceback.print_exc()
-        
-        return 1
+        error_result = {
+            "status": "error",
+            "input_file": str(input_file),
+            "error": str(e),
+        }
+        print(f"Error processing {input_file.name}: {e}")
+        return error_result
+
+
+def main() -> None:
+    """Main entry point: process all files in uploads folder."""
+    print("\n" + "=" * 80)
+    print("LINEAGE AGENT - UNIFIED PIPELINE")
+    print("=" * 80)
+
+    # Ensure directory structure exists
+    ensure_data_layout()
+    DEFAULT_INPUT_DIR.mkdir(parents=True, exist_ok=True)
+    DEFAULT_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Find all input files
+    input_files = find_input_files(DEFAULT_INPUT_DIR)
+
+    if not input_files:
+        print(f"\nNo input files found in {DEFAULT_INPUT_DIR}")
+        print(f"Please add pseudocode or XML files to: {DEFAULT_INPUT_DIR.resolve()}")
+        return
+
+    print(f"\nFound {len(input_files)} input file(s) in {DEFAULT_INPUT_DIR}")
+    for file in input_files:
+        print(f"   - {file.name}")
+
+    # Process each file
+    results = []
+    for input_file in input_files:
+        result = process_single_file(input_file, DEFAULT_OUTPUT_DIR)
+        results.append(result)
+
+    # Summary
+    print("\n" + "=" * 80)
+    print("EXECUTION SUMMARY")
+    print("=" * 80)
+
+    successful = sum(1 for r in results if r.get("status") == "success")
+    failed = len(results) - successful
+
+    print(f"\nSuccessful: {successful}/{len(results)}")
+    print(f"Failed: {failed}/{len(results)}")
+
+    if successful > 0:
+        print(f"\nOutput files generated in: {DEFAULT_OUTPUT_DIR.resolve()}")
+        print("\nGenerated outputs:")
+        for i, result in enumerate(results, 1):
+            if result.get("status") == "success":
+                input_name = Path(result.get("input_file", "")).name
+                run_dir = result.get("run_dir", "")
+                if run_dir:
+                    print(f"   {i}. {input_name}")
+                    print(f"      {run_dir}")
+                    run_path = Path(run_dir)
+                    if run_path.exists():
+                        dot_files = list(run_path.glob("*.dot"))
+                        pdf_files = list(run_path.glob("*.pdf"))
+                        if dot_files:
+                            print(f"      Diagrams (DOT): {len(dot_files)} file(s)")
+                        if pdf_files:
+                            print(f"      Diagrams (PDF): {len(pdf_files)} file(s)")
+                        elif result.get("warnings"):
+                            print("      PDF generation warning:")
+                            print(f"      {result['warnings'][0]}")
+
+    if failed > 0:
+        print("\nErrors:")
+        for i, result in enumerate(results, 1):
+            if result.get("status") == "error":
+                input_name = Path(result.get("input_file", "")).name
+                error = result.get("error", "Unknown error")
+                print(f"   {i}. {input_name}: {error}")
+
+    print("\n" + "=" * 80 + "\n")
 
 
 if __name__ == "__main__":
-    exit_code = main()
-    sys.exit(exit_code)
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\n\nInterrupted by user")
+        sys.exit(1)
+    except Exception as e:
+        print(f"\nFatal error: {e}")
+        sys.exit(1)
