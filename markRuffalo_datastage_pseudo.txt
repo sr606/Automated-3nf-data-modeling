@@ -1,0 +1,206 @@
+```
+// DataStage Export Header Configuration
+EXPORT_CONFIG:
+    Character_Set = "CP1252"
+    Exporting_Tool = "IBM InfoSphere DataStage Export"
+    Tool_Version = "8"
+    Server_Name = "LPGBDS3001.EMEA.LEASEPLANCORP.NET"
+    Tool_Instance_ID = "All_ODS_DW_Test"
+    Export_Date = "2021-04-27"
+    Export_Time = "18.34.45"
+    Server_Version = "11.5"
+
+// Parent Tag: DSExport
+INITIALIZE DSExport_Container:
+    SET encoding = "UTF-8"
+    SET header_metadata = EXPORT_CONFIG
+
+JOB: jb000320UpdateOPRStgBarclaysMidtermHistFact
+
+ANNOTATION: V0A303
+  Description: Hash File Which Holds the DISPLAY_REPORT_FLAG
+  Type: Documentation
+
+ANNOTATION: V0A307
+  Description: All display report Flag is derived using different stage variables
+  Type: Documentation/Comment
+  Purpose: Business Logic Documentation for Flag Derivation Process
+
+STAGE_LIST: [
+  tfmLookupSubmittedCount (Transformer),
+  HSH_MIDTERM_HIST (HashedFile),
+  HSH_BARCLAYS_EMPLOYEE_ACTION (HashedFile),
+  HSH_STG_F_BARCLAYS_MIDTERM_HIST (HashedFile),
+  Xfm_UpdStgbarclayMidterm (Transformer),
+  xfm_Employee_Changes_reporting (Transformer),
+  xfm_Reporting_flag (Transformer),
+  EMP_ACT_CHG_REP_FLAG_HSH (HashedFile),
+  Rule_Lkps (HashedFile),
+  xfm_RuleLkps (Transformer),
+  Ora_STG_F_BARCLAYS_MIDTERM (OracleConnector),
+  Ora_STG_EMPLOYEE_CHANGES_REPORTING (OracleConnector),
+  HSH_TEMP_STGVAR_EMPLOYEE_CODE_CHNG (HashedFile),
+  ora_NOLSData (OracleConnector),
+  OraD_BARCLAYS_EMPLOYEE_ACTION (OracleConnector),
+  ora_STG_F_BARCLAYS_MIDTERM_HIST (OracleConnector),
+  Ora_EMPLOYEE_ACTION_CHANGES_RULES (OracleConnector),
+  V0S213P4 (HashedFileOutput),
+  HashedOutput_V0S213P4 (HashedFileOutput)
+]
+
+LINK_FLOW: [
+  tfmLookupSubmittedCount -> lk_HSH_MIDTERM_HIST -> HSH_MIDTERM_HIST,
+  tfmLookupSubmittedCount -> lk_xfm_Employee_Changes_reporting -> xfm_Employee_Changes_reporting,
+  HSH_MIDTERM_HIST -> lk_XFM_HSH_MIDTERM_HIST -> HSH_STG_F_BARCLAYS_MIDTERM_HIST,
+  HSH_MIDTERM_HIST -> V0S213P4_In -> V0S213P4,
+  HSH_BARCLAYS_EMPLOYEE_ACTION -> lkHshBarclaysEmployeeAction -> tfmLookupSubmittedCount,
+  HSH_STG_F_BARCLAYS_MIDTERM_HIST -> lk_stg_midterm_hist_ref -> tfmLookupSubmittedCount,
+  Xfm_UpdStgbarclayMidterm -> UpdStgbarclayMidterm -> xfm_RuleLkps,
+  xfm_Employee_Changes_reporting -> lk_Ora_STG_EMPLOYEE_CHANGES_REPORTING -> Ora_STG_EMPLOYEE_CHANGES_REPORTING,
+  xfm_Reporting_flag -> lk_EMP_ACT_CHG_REP_FLAG_HSH -> EMP_ACT_CHG_REP_FLAG_HSH,
+  xfm_Reporting_flag -> To_HSH_TEMP -> HSH_TEMP_STGVAR_EMPLOYEE_CODE_CHNG,
+  Rule_Lkps -> lk_evnt_lkp -> xfm_Reporting_flag,
+  Rule_Lkps -> lk_grade_schm_lkp -> xfm_Reporting_flag,
+  xfm_RuleLkps -> lk_grade_schemlkp -> Rule_Lkps,
+  xfm_RuleLkps -> lk_event_lkp -> Rule_Lkps,
+  Ora_STG_EMPLOYEE_CHANGES_REPORTING -> lk_reporting_Flag -> xfm_Reporting_flag,
+  ora_NOLSData -> lnkTfmEmpMidTermHistInfo1 -> tfmLookupSubmittedCount,
+  OraD_BARCLAYS_EMPLOYEE_ACTION -> lk_OraD_BARCLAYS_EMPLOYEE_ACTION -> HSH_BARCLAYS_EMPLOYEE_ACTION,
+  ora_STG_F_BARCLAYS_MIDTERM_HIST -> lk_stg_midterm_hist -> HSH_STG_F_BARCLAYS_MIDTERM_HIST,
+  Ora_EMPLOYEE_ACTION_CHANGES_RULES -> lk_xfm_RuleLkps -> xfm_RuleLkps,
+  V0S213P4 -> V0S213P4_Out -> HashedOutput_V0S213P4,
+  HashedOutput_V0S213P4 -> HashedOutput_V0S213P4_Out
+]
+
+EXECUTION_FLOW:
+1. SOURCE_EXTRACTION:
+   - ora_NOLSData (OracleConnector) -> Extract data via lnkTfmEmpMidTermHistInfo1
+   - OraD_BARCLAYS_EMPLOYEE_ACTION (OracleConnector) -> Extract data via lk_OraD_BARCLAYS_EMPLOYEE_ACTION
+   - ora_STG_F_BARCLAYS_MIDTERM_HIST (OracleConnector) -> Extract data via lk_stg_midterm_hist
+   - Ora_EMPLOYEE_ACTION_CHANGES_RULES (OracleConnector) -> Extract data via lk_xfm_RuleLkps
+
+2. LOOKUP_PROCESSING:
+   - HSH_BARCLAYS_EMPLOYEE_ACTION (HashedFile) -> Lookup via lkHshBarclaysEmployeeAction
+   - HSH_STG_F_BARCLAYS_MIDTERM_HIST (HashedFile) -> Lookup via lk_stg_midterm_hist_ref
+   - Rule_Lkps (HashedFile) -> Lookup via lk_evnt_lkp, lk_grade_schm_lkp
+
+3. TRANSFORMATION_PROCESSING:
+   - tfmLookupSubmittedCount (Transformer) -> Process lookup submitted count logic
+   - Xfm_UpdStgbarclayMidterm (Transformer) -> Update staging barclays midterm transformation
+   - xfm_Employee_Changes_reporting (Transformer) -> Employee changes reporting transformation
+   - xfm_Reporting_flag (Transformer) -> Reporting flag transformation
+   - xfm_RuleLkps (Transformer) -> Rule lookups transformation
+
+4. INTERMEDIATE_STORAGE:
+   - HSH_MIDTERM_HIST (HashedFile) -> Store via lk_XFM_HSH_MIDTERM_HIST
+   - EMP_ACT_CHG_REP_FLAG_HSH (HashedFile) -> Store via lk_EMP_ACT_CHG_REP_FLAG_HSH
+   - HSH_TEMP_STGVAR_EMPLOYEE_CODE_CHNG (HashedFile) -> Store via To_HSH_TEMP
+   - V0S213P4 (HashedFileOutput) -> Store employee change data
+   - HashedOutput_V0S213P4 (HashedFileOutput) -> Store filtered employee change code
+
+5. TARGET_LOADING:
+   - Ora_STG_F_BARCLAYS_MIDTERM (OracleConnector) -> Load final processed data
+   - Ora_STG_EMPLOYEE_CHANGES_REPORTING (OracleConnector) -> Load employee changes reporting data via lk_Ora_STG_EMPLOYEE_CHANGES_REPORTING
+
+chunk pseudo code ended
+
+STAGE: HSH_MIDTERM_HIST
+TYPE: HashedFileStage
+PARENT_TAG: V0S213
+INPUT_PIN: V0S213P1
+OUTPUT_PIN: V0S213P4
+STAGE_IDENTIFIER: V0S213
+
+PROCESSING_LOGIC:
+- Receive data from input link V0S213P1
+- Store/retrieve data using hashed file structure
+- Output processed data to link V0S213P4
+
+FLOW:
+Input Link V0S213P1 -> HashedFileStage HSH_MIDTERM_HIST -> Output Link V0S213P4
+
+HASHED_FILE_STAGE: lk_HSH_MIDTERM_HIST
+  Type: HashedInput
+  Partner: V0S92|V0S92P9
+  FileName: HSH_MIDTERM_HIST
+  ClearFile: 0
+  Backup: 0
+  DisableCW: 0
+  CreateFileOptions: DYNAMIC MINIMUM.MODULUS 1 GROUP.SIZE 1 GENERAL SPLIT.LOAD 80 MERGE.LOAD 50 LARGE.RECORD 1628
+  DeleteFile: 1
+  Mode: READ
+
+HASHED_FILE_STAGE: lk_XFM_HSH_MIDTERM_HIST
+  Type: HashedOutput
+  Partner_Link: V0S233|V0S233P3
+  File_Name: HSH_MIDTERM_HIST
+  Memory_Mode: Disk_Based
+  Normalization: Un-Normalized
+  Record_Level_Read: Disabled
+
+HASHED_OUTPUT_STAGE: V0S213P4_original
+  OUTPUT_COLUMNS:
+    CUST_ID: INTEGER(19,0), NOT_NULL, PRIMARY_KEY_POSITION_1, DISPLAY_SIZE_21, Source_Reference: lkxf_DRIVER_DETAIL_EXTENSIONS.CUST_ID, Key_Properties: KeyPosition=1, SortKey=0, SortType=0, Data_Properties: SqlType=3, Precision=19, Scale=0, Nullable=0
+    DRIVER_ID_NO: VARCHAR(20), NOT_NULL, KeyPosition=1, TableDef: Saved\lkxf_DRIVER_DETAIL_EXTENSIONS\lkxf_DRIVER_DETAIL_EXTENSIONS, ColumnReference: DRIVER_ID_NO
+    CHANGE_COMMENTARY: VARCHAR(10000), NOT_NULL, NON_KEY
+
+  LINKS:
+    OUTPUT_LINK: V0S213P4_output
+
+chunk pseudo code ended
+
+STAGE: V0S213P4
+TYPE: Hashed File Output
+MODE: ReadWrite
+READONLY: False
+PARENT_TAG: V0S213P4
+INPUT_LINK: V0S213P4_In
+OUTPUT_LINK: V0S213P4_Out
+
+OUTPUT_COLUMNS:
+  EMPLOYEE_CHANGE_CODE: VARCHAR(17), Scale=0, Nullable=False, KeyPosition=0
+  BARCLAYS_EMPLOYEE_ACTION_SK: Numeric(19), Scale=0, Nullable=False, KeyPosition=0
+  CURR_GRADE: VARCHAR(35), Scale=0, Nullable=False, KeyPosition=0
+  PREV_GRADE: VARCHAR(35), Scale=0, Nullable=False, KeyPosition=0
+
+PROCESSING_FLOW:
+  WRITE_TO_HASHED_FILE:
+    Target: V0S213P4
+    Mode: Write
+    Operation: Store data in hashed file format
+    Column_Mapping:
+      EMPLOYEE_CHANGE_CODE -> EMPLOYEE_CHANGE_CODE
+      BARCLAYS_EMPLOYEE_ACTION_SK -> BARCLAYS_EMPLOYEE_ACTION_SK
+      CURR_GRADE -> CURR_GRADE
+      PREV_GRADE -> PREV_GRADE
+
+FLOW:
+Input Link V0S213P4_In -> HashedFileOutput V0S213P4 -> Output Link V0S213P4_Out
+
+STAGE: HashedOutput_V0S213P4
+TYPE: Hashed File Output
+READONLY: False
+PARENT_TAG: HashedOutput_V0S213P4
+INPUT_LINK: V0S213P4_Out
+OUTPUT_LINK: HashedOutput_V0S213P4_Out
+
+OUTPUT_COLUMNS:
+  EMPLOYEE_CHANGE_CODE: VARCHAR(17), Scale=0, Nullable=False, KeyPosition=0
+
+PROCESSING_FLOW:
+  WRITE_TO_HASHED_FILE:
+    Target: HashedOutput_V0S213P4
+    Mode: Write
+    Column_Mapping:
+      EMPLOYEE_CHANGE_CODE -> EMPLOYEE_CHANGE_CODE
+
+FLOW:
+Input Link V0S213P4_Out -> HashedFileOutput HashedOutput_V0S213P4 -> Output Link HashedOutput_V0S213P4_Out
+
+LINK_METADATA_STATUS: All links have metadata defined
+LINK_EXECUTION_MODES: Sequential execution (mode 0) for all links
+LOOKUP_OPERATIONS: Single operator lookup disabled for all links
+SORT_OPERATIONS: Sort sequential disabled for all links
+
+chunk pseudo code ended
+```
