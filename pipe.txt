@@ -1,0 +1,1324 @@
+import os
+import re
+from dataclasses import asdict, dataclass, field
+from pathlib import Path
+from typing import Any
+
+from dotenv import load_dotenv
+
+from toolbox.lineage.prompts import (
+    prompt_compact_normalization,
+    prompt_phase1,
+    prompt_phase15,
+    prompt_phase2,
+    prompt_phase34,
+    prompt_phase5,
+    prompt_phase6,
+    prompt_phase7,
+)
+from toolbox.lineage.preprocessing import build_preprocessed_context
+from toolbox.lineage.utils import (
+    DEFAULT_MAX_CHUNK_CHARS,
+    extract_json,
+    read_text,
+    render_dot,
+    safe_name,
+    timestamp,
+    write_text,
+)
+
+try:
+    from langchain_openai import AzureChatOpenAI
+except ImportError:
+    AzureChatOpenAI = None
+
+
+load_dotenv()
+
+
+@dataclass
+class PhaseSpec:
+    key: str
+    title: str
+    goal: str
+    output_name: str
+    description: str
+
+
+@dataclass
+class AgentConfig:
+    input_path: str
+    output_dir: str
+    model_override: str = ""
+    max_chunk_chars: int = DEFAULT_MAX_CHUNK_CHARS
+
+
+@dataclass
+class AgentContext:
+    input_file: str
+    document_text: str
+    preprocessed_context: dict[str, Any]
+    run_id: str
+    run_dir: str
+
+
+@dataclass
+class PhaseResult:
+    """Typed result for phase executions."""
+    phase_key: str
+    data: dict[str, Any]
+    prompt: str = ""
+    retry_prompt: str = ""
+
+
+@dataclass
+class AgentState:
+    phase_outputs: dict[str, Any] = field(default_factory=dict)
+    prompts: dict[str, str] = field(default_factory=dict)
+    architecture: dict[str, Any] = field(default_factory=dict)
+    
+    def record_phase(self, phase_key: str, data: dict[str, Any]) -> None:
+        """Record phase output with structured typing."""
+        self.phase_outputs[phase_key] = data
+    
+    def record_prompt(self, phase_key: str, prompt: str, is_retry: bool = False) -> None:
+        """Record prompt with optional retry tracking."""
+        suffix = "_retry" if is_retry else ""
+        self.prompts[f"{phase_key}{suffix}"] = prompt
+
+
+PHASE_SPECS = [
+    PhaseSpec("phase1_signal_extraction", "Signal Extraction", "Identify what exists without connecting or simplifying.", "chunk_signals", "Extract raw chunk-level component signals only."),
+    PhaseSpec("phase15_global_reconstruction", "Global Reconstruction", "Understand the dominant ETL pipeline before graph wiring.", "global_understanding", "Build a global-first mental model of the primary path and side flows."),
+    PhaseSpec("phase2_flow_reconstruction", "Flow Reconstruction", "Build the full mental pipeline before any compression.", "graph", "Reconstruct the end-to-end graph and side flows."),
+    PhaseSpec("phase3_pattern_detection", "Pattern Detection", "Infer structural meaning from topology rather than names.", "patterns", "Detect integration, lookup enrichment, core transform, and load patterns."),
+    PhaseSpec("phase4_semantic_compression", "Semantic Compression", "Remove noise while keeping pipeline meaning intact.", "normalized_components", "Compress sequential transforms and group related components logically."),
+    PhaseSpec("phase5_build_models", "Model Building", "Produce both high-level and technical representations.", "models", "Create a grouped business view and a detailed technical view."),
+    PhaseSpec("phase6_transform_semantics", "Transformation Semantics", "Attach business-meaningful transform semantics.", "transform_semantics", "Infer standardization, derivation, lookup, validation, null handling, and routing."),
+    PhaseSpec("phase7_graph_construction", "Graph Construction", "Convert the models into explicit nodes and edges.", "graphs", "Build high-level and technical graph payloads with typed edges."),
+    PhaseSpec("phase75_graph_validation", "Diagram Intent", "Validate and refine graphs before rendering.", "validated_graphs", "Apply schema validation, targeted retry, and readability-first label cleanup before rendering."),
+    PhaseSpec("phase8_graphviz_generation", "Graphviz Rendering", "Render both views into Graphviz DOT.", "dot", "Emit styled DOT for high-level and technical diagrams."),
+]
+
+
+class GraphNormalizer:
+    """Encapsulates graph normalization logic with common helpers."""
+    
+    @staticmethod
+    def build_valid_node_ids(nodes: list[dict[str, Any]]) -> set[str]:
+        """Extract all valid node IDs from a list of nodes."""
+        return {str(n.get("id") or "").strip() for n in nodes if isinstance(n, dict) and str(n.get("id") or "").strip()}
+    
+    @staticmethod
+    def validate_edge_endpoints(edge: dict[str, Any], valid_ids: set[str]) -> bool:
+        """Check if edge endpoints reference valid nodes."""
+        from_id = str(edge.get("from") or "").strip()
+        to_id = str(edge.get("to") or "").strip()
+        return bool(from_id and to_id and from_id in valid_ids and to_id in valid_ids and from_id != to_id)
+    
+    @staticmethod
+    def fix_exception_flow_direction(edges: list[dict[str, Any]], exception_ids: set[str], transform_ids: set[str]) -> list[dict[str, Any]]:
+        """Reverse exception edges pointing wrong direction (exception→transform to transform→exception)."""
+        fixed_edges = []
+        for edge in edges:
+            if not isinstance(edge, dict):
+                continue
+            edge = dict(edge)  # Copy to avoid mutation
+            from_id = str(edge.get("from") or "").strip()
+            to_id = str(edge.get("to") or "").strip()
+            edge_type = str(edge.get("type") or "").strip()
+            
+            # If exception edge points wrong way, reverse it
+            if edge_type == "exception" and from_id in exception_ids and to_id in transform_ids:
+                # Wrong direction, reverse it
+                edge["from"] = to_id
+                edge["to"] = from_id
+                edge["reason"] = "Edge direction corrected: exceptions flow FROM transform TO exception handler."
+            
+            fixed_edges.append(edge)
+        return fixed_edges
+
+
+class LayeredLineageAgent:
+    def __init__(self, config: AgentConfig):
+        self.config = config
+        self.llm = None
+
+    def run(self) -> dict[str, Any]:
+        context = self._build_agent_context()
+        state = AgentState(architecture=self._architecture_payload())
+
+        if self._should_use_normalized_compact_path(context.preprocessed_context):
+            try:
+                phase7 = self._run_normalized_compact_path(context)
+                phase7 = self._sanitize_graph_payload_structure(phase7)
+                phase8 = self._sanitize_dot_payload(self._build_dot_payload(phase7))
+                run_dir = Path(context.run_dir)
+                high_level_dot_path = run_dir / "high_level.dot"
+                technical_dot_path = run_dir / "technical.dot"
+                write_text(high_level_dot_path, phase8.get("high_level_dot", ""))
+                write_text(technical_dot_path, phase8.get("technical_dot", ""))
+                pdf_outputs = {
+                    "high_level": render_dot(high_level_dot_path),
+                    "technical": render_dot(technical_dot_path),
+                }
+                return self._build_result(context, pdf_outputs)
+            except Exception:
+                pass
+
+        state.record_phase("phase1_signal_extraction", self._run_phase1(context, state))
+        state.record_phase("phase15_global_reconstruction", self._run_phase15(context, state))
+        state.record_phase("phase2_flow_reconstruction", self._run_phase2(context, state))
+        phase34 = self._run_phase34(context, state)
+        state.record_phase("phase3_pattern_detection", phase34.get("phase3", {}))
+        state.record_phase("phase4_semantic_compression", phase34.get("phase4", {}))
+        state.record_phase("phase5_build_models", self._run_phase5(context, state))
+        state.record_phase("phase6_transform_semantics", self._run_phase6(context, state))
+        state.record_phase("phase7_graph_construction", self._run_phase7(state))
+        state.record_phase("phase75_graph_validation", self._run_phase75(state))
+        state.record_phase("phase8_graphviz_generation", self._run_phase8(state))
+
+        # Write DOT files only (no JSON artifacts)
+        phase8 = state.phase_outputs["phase8_graphviz_generation"]
+        run_dir = Path(context.run_dir)
+        high_level_dot_path = run_dir / "high_level.dot"
+        technical_dot_path = run_dir / "technical.dot"
+        write_text(high_level_dot_path, phase8.get("high_level_dot", ""))
+        write_text(technical_dot_path, phase8.get("technical_dot", ""))
+
+        pdf_outputs = {
+            "high_level": render_dot(high_level_dot_path),
+            "technical": render_dot(technical_dot_path),
+        }
+
+        return self._build_result(context, pdf_outputs)
+
+    def _build_agent_context(self) -> AgentContext:
+        input_file = Path(self.config.input_path)
+        document_text = read_text(input_file)
+        preprocessed_context = build_preprocessed_context(document_text, self.config.max_chunk_chars)
+        if not self._should_use_normalized_compact_path(preprocessed_context):
+            preprocessed_context = build_preprocessed_context(
+                document_text,
+                self.config.max_chunk_chars,
+                semantic_enricher=self._enrich_chunk_semantics,
+            )
+        run_id = f"{safe_name(input_file.stem)}_{timestamp()}"
+        run_dir = Path(self.config.output_dir) / run_id
+        return AgentContext(
+            input_file=str(input_file),
+            document_text=document_text,
+            preprocessed_context=preprocessed_context,
+            run_id=run_id,
+            run_dir=str(run_dir),
+        )
+
+    def _architecture_payload(self) -> dict[str, Any]:
+        return {
+            "agent_name": "LayeredLineageAgent",
+            "strategy": {
+                "core_principles": [
+                    "Chunk awareness",
+                    "Progressive abstraction",
+                    "Forced reasoning order",
+                    "Lossy compression with structure preservation",
+                ],
+                "reasoning_order": [
+                    "Find all pieces",
+                    "Understand the full pipeline globally",
+                    "Build full pipeline mentally",
+                    "Detect structural patterns",
+                    "Compress structure",
+                    "Build two views",
+                    "Add transform semantics",
+                    "Construct graph",
+                    "Render diagram",
+                ],
+            },
+            "phases": [asdict(item) for item in PHASE_SPECS],
+        }
+
+    def _should_use_normalized_compact_path(self, preprocessed_context: dict[str, Any]) -> bool:
+        profile = dict(preprocessed_context.get("compact_export_profile") or {})
+        return bool(profile.get("is_metadata_rich_compact_export"))
+
+    def _run_phase1(self, context: AgentContext, state: AgentState) -> dict[str, Any]:
+        chunk_signals = []
+        for chunk in context.preprocessed_context["chunks"]:
+            prompt = prompt_phase1(context.preprocessed_context, chunk)
+            state.record_prompt(f"phase1_{chunk['chunk_id']}", prompt)
+            chunk_signals.append(self._invoke_json(prompt))
+        
+        consolidated_signals = self._flatten_phase1_signals(chunk_signals, context.preprocessed_context["chunks"])
+        authoritative_inventory = self._build_simple_authoritative_inventory(consolidated_signals)
+        diagram_intent = self._build_diagram_intent(
+            context.preprocessed_context,
+            consolidated_signals,
+            authoritative_inventory,
+        )
+        return {
+            "phase": "signal_extraction",
+            "goal": "Identify what exists without structure.",
+            "job_name_hints": context.preprocessed_context["job_name_hints"],
+            "chunk_signals": chunk_signals,
+            "consolidated_signals": consolidated_signals,
+            "authoritative_inventory": authoritative_inventory,
+            "diagram_intent": diagram_intent,
+        }
+
+    def _run_phase2(self, context: AgentContext, state: AgentState) -> dict[str, Any]:
+        phase15 = state.phase_outputs["phase15_global_reconstruction"]
+        base_prompt = prompt_phase2(
+            context.document_text,
+            state.phase_outputs["phase1_signal_extraction"],
+            phase15,
+            context.preprocessed_context,
+        )
+        prompt = (
+            "PHASE 2 OVERRIDE - USE GLOBAL CONTEXT AS TRUTH\n\n"
+            "You are given Phase 1.5 global pipeline understanding.\n"
+            "Treat its dominant_pipeline as ground truth.\n"
+            "Do not override strongest_source, core_transform, store_node, or target_node unless Phase 1.5 left that field blank.\n"
+            "Your job in Phase 2 is to attach remaining nodes correctly to this backbone.\n\n"
+            + base_prompt
+        )
+        state.record_prompt("phase2", prompt)
+        phase2 = self._invoke_json(prompt)
+        
+        violations = self._phase2_anchor_violations(phase2, phase15)
+        if violations:
+            retry_prompt = (
+                prompt
+                + "\n\nPHASE 2 AUTO-RETRY - PRIOR RESPONSE VIOLATED LOCKED ANCHOR\n"
+                + "You must correct these violations and return JSON again.\n"
+                + "\n".join(f"- {item}" for item in violations)
+                + "\n\nMANDATORY RETRY RULES:\n"
+                + "- anchor_chain.canonical_source must equal strongest_source when provided\n"
+                + "- anchor_chain.canonical_core_transformer must equal core_transform when provided\n"
+                + "- anchor_chain.anchor_load_node must equal store_node when provided\n"
+                + "- anchor_chain.primary_target must equal target_node when provided\n"
+                + "- main edges must preserve the locked anchor order\n"
+                + "- if you cannot find explicit evidence, still preserve the locked anchor exactly\n"
+            )
+            state.record_prompt("phase2", retry_prompt, is_retry=True)
+            phase2 = self._invoke_json(retry_prompt)
+        
+        return phase2
+
+    def _run_phase15(self, context: AgentContext, state: AgentState) -> dict[str, Any]:
+        prompt = prompt_phase15(
+            context.document_text,
+            state.phase_outputs["phase1_signal_extraction"],
+            context.preprocessed_context,
+        )
+        state.record_prompt("phase15", prompt)
+        return self._invoke_json(prompt)
+
+    def _run_phase34(self, context: AgentContext, state: AgentState) -> dict[str, Any]:
+        prompt = prompt_phase34(
+            state.phase_outputs["phase2_flow_reconstruction"],
+            context.preprocessed_context,
+            state.phase_outputs["phase1_signal_extraction"].get("diagram_intent", {}),
+        )
+        state.record_prompt("phase34", prompt)
+        combined = self._invoke_json(prompt)
+        result = dict(combined or {})
+        if not isinstance(result.get("phase3"), dict):
+            result["phase3"] = {}
+        if not isinstance(result.get("phase4"), dict):
+            result["phase4"] = {}
+        return result
+
+    def _run_phase5(self, context: AgentContext, state: AgentState) -> dict[str, Any]:
+        prompt = prompt_phase5(
+            state.phase_outputs["phase3_pattern_detection"],
+            state.phase_outputs["phase4_semantic_compression"],
+            state.phase_outputs["phase1_signal_extraction"].get("diagram_intent", {}),
+        )
+        state.record_prompt("phase5", prompt)
+        return self._invoke_json(prompt)
+
+    def _run_phase6(self, context: AgentContext, state: AgentState) -> dict[str, Any]:
+        prompt = prompt_phase6(
+            context.document_text,
+            state.phase_outputs["phase3_pattern_detection"],
+            state.phase_outputs["phase5_build_models"],
+        )
+        state.record_prompt("phase6", prompt)
+        return self._invoke_json(prompt)
+
+    def _run_phase7(self, state: AgentState) -> dict[str, Any]:
+        prompt = prompt_phase7(
+            state.phase_outputs["phase2_flow_reconstruction"],
+            state.phase_outputs["phase3_pattern_detection"],
+            state.phase_outputs["phase4_semantic_compression"],
+            state.phase_outputs["phase5_build_models"],
+            state.phase_outputs["phase6_transform_semantics"],
+            state.phase_outputs["phase1_signal_extraction"].get("diagram_intent", {}),
+        )
+        state.record_prompt("phase7", prompt)
+        return self._invoke_json(prompt)
+
+    def _run_phase75(self, state: AgentState) -> dict[str, Any]:
+        phase7 = dict(state.phase_outputs["phase7_graph_construction"] or {})
+        schema_violations = self._validate_phase7_schema(phase7)
+        if self._should_retry_phase7(schema_violations):
+            retry_prompt = (
+                str(state.prompts.get("phase7") or "")
+                + "\n\nPHASE 7 AUTO-RETRY - PRIOR RESPONSE VIOLATED GRAPH SCHEMA\n"
+                + "Return corrected JSON only.\n"
+                + "\n".join(f"- {item}" for item in schema_violations)
+                + "\n\nMANDATORY RETRY RULES:\n"
+                + "- include both high_level_graph and technical_graph\n"
+                + "- each graph must contain nodes and edges arrays\n"
+                + "- final node ids must not start with STAGE_\n"
+                + "- edge endpoints must be node ids, not free-text labels\n"
+                + "- high_level_graph must not include secondary edges\n"
+            )
+            state.record_prompt("phase75", retry_prompt, is_retry=True)
+            phase7 = self._invoke_json(retry_prompt)
+            schema_violations = self._validate_phase7_schema(phase7)
+
+        phase7 = self._sanitize_graph_payload_structure(phase7)
+        phase7 = self._apply_diagram_intent(
+            phase7,
+            state.phase_outputs["phase1_signal_extraction"].get("diagram_intent", {}),
+            state.phase_outputs["phase4_semantic_compression"],
+            state.phase_outputs["phase6_transform_semantics"],
+        )
+        final_violations = self._validate_final_graph_payload(phase7)
+        if final_violations:
+            raise RuntimeError(
+                "Phase 7.5 validation failed: "
+                + " | ".join(final_violations)
+            )
+        phase7["validation"] = {
+            "schema_violations": schema_violations,
+            "final_violations": final_violations,
+            "retried": bool(schema_violations),
+        }
+        return phase7
+
+    def _sanitize_graph_payload_structure(self, payload: dict[str, Any]) -> dict[str, Any]:
+        result = dict(payload or {})
+        for graph_key in ("high_level_graph", "technical_graph"):
+            graph = dict(result.get(graph_key) or {})
+            nodes = [dict(node) for node in graph.get("nodes", []) if isinstance(node, dict)]
+            valid_ids = GraphNormalizer.build_valid_node_ids(nodes)
+            cleaned_edges: list[dict[str, Any]] = []
+            for edge in graph.get("edges", []) or []:
+                if not isinstance(edge, dict):
+                    continue
+                from_id = str(edge.get("from") or "").strip()
+                to_id = str(edge.get("to") or "").strip()
+                if not from_id or not to_id or from_id == to_id:
+                    continue
+                if from_id not in valid_ids or to_id not in valid_ids:
+                    continue
+                cleaned_edges.append(dict(edge))
+            graph["nodes"] = nodes
+            graph["edges"] = cleaned_edges
+            result[graph_key] = graph
+        return result
+
+    def _run_phase8(self, state: AgentState) -> dict[str, Any]:
+        state.record_prompt("phase8", "Deterministic Python DOT renderer used. LLM rendering skipped.")
+        phase8 = self._build_dot_payload(state.phase_outputs["phase75_graph_validation"])
+        return self._sanitize_dot_payload(phase8)
+
+    def _run_normalized_compact_path(self, context: AgentContext) -> dict[str, Any]:
+        prompt = prompt_compact_normalization(context.document_text, context.preprocessed_context)
+        normalized = self._invoke_json(prompt)
+        normalized = self._sanitize_normalized_compact_payload(normalized)
+        if not normalized.get("nodes") or not normalized.get("edges"):
+            raise RuntimeError("Compact normalization did not produce a usable graph payload.")
+        return self._build_graphs_from_normalized_ir(normalized)
+
+    def _validate_phase7_schema(self, phase7: dict[str, Any]) -> list[str]:
+        violations: list[str] = []
+        if not isinstance(phase7, dict):
+            return ["phase7 output must be a JSON object."]
+
+        for graph_key in ("high_level_graph", "technical_graph"):
+            graph = phase7.get(graph_key)
+            if not isinstance(graph, dict):
+                violations.append(f"{graph_key} must be an object.")
+                continue
+            if not isinstance(graph.get("nodes", []), list):
+                violations.append(f"{graph_key}.nodes must be an array.")
+            if not isinstance(graph.get("edges", []), list):
+                violations.append(f"{graph_key}.edges must be an array.")
+            for node in graph.get("nodes", []) or []:
+                if not isinstance(node, dict):
+                    violations.append(f"{graph_key}.nodes must contain objects only.")
+                    continue
+                node_id = str(node.get("id") or "").strip()
+                if not node_id:
+                    violations.append(f"{graph_key} contains a node with missing id.")
+                elif node_id.upper().startswith("STAGE_"):
+                    violations.append(f"{graph_key} node id {node_id!r} must be normalized and must not start with STAGE_.")
+            for edge in graph.get("edges", []) or []:
+                if not isinstance(edge, dict):
+                    violations.append(f"{graph_key}.edges must contain objects only.")
+                    continue
+                from_id = str(edge.get("from") or "").strip()
+                to_id = str(edge.get("to") or "").strip()
+                if not from_id or not to_id:
+                    violations.append(f"{graph_key} contains an edge with missing endpoint.")
+                if graph_key == "high_level_graph" and str(edge.get("type") or "").strip() == "secondary":
+                    violations.append("high_level_graph must not contain secondary edges.")
+        return self._merge_string_lists([], violations)
+
+    def _should_retry_phase7(self, violations: list[str]) -> bool:
+        if not violations:
+            return False
+        retry_markers = (
+            "must be an object",
+            "must be an array",
+            "missing id",
+            "missing endpoint",
+            "must be normalized",
+            "must not contain secondary edges",
+        )
+        return any(any(marker in violation for marker in retry_markers) for violation in violations)
+
+    def _validate_final_graph_payload(self, phase75: dict[str, Any]) -> list[str]:
+        violations: list[str] = []
+        for graph_key in ("high_level_graph", "technical_graph"):
+            graph = dict(phase75.get(graph_key) or {})
+            nodes = [node for node in graph.get("nodes", []) if isinstance(node, dict)]
+            edges = [edge for edge in graph.get("edges", []) if isinstance(edge, dict)]
+            valid_ids = GraphNormalizer.build_valid_node_ids(nodes)
+            for edge in edges:
+                if not GraphNormalizer.validate_edge_endpoints(edge, valid_ids):
+                    violations.append(f"{graph_key} contains an edge with invalid endpoints: {edge!r}")
+            if graph_key == "high_level_graph":
+                if any(str(edge.get("type") or "").strip() == "secondary" for edge in edges):
+                    violations.append("high_level_graph contains secondary edges after repair.")
+                core_nodes = [node for node in nodes if str(node.get("kind") or "").strip() == "core_transform"]
+                if len(core_nodes) > 1:
+                    violations.append("high_level_graph contains multiple core_transform nodes after repair.")
+        return self._merge_string_lists([], violations)
+
+    def _build_dot_payload(self, phase7: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "high_level_dot": self._build_dot_graph(dict(phase7.get("high_level_graph") or {}), technical=False),
+            "technical_dot": self._build_dot_graph(dict(phase7.get("technical_graph") or {}), technical=True),
+        }
+
+    def _build_dot_graph(self, graph: dict[str, Any], technical: bool) -> str:
+        graph_name = "technical" if technical else "high_level"
+        lines = [f"digraph {graph_name} {{", "  rankdir=LR;"]
+        notes = [str(item or "").strip() for item in graph.get("notes", []) if str(item or "").strip()]
+        # Only include secondary flow notes in high-level diagram, not technical
+        if notes and not technical:
+            lines.append(f"  // Secondary flows: {' | '.join(notes)}")
+
+        primary_nodes = [node for node in graph.get("nodes", []) if isinstance(node, dict) and str(node.get("cluster") or "primary") != "secondary"]
+        secondary_nodes = [node for node in graph.get("nodes", []) if isinstance(node, dict) and str(node.get("cluster") or "") == "secondary"]
+
+        lines.extend(self._dot_cluster("cluster_primary", "Primary Flow", primary_nodes, dashed=False, technical=technical))
+        if technical and secondary_nodes:
+            lines.extend(self._dot_cluster("cluster_secondary", "Secondary Flows", secondary_nodes, dashed=True, technical=technical))
+
+        for edge in graph.get("edges", []):
+            if not isinstance(edge, dict):
+                continue
+            from_id = str(edge.get("from") or "").strip()
+            to_id = str(edge.get("to") or "").strip()
+            if not from_id or not to_id or from_id == to_id:
+                continue
+            edge_type = str(edge.get("type") or "main").strip()
+            style = self._dot_edge_style(edge_type)
+            attrs = [f'color="{style["color"]}"', f'style={style["style"]}', f'penwidth={style["penwidth"]}']
+            if style["label"]:
+                attrs.append(f'label="{style["label"]}"')
+            lines.append(f"  {from_id} -> {to_id} [{', '.join(attrs)}];")
+
+        lines.append("}")
+        return "\n".join(lines)
+
+    def _dot_cluster(self, cluster_id: str, label: str, nodes: list[dict[str, Any]], dashed: bool, technical: bool) -> list[str]:
+        lines = [f"  subgraph {cluster_id} {{", '    node [fontname="Arial", fontsize=11, margin="0.2,0.1"];', f'    label="{label}";']
+        if dashed:
+            lines.append("    style=dashed;")
+        for node in nodes:
+            lines.append(f"    {str(node.get('id') or '').strip()} {self._dot_node_attrs(node, technical)};")
+        lines.append("  }")
+        return lines
+
+    def _dot_node_attrs(self, node: dict[str, Any], technical: bool) -> str:
+        kind = str(node.get("kind") or "").strip()
+        style = self._dot_node_style(kind, str(node.get("cluster") or "primary") == "secondary")
+        label = self._dot_node_label(node, technical)
+        
+        # Clean and deduplicate table names for display
+        members = node.get("members", []) or []
+        clean_members = []
+        seen = set()
+        
+        for member in members:
+            if not member:
+                continue
+            member_str = str(member).strip()
+            if member_str and member_str not in seen:
+                clean_members.append(member_str)
+                seen.add(member_str)
+        
+        # Show top 2 clean unique table names
+        display_members = clean_members[:2] if clean_members else []
+        tooltip = self._dot_escape_tooltip("\n".join(display_members) if display_members else "")
+        
+        attrs = [
+            f'shape={style["shape"]}',
+            f'fillcolor="{style["fillcolor"]}"',
+            f'fontcolor="{style["fontcolor"]}"',
+            f'style="{style["style"]}"' if "," in style["style"] else f'style={style["style"]}',
+            f"label={label}",
+            f'tooltip="{tooltip}"',
+        ]
+        return "[" + ", ".join(attrs) + "]"
+
+    def _dot_node_style(self, kind: str, secondary: bool) -> dict[str, str]:
+        if secondary:
+            return {"shape": "box", "fillcolor": "#F5F5F5", "fontcolor": "#9E9E9E", "style": "filled,dashed"}
+        styles = {
+            "source": {"shape": "folder", "fillcolor": "#C8E6C9", "fontcolor": "#1B5E20", "style": "filled"},
+            "source_group": {"shape": "folder", "fillcolor": "#C8E6C9", "fontcolor": "#1B5E20", "style": "filled"},
+            "lookup": {"shape": "note", "fillcolor": "#BBDEFB", "fontcolor": "#0D47A1", "style": "filled"},
+            "lookup_group": {"shape": "note", "fillcolor": "#BBDEFB", "fontcolor": "#0D47A1", "style": "filled"},
+            "integration": {"shape": "box", "fillcolor": "#FFE0B2", "fontcolor": "#E65100", "style": "filled,bold"},
+            "core_transform": {"shape": "box", "fillcolor": "#FFE0B2", "fontcolor": "#E65100", "style": "filled,bold,rounded"},
+            "validation": {"shape": "box", "fillcolor": "#FFF9C4", "fontcolor": "#F57F17", "style": "filled"},
+            "store": {"shape": "box", "fillcolor": "#B2EBF2", "fontcolor": "#006064", "style": "filled"},
+            "target": {"shape": "cylinder", "fillcolor": "#C8E6C9", "fontcolor": "#1B5E20", "style": "filled,bold"},
+            "exception": {"shape": "note", "fillcolor": "#FFCDD2", "fontcolor": "#B71C1C", "style": "filled"},
+        }
+        return styles.get(kind, {"shape": "box", "fillcolor": "#F5F5F5", "fontcolor": "#424242", "style": "filled"})
+
+    def _dot_edge_style(self, edge_type: str) -> dict[str, str]:
+        styles = {
+            "main": {"color": "#37474F", "style": "solid", "penwidth": "2.0", "label": ""},
+            "lookup": {"color": "#1565C0", "style": "dashed", "penwidth": "1.5", "label": "lookup"},
+            "exception": {"color": "#C62828", "style": "dashed", "penwidth": "1.5", "label": "exception"},
+            "secondary": {"color": "#9E9E9E", "style": "dashed", "penwidth": "1.0", "label": ""},
+        }
+        return styles.get(edge_type, styles["main"])
+
+    def _dot_node_label(self, node: dict[str, Any], technical: bool) -> str:
+        title = self._dot_escape_html(str(node.get("label") or node.get("name") or self._display_name(str(node.get("id") or ""))))
+        if technical:
+            business = self._dot_escape_html(str(node.get("business_label") or node.get("name") or "").strip())
+            semantics = self._dot_escape_html(", ".join(str(item or "") for item in node.get("semantics", []) or [] if str(item or "")))
+            rules = self._dot_escape_html(" | ".join(str(item or "") for item in node.get("rules", []) or [] if str(item or "")))
+            exception_condition = self._dot_escape_html(str(node.get("exception_condition") or "").strip())
+            parts = [f"<B>{title}</B>"]
+            if business:
+                parts.append(f"<I>{business}</I>")
+            if semantics:
+                parts.append(f'<FONT POINT-SIZE="9">{semantics}</FONT>')
+            if rules:
+                parts.append(f'<FONT POINT-SIZE="9">Rule: {rules}</FONT>')
+            if exception_condition:
+                parts.append(f'<FONT POINT-SIZE="9">Exception: {exception_condition}</FONT>')
+            return "<" + "<BR/>".join(parts) + ">"
+        subtitle = self._dot_escape_html(str(node.get("business_label") or "").strip())
+        members_list = node.get("members", []) or []
+        primary_member = self._dot_escape_html(str(members_list[0] or "")) if members_list else ""
+        parts = [f"<B>{title}</B>"]
+        if subtitle and subtitle != title:
+            parts.append(f"<I>{subtitle}</I>")
+        elif primary_member:
+            parts.append(f'<FONT POINT-SIZE="9">{primary_member}</FONT>')
+        return "<" + "<BR/>".join(parts) + ">"
+
+    def _dot_escape_html(self, value: str) -> str:
+        text = str(value or "")
+        text = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        return text
+
+    def _dot_escape_tooltip(self, value: str) -> str:
+        return str(value or "").replace("\\", "\\\\").replace('"', '\\"')
+
+    def _sanitize_dot_payload(self, phase8: dict[str, Any]) -> dict[str, Any]:
+        result = dict(phase8 or {})
+        for key in ("high_level_dot", "technical_dot"):
+            result[key] = self._sanitize_dot_text(str(result.get(key, "") or ""))
+        return result
+
+    def _sanitize_dot_text(self, dot: str) -> str:
+        text = str(dot or "")
+        def _tooltip_replacer(match: re.Match[str]) -> str:
+            tooltip = match.group(1).replace(chr(13), "").replace(chr(10), "\\n")
+            return f'tooltip="{tooltip}"'
+
+        text = re.sub(r'tooltip="([^"]*)"', _tooltip_replacer, text, flags=re.S)
+        lines = text.splitlines()
+        cleaned: list[str] = []
+        for line in lines:
+            stripped = line.strip()
+            edge_match = re.match(r"([A-Za-z0-9_]+)\s*->\s*([A-Za-z0-9_]+)", stripped)
+            if edge_match and edge_match.group(1) == edge_match.group(2):
+                continue
+            cleaned.append(line)
+        return "\n".join(cleaned)
+
+    def _phase2_anchor_violations(self, phase2: dict[str, Any], phase15: dict[str, Any]) -> list[str]:
+        violations: list[str] = []
+        anchor = dict(phase2.get("anchor_chain") or {})
+        locked_pairs = [
+            ("canonical_source", str(phase15.get("strongest_source") or "").strip(), "canonical_source"),
+            ("canonical_core_transformer", str(phase15.get("core_transform") or "").strip(), "canonical_core_transformer"),
+            ("anchor_load_node", str(phase15.get("store_node") or "").strip(), "anchor_load_node"),
+            ("primary_target", str(phase15.get("target_node") or "").strip(), "primary_target"),
+        ]
+        for anchor_key, locked_value, label in locked_pairs:
+            actual_value = str(anchor.get(anchor_key) or "").strip()
+            if locked_value and actual_value != locked_value:
+                violations.append(f"{label} must be {locked_value!r} but was {actual_value!r}")
+
+        if not violations:
+            edges = [edge for edge in phase2.get("edges", []) if isinstance(edge, dict) and str(edge.get("type") or "") == "main"]
+            main_pairs = {(str(edge.get("from") or "").strip(), str(edge.get("to") or "").strip()) for edge in edges}
+            expected_chain = [
+                str(phase15.get("strongest_source") or "").strip(),
+                str(phase15.get("core_transform") or "").strip(),
+                str(phase15.get("store_node") or "").strip(),
+                str(phase15.get("target_node") or "").strip(),
+            ]
+            expected_chain = [node_id for node_id in expected_chain if node_id]
+            for from_id, to_id in zip(expected_chain, expected_chain[1:]):
+                if (from_id, to_id) not in main_pairs:
+                    violations.append(f"missing locked main edge {from_id!r} -> {to_id!r}")
+        return violations
+
+    def _display_name(self, node_id: str) -> str:
+        text = str(node_id or "")
+        if text.upper().startswith("STAGE_"):
+            text = text[6:]
+        return text.replace("_", " ").strip().title() or "Unnamed Node"
+
+    def _invoke_json(self, prompt: str) -> dict[str, Any]:
+        if self.llm is None:
+            self.llm = self._get_llm(self.config.model_override)
+        response = self.llm.invoke(prompt)
+        content = response.content if hasattr(response, "content") else str(response)
+        payload = extract_json(content)
+        if not isinstance(payload, dict):
+            raise RuntimeError("LLM did not return a valid JSON object.")
+        return payload
+
+    def _safe_invoke_json(self, prompt: str) -> dict[str, Any]:
+        try:
+            return self._invoke_json(prompt)
+        except Exception:
+            return {}
+
+    def _enrich_chunk_semantics(self, chunk: dict[str, Any]) -> dict[str, Any]:
+        prompt = f"""
+You are an ETL semantic analyzer.
+
+Given this ETL chunk, extract MEANING and naming clarity.
+Do not infer graph edges, node IDs, joins, or exact table wiring.
+
+Return STRICT JSON only:
+{{
+  "business_purpose": "what this stage does in plain English",
+  "business_name": "short clean business-facing label for diagram display",
+  "transformation_type": "join|lookup|filter|aggregation|mapping|load|extract|validate|route|unknown",
+  "is_core_transform": true,
+  "is_lookup": false,
+  "is_exception_flow": false,
+  "data_quality_rules": ["rules if any"],
+  "business_entities": ["vehicle", "customer"]
+}}
+
+Chunk metadata:
+{{
+  "chunk_id": {chunk.get("chunk_id")!r},
+  "stage_name": {chunk.get("stage_name")!r},
+  "block_name": {chunk.get("block_name")!r},
+  "block_type": {chunk.get("block_type")!r},
+  "kind": {chunk.get("kind")!r},
+  "has_sql": {bool(chunk.get("has_sql"))!r},
+  "sql_complexity": {chunk.get("sql_complexity")!r},
+  "tables": {chunk.get("tables", [])!r},
+  "target_tables": {chunk.get("target_tables", [])!r}
+}}
+
+Chunk:
+{chunk.get("text") or ""}
+"""
+        payload = self._safe_invoke_json(prompt)
+        if not isinstance(payload, dict):
+            return {}
+        return payload
+
+    def _flatten_phase1_signals(
+        self,
+        chunk_signals: list[dict[str, Any]],
+        chunks: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        flattened: list[dict[str, Any]] = []
+        seen: set[tuple[str, str, str]] = set()
+        chunk_map = {
+            str(chunk.get("chunk_id") or "").strip(): dict(chunk)
+            for chunk in chunks
+            if isinstance(chunk, dict) and str(chunk.get("chunk_id") or "").strip()
+        }
+        for chunk_payload in chunk_signals:
+            chunk_meta = chunk_map.get(str(chunk_payload.get("chunk_id") or "").strip(), {})
+            for signal in chunk_payload.get("signals", []) or []:
+                if not isinstance(signal, dict):
+                    continue
+                name = str(signal.get("name") or "").strip()
+                kind = str(signal.get("kind") or "").strip()
+                stage_type = str(signal.get("stage_type") or "").strip()
+                if not name:
+                    continue
+                key = (name.upper(), kind.upper(), stage_type.upper())
+                if key in seen:
+                    continue
+                seen.add(key)
+                item = dict(signal)
+                item["name"] = name
+                item["original_name"] = str(signal.get("original_name") or name).strip()
+                item["canonical_name"] = str(signal.get("canonical_name") or name).strip()
+                item["canonical_hint"] = str(signal.get("canonical_hint") or "").strip()
+                item["chunk_id"] = str(chunk_payload.get("chunk_id") or "").strip()
+                item["business_name"] = str(
+                    signal.get("business_name")
+                    or chunk_meta.get("business_name")
+                    or signal.get("canonical_hint")
+                    or name
+                ).strip()
+                item["tables"] = self._merge_string_lists(
+                    [str(value or "").strip() for value in signal.get("tables", []) or [] if str(value or "").strip()],
+                    chunk_meta.get("tables", []),
+                )
+                item["aliases"] = [str(value or "").strip() for value in signal.get("aliases", []) or [] if str(value or "").strip()]
+                item["occurrences"] = int(signal.get("occurrences", 1) or 1)
+                item["semantic"] = dict(chunk_meta.get("semantic") or {})
+                item["stage_name"] = str(chunk_meta.get("stage_name") or "").strip()
+                flattened.append(item)
+        return flattened
+
+    def _build_simple_authoritative_inventory(self, signals: list[dict[str, Any]]) -> dict[str, Any]:
+        inventory: dict[str, list[dict[str, Any]]] = {
+            "sources": [],
+            "transforms": [],
+            "lookups": [],
+            "stores": [],
+            "targets": [],
+            "exceptions": [],
+        }
+        plural_map = {
+            "source": "sources",
+            "transform": "transforms",
+            "lookup": "lookups",
+            "store": "stores",
+            "target": "targets",
+            "exception": "exceptions",
+        }
+        for signal in signals:
+            bucket = plural_map.get(str(signal.get("kind") or "").strip())
+            if not bucket:
+                continue
+            inventory[bucket].append(
+                {
+                    "id": signal.get("canonical_name") or signal.get("name"),
+                    "name": signal.get("name"),
+                    "business_name": signal.get("business_name"),
+                    "original_name": signal.get("original_name"),
+                    "canonical_hint": signal.get("canonical_hint"),
+                    "confidence": signal.get("confidence"),
+                    "primacy_score": signal.get("primacy_score"),
+                    "aliases": signal.get("aliases", []),
+                    "stage_type": signal.get("stage_type"),
+                    "tables": signal.get("tables", []),
+                    "semantic": signal.get("semantic", {}),
+                }
+            )
+        return inventory
+
+    def _build_diagram_intent(
+        self,
+        preprocessed_context: dict[str, Any],
+        signals: list[dict[str, Any]],
+        inventory: dict[str, Any],
+    ) -> dict[str, Any]:
+        rename_candidates: dict[str, str] = {}
+        semantic_by_name: dict[str, dict[str, Any]] = {}
+        for chunk in preprocessed_context.get("chunks", []) or []:
+            if not isinstance(chunk, dict):
+                continue
+            stage_name = str(chunk.get("stage_name") or chunk.get("block_name") or "").strip()
+            business_name = str(chunk.get("business_name") or "").strip()
+            if stage_name and business_name:
+                rename_candidates[stage_name] = business_name
+            semantic_by_name[stage_name] = dict(chunk.get("semantic") or {})
+        for signal in signals:
+            raw_names = [
+                str(signal.get("name") or "").strip(),
+                str(signal.get("original_name") or "").strip(),
+                str(signal.get("canonical_name") or "").strip(),
+                str(signal.get("stage_name") or "").strip(),
+            ]
+            business_name = str(signal.get("business_name") or "").strip()
+            if business_name:
+                for raw_name in raw_names:
+                    if raw_name:
+                        rename_candidates.setdefault(raw_name, business_name)
+            semantic = dict(signal.get("semantic") or {})
+            for raw_name in raw_names:
+                if raw_name and semantic:
+                    semantic_by_name.setdefault(raw_name, semantic)
+        grouped_nodes = {
+            bucket: [str(item.get("business_name") or item.get("name") or "").strip() for item in values if isinstance(item, dict)]
+            for bucket, values in inventory.items()
+        }
+        return {
+            "rename_candidates": rename_candidates,
+            "semantic_by_name": semantic_by_name,
+            "grouped_nodes": grouped_nodes,
+        }
+
+    def _apply_diagram_intent(
+        self,
+        phase7: dict[str, Any],
+        diagram_intent: dict[str, Any],
+        phase4: dict[str, Any],
+        phase6: dict[str, Any],
+    ) -> dict[str, Any]:
+        result = dict(phase7 or {})
+        semantic_map = {
+            str(item.get("node_id") or "").strip(): dict(item)
+            for item in phase6.get("transform_semantics", []) or []
+            if isinstance(item, dict) and str(item.get("node_id") or "").strip()
+        }
+        normalized_map = {
+            str(item.get("id") or "").strip(): dict(item)
+            for item in phase4.get("normalized_components", []) or []
+            if isinstance(item, dict) and str(item.get("id") or "").strip()
+        }
+        rename_candidates = {
+            str(key or "").strip(): str(value or "").strip()
+            for key, value in dict(diagram_intent.get("rename_candidates") or {}).items()
+            if str(key or "").strip() and str(value or "").strip()
+        }
+
+        renamed_nodes: dict[str, str] = {}
+        groups = {
+            "sources": [],
+            "lookups": [],
+            "transforms": [],
+            "stores": [],
+            "targets": [],
+            "exceptions": [],
+        }
+        for graph_key in ("high_level_graph", "technical_graph"):
+            graph = dict(result.get(graph_key) or {})
+            clean_nodes: list[dict[str, Any]] = []
+            for node in graph.get("nodes", []) or []:
+                if not isinstance(node, dict):
+                    continue
+                clean_node = dict(node)
+                node_id = str(clean_node.get("id") or "").strip()
+                normalized = normalized_map.get(node_id, {})
+                semantics = semantic_map.get(node_id, {})
+                fallback_label = self._best_diagram_label(clean_node, normalized, rename_candidates)
+                clean_node["label"] = fallback_label
+                if semantics:
+                    clean_node["business_label"] = str(
+                        semantics.get("business_label")
+                        or clean_node.get("business_label")
+                        or fallback_label
+                    ).strip()
+                    clean_node["semantics"] = self._merge_string_lists(
+                        [str(item or "").strip() for item in clean_node.get("semantics", []) or [] if str(item or "").strip()],
+                        semantics.get("semantics", []),
+                    )
+                    clean_node["rules"] = self._merge_string_lists(
+                        [str(item or "").strip() for item in clean_node.get("rules", []) or [] if str(item or "").strip()],
+                        semantics.get("rules", []),
+                    )
+                    clean_node["rule_summary"] = str(
+                        semantics.get("rule_summary")
+                        or clean_node.get("rule_summary")
+                        or ""
+                    ).strip()
+                    clean_node["exception_condition"] = str(
+                        semantics.get("exception_condition")
+                        or clean_node.get("exception_condition")
+                        or ""
+                    ).strip()
+                elif clean_node.get("business_label") in (None, ""):
+                    clean_node["business_label"] = fallback_label
+                renamed_nodes[node_id] = fallback_label
+                bucket = self._diagram_group_bucket(str(clean_node.get("kind") or "").strip())
+                if bucket and fallback_label not in groups[bucket]:
+                    groups[bucket].append(fallback_label)
+                clean_nodes.append(clean_node)
+            graph["nodes"] = clean_nodes
+            if graph_key == "high_level_graph":
+                graph["notes"] = self._merge_string_lists(
+                    [str(item or "").strip() for item in graph.get("notes", []) if str(item or "").strip()],
+                    [f"Primary groups: {', '.join(values[:4])}" for values in groups.values() if values],
+                )
+            result[graph_key] = graph
+        result["diagram_intent"] = {
+            "renamed_nodes": renamed_nodes,
+            "groups": groups,
+        }
+        return result
+
+    def _sanitize_normalized_compact_payload(self, payload: dict[str, Any]) -> dict[str, Any]:
+        result = {"nodes": [], "edges": [], "notes": []}
+        if not isinstance(payload, dict):
+            return result
+        for node in payload.get("nodes", []) or []:
+            if not isinstance(node, dict):
+                continue
+            raw_name = str(node.get("raw_name") or "").strip()
+            node_id = str(node.get("id") or "").strip() or self._compact_node_id(raw_name)
+            clean_node = {
+                "id": self._compact_node_id(node_id),
+                "raw_name": raw_name,
+                "stage_type": str(node.get("stage_type") or "").strip(),
+                "kind": str(node.get("kind") or "source").strip(),
+                "label": str(node.get("label") or self._normalized_label(raw_name or node_id)).strip(),
+                "business_label": str(node.get("business_label") or "").strip(),
+                "cluster": str(node.get("cluster") or "primary").strip(),
+                "members": [str(item or "").strip() for item in node.get("members", []) or [] if str(item or "").strip()],
+            }
+            if not clean_node["members"] and raw_name:
+                clean_node["members"] = [raw_name]
+            result["nodes"].append(clean_node)
+        result["nodes"] = self._dedupe_nodes(result["nodes"])
+        valid_ids = {str(node.get("id") or "").strip() for node in result["nodes"]}
+        for edge in payload.get("edges", []) or []:
+            if not isinstance(edge, dict):
+                continue
+            from_id = self._compact_node_id(str(edge.get("from") or "").strip())
+            to_id = self._compact_node_id(str(edge.get("to") or "").strip())
+            edge_type = str(edge.get("type") or "main").strip()
+            if from_id and to_id and from_id in valid_ids and to_id in valid_ids and from_id != to_id:
+                result["edges"].append({"from": from_id, "to": to_id, "type": edge_type})
+        result["edges"] = self._dedupe_edges(result["edges"])
+        result["notes"] = [str(item or "").strip() for item in payload.get("notes", []) or [] if str(item or "").strip()]
+        return result
+
+    def _build_graphs_from_normalized_ir(self, ir: dict[str, Any]) -> dict[str, Any]:
+        technical_nodes = [dict(node) for node in ir.get("nodes", []) if isinstance(node, dict)]
+        technical_edges = [dict(edge) for edge in ir.get("edges", []) if isinstance(edge, dict)]
+
+        technical_graph = {
+            "nodes": technical_nodes,
+            "edges": technical_edges,
+            "notes": [str(item or "").strip() for item in ir.get("notes", []) or [] if str(item or "").strip()],
+        }
+
+        high_nodes = []
+        node_map = {str(node.get("id") or "").strip(): dict(node) for node in technical_nodes}
+        buckets = {
+            "sources": [node for node in technical_nodes if str(node.get("kind") or "") == "source" and str(node.get("cluster") or "") == "primary"],
+            "lookups": [node for node in technical_nodes if str(node.get("kind") or "") == "lookup" and str(node.get("cluster") or "") == "primary"],
+            "transforms": [node for node in technical_nodes if str(node.get("kind") or "") in {"integration", "core_transform", "validation"} and str(node.get("cluster") or "") == "primary"],
+            "stores": [node for node in technical_nodes if str(node.get("kind") or "") == "store" and str(node.get("cluster") or "") == "primary"],
+            "targets": [node for node in technical_nodes if str(node.get("kind") or "") == "target" and str(node.get("cluster") or "") == "primary"],
+        }
+        id_map: dict[str, str] = {}
+        for bucket_name, nodes in buckets.items():
+            if bucket_name in {"sources", "lookups"} and len(nodes) > 1:
+                group_id = f"{bucket_name[:-1].upper()}_GROUP"
+                high_nodes.append(
+                    {
+                        "id": group_id,
+                        "kind": "source_group" if bucket_name == "sources" else "lookup_group",
+                        "label": "Primary Sources" if bucket_name == "sources" else "Lookup Dependencies",
+                        "members": [str(node.get("label") or "") for node in nodes],
+                    }
+                )
+                for node in nodes:
+                    id_map[str(node.get("id") or "").strip()] = group_id
+            else:
+                for node in nodes:
+                    node_id = str(node.get("id") or "").strip()
+                    id_map[node_id] = node_id
+                    high_nodes.append(
+                        {
+                            "id": node_id,
+                            "kind": node.get("kind"),
+                            "label": node.get("label"),
+                            "members": node.get("members", []),
+                        }
+                    )
+
+        high_edges = []
+        for edge in technical_edges:
+            if str(edge.get("type") or "") == "secondary":
+                continue
+            from_id = id_map.get(str(edge.get("from") or "").strip(), "")
+            to_id = id_map.get(str(edge.get("to") or "").strip(), "")
+            if not from_id or not to_id or from_id == to_id:
+                continue
+            high_edges.append({"from": from_id, "to": to_id, "type": edge.get("type")})
+
+        return {
+            "high_level_graph": {
+                "nodes": self._dedupe_nodes(high_nodes),
+                "edges": self._dedupe_edges(high_edges),
+                "notes": self._merge_string_lists(
+                    [str(item or "").strip() for item in ir.get("notes", []) or [] if str(item or "").strip()],
+                    [
+                        f"Secondary flow: {str(node.get('label') or '').strip()}"
+                        for node in technical_nodes
+                        if str(node.get("cluster") or "") == "secondary"
+                    ][:8],
+                ),
+            },
+            "technical_graph": technical_graph,
+        }
+
+    def _normalized_label(self, value: str) -> str:
+        text = self._clean_diagram_label(value)
+        text = re.sub(r"\b(Ora|Hsh|Xfm|Tfm)\b", "", text, flags=re.I)
+        text = re.sub(r"\s+", " ", text).strip()
+        return text or self._display_name(value)
+
+    def _compact_node_id(self, name: str) -> str:
+        cleaned = re.sub(r"[^A-Za-z0-9_]+", "_", str(name or "").strip())
+        cleaned = re.sub(r"_+", "_", cleaned).strip("_")
+        return cleaned or "NODE"
+
+    def _reachable_to_targets(self, edges: list[dict[str, Any]], target_ids: set[str]) -> set[str]:
+        reverse: dict[str, set[str]] = {}
+        for edge in edges:
+            from_id = str(edge.get("from") or "").strip()
+            to_id = str(edge.get("to") or "").strip()
+            if from_id and to_id:
+                reverse.setdefault(to_id, set()).add(from_id)
+        visited = set(target_ids)
+        stack = list(target_ids)
+        while stack:
+            current = stack.pop()
+            for parent in reverse.get(current, set()):
+                if parent not in visited:
+                    visited.add(parent)
+                    stack.append(parent)
+        return visited
+
+    def _dedupe_edges(self, edges: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        seen: set[tuple[str, str, str]] = set()
+        result: list[dict[str, Any]] = []
+        for edge in edges:
+            key = (
+                str(edge.get("from") or "").strip(),
+                str(edge.get("to") or "").strip(),
+                str(edge.get("type") or "").strip(),
+            )
+            if not all(key) or key in seen or key[0] == key[1]:
+                continue
+            seen.add(key)
+            result.append(edge)
+        return result
+
+    def _dedupe_nodes(self, nodes: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        deduped: dict[str, dict[str, Any]] = {}
+        for node in nodes:
+            node_id = str(node.get("id") or "").strip()
+            if not node_id:
+                continue
+            existing = deduped.get(node_id, {})
+            merged = dict(existing)
+            merged.update(node)
+            merged["members"] = self._merge_string_lists(existing.get("members", []), node.get("members", []))
+            deduped[node_id] = merged
+        return list(deduped.values())
+
+
+    def _best_diagram_label(
+        self,
+        node: dict[str, Any],
+        normalized: dict[str, Any],
+        rename_candidates: dict[str, str],
+    ) -> str:
+        members = [str(item or "").strip() for item in node.get("members", []) or [] if str(item or "").strip()]
+        for candidate in (
+            node.get("label"),
+            normalized.get("name"),
+            node.get("business_label"),
+            node.get("name"),
+        ):
+            value = str(candidate or "").strip()
+            if value:
+                return self._clean_diagram_label(value)
+        for member in members:
+            if member in rename_candidates:
+                return self._clean_diagram_label(rename_candidates[member])
+        return self._clean_diagram_label(self._display_name(str(node.get("id") or "")))
+
+    def _clean_diagram_label(self, value: str) -> str:
+        text = str(value or "").strip()
+        if not text:
+            return "Unnamed Flow Step"
+        text = re.sub(r"^(STAGE|LINK|JOB)_", "", text, flags=re.I)
+        text = re.sub(r"\b(TFM|XFM|STG|HF|ORA|SRC)\b", "", text, flags=re.I)
+        text = re.sub(r"[_\s]+", " ", text)
+        text = re.sub(r"\s+", " ", text).strip(" -_")
+        if text.isupper():
+            text = text.title()
+        return text.strip() or "Unnamed Flow Step"
+
+    def _diagram_group_bucket(self, kind: str) -> str:
+        mapping = {
+            "source": "sources",
+            "source_group": "sources",
+            "lookup": "lookups",
+            "lookup_group": "lookups",
+            "integration": "transforms",
+            "core_transform": "transforms",
+            "validation": "transforms",
+            "store": "stores",
+            "target": "targets",
+            "exception": "exceptions",
+        }
+        return mapping.get(kind, "")
+
+    def _merge_string_lists(self, current: list[str], incoming: Any) -> list[str]:
+        results = list(current)
+        for item in incoming or []:
+            value = str(item or "").strip()
+            if value and value not in results:
+                results.append(value)
+        return results
+
+
+    def _build_result(self, context: AgentContext, pdf_outputs: dict[str, dict[str, Any]] | None = None) -> dict[str, Any]:
+        run_dir = Path(context.run_dir)
+        high_level_dot_path = run_dir / "high_level.dot"
+        technical_dot_path = run_dir / "technical.dot"
+        pdf_outputs = pdf_outputs or {}
+        high_level_pdf = dict(pdf_outputs.get("high_level") or {})
+        technical_pdf = dict(pdf_outputs.get("technical") or {})
+        warnings = [
+            warning
+            for warning in [
+                str(high_level_pdf.get("warning") or "").strip(),
+                str(technical_pdf.get("warning") or "").strip(),
+            ]
+            if warning
+        ]
+        return {
+            "agent_name": "LayeredLineageAgent",
+            "run_id": context.run_id,
+            "input_file": context.input_file,
+            "run_dir": context.run_dir,
+            "output_dir": context.run_dir,
+            "chunk_count": len(context.preprocessed_context["chunks"]),
+            "job_name_hints": context.preprocessed_context["job_name_hints"],
+            "dot_files": [str(high_level_dot_path), str(technical_dot_path)],
+            "pdf_files": [
+                path
+                for path in [
+                    str(high_level_pdf.get("pdf_path") or "").strip(),
+                    str(technical_pdf.get("pdf_path") or "").strip(),
+                ]
+                if path
+            ],
+            "pdf_generated": bool(high_level_pdf.get("pdf_generated")) or bool(technical_pdf.get("pdf_generated")),
+            "warnings": warnings,
+        }
+
+    def _get_llm(self, model_override: str):
+        if AzureChatOpenAI is None:
+            raise RuntimeError("langchain-openai is not installed.")
+        deployment = (
+            os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
+            or os.getenv("AZURE_OPENAI_CHAT_DEPLOYMENT_NAME")
+            or os.getenv("AZURE_OPENAI_MODEL_DEPLOYMENT")
+        )
+        endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
+        api_key = os.getenv("AZURE_OPENAI_API_KEY")
+        api_version = os.getenv("AZURE_OPENAI_API_VERSION")
+        if not all([deployment, endpoint, api_key, api_version]):
+            raise RuntimeError("Missing Azure OpenAI configuration in .env.")
+        kwargs = {
+            "azure_deployment": deployment,
+            "azure_endpoint": endpoint,
+            "api_key": api_key,
+            "openai_api_version": api_version,
+            "temperature": float(os.getenv("LINEAGE_LLM_TEMPERATURE", "0")),
+        }
+        if model_override:
+            kwargs["model"] = model_override
+        return AzureChatOpenAI(**kwargs)
+
+
+def run_pipeline(input_path: str, output_dir: str, model_override: str = "") -> dict[str, Any]:
+    config = AgentConfig(input_path=input_path, output_dir=output_dir, model_override=model_override)
+    return LayeredLineageAgent(config).run()
+
+
+
+import json
+import re
+import subprocess
+from datetime import datetime
+from pathlib import Path
+from typing import Any
+
+
+DEFAULT_MAX_CHUNK_CHARS = 6000
+
+
+def timestamp() -> str:
+    return datetime.now().strftime("%Y%m%d_%H%M%S")
+
+
+def safe_name(value: str) -> str:
+    cleaned = re.sub(r"[^A-Za-z0-9._-]+", "_", str(value or "").strip())
+    return cleaned.strip("._") or "lineage"
+
+
+def read_text(path: Path) -> str:
+    return Path(path).read_text(encoding="utf-8", errors="ignore")
+
+
+def extract_json(text: str) -> Any:
+    raw = str(text or "").strip()
+    try:
+        return json.loads(raw)
+    except Exception:
+        start = raw.find("{")
+        end = raw.rfind("}")
+        if start != -1 and end != -1 and end > start:
+            try:
+                return json.loads(raw[start : end + 1])
+            except Exception:
+                return {}
+    return {}
+
+
+def write_json(path: Path, payload: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
+def write_text(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(str(text or ""), encoding="utf-8")
+
+
+def render_dot(dot_path: Path) -> dict[str, Any]:
+    pdf_path = dot_path.with_suffix(".pdf")
+    try:
+        subprocess.run(
+            ["dot", "-Tpdf", str(dot_path), "-o", str(pdf_path)],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        return {"pdf_generated": True, "pdf_path": str(pdf_path), "warning": ""}
+    except Exception as exc:
+        return {"pdf_generated": False, "pdf_path": "", "warning": str(exc)}
