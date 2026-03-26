@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DSExport>
+  <Job name="jbSMR3010220StgVehicleOffRoadFact_Simple">
+    <Description>Small version: one Source, one Transformation, one Target (derived from datastage_XML_3000_lines.txt)</Description>
+
+    <!-- Parameters (taken from uploaded file) -->
+    <Parameters>
+      <Parameter name="psOraDB" value="(As pre-defined)"/>
+      <Parameter name="PREV_BATCH_RUN_DATE_VOR" value="20151204"/>
+      <Parameter name="DELTA_DAYS_PARAM" value="90"/>
+      <Parameter name="pSMROutputPath" value="/d/ftpdata/tmp/TEST/VOR"/>
+      <Parameter name="pVOR_Exception_FileName" value="VOR_Supp_Exceptions"/>
+      <Parameter name="pFiledate" value="20151204"/>
+    </Parameters>
+
+    <!-- Source: Oracle connector (simplified) -->
+    <Stage id="Source_ORA_Ext_Vehicle_Off_Road_Data" type="OracleConnector" role="source">
+      <Properties>
+        <Server>#psOraDB.pSID#</Server>
+        <Username>#psOraDB.pUserID#</Username>
+        <Password>#psOraDB.pPassword#</Password>
+        <Version>10g</Version>
+        <ArraySize>2000</ArraySize>
+      </Properties>
+      <OutputLink name="Lnk_Vehicle_off_Road_Data" />
+      <SQL>
+        <![CDATA[
+        SELECT
+          WORKSHEET_NUMBER,
+          ORIGINAL_WORKSHEET_NUMBER,
+          VOR_PROGRESS_SK,
+          NVL(cd.cust_driver_sk,-99) AS REGISTERED_CUST_DRIVER_SK,
+          SRC.VEHICLE_SK,
+          variant_sk,
+          (CASE
+            WHEN CAPTURED_GARAGE_NAME IS NULL THEN -98
+            WHEN supp_smr.supp_sk IS NOT NULL AND supp_smr.lkp_key='A' THEN supp_smr.supp_sk
+            WHEN supp_nols.supp_sk IS NOT NULL AND supp_nols.lkp_key='A' THEN supp_nols.supp_sk
+            WHEN supp_smr.supp_sk IS NOT NULL AND supp_smr.lkp_key='B' THEN -97
+            WHEN supp_nols.supp_sk IS NOT NULL AND supp_nols.lkp_key='B' THEN -97
+            ELSE -99 END) AS SUPP_SK,
+          CUSTOMER_SK,
+          RENTAL_BOOKING_SK,
+          VOR_NOTE_SK,
+          VOR_REGISTRATION_NUMBER,
+          CAPTURED_GARAGE_NAME,
+          CONTACT_DRIVER_NAME,
+          MILEAGE,
+          VOR_INCIDENT_SOURCE,
+          VOR_WORK,
+          CRS_LOG_ID,
+          NUMBER_OF_DAYS_VOR,
+          COMPLETION_TO_COLLECT_DAYS
+        FROM supplierdata_ext.vor_vehicle_off_road vor
+        /* simplified: original file contains multiple joins and filtering */
+        WHERE vor.LAST_UPDATED_ON >= TO_DATE('#PREV_BATCH_RUN_DATE_VOR#','YYYY-MM-DD') - #DELTA_DAYS_PARAM#
+        ]]>
+      </SQL>
+      <!-- Output schema (subset of fields from uploaded file) -->
+      <Columns>
+        <Column name="WORKSHEET_NUMBER" type="VARCHAR" length="20"/>
+        <Column name="ORIGINAL_WORKSHEET_NUMBER" type="VARCHAR" length="20"/>
+        <Column name="VOR_PROGRESS_SK" type="INTEGER"/>
+        <Column name="REGISTERED_CUST_DRIVER_SK" type="INTEGER"/>
+        <Column name="VEHICLE_SK" type="INTEGER"/>
+        <Column name="VARIANT_SK" type="INTEGER"/>
+        <Column name="SUPP_SK" type="INTEGER"/>
+        <Column name="CUSTOMER_SK" type="INTEGER"/>
+        <Column name="RENTAL_BOOKING_SK" type="INTEGER"/>
+        <Column name="VOR_NOTE_SK" type="INTEGER"/>
+        <Column name="VOR_REGISTRATION_NUMBER" type="VARCHAR" length="20"/>
+        <Column name="CAPTURED_GARAGE_NAME" type="VARCHAR" length="255"/>
+        <Column name="CONTACT_DRIVER_NAME" type="VARCHAR" length="255"/>
+        <Column name="MILEAGE" type="INTEGER"/>
+        <Column name="VOR_INCIDENT_SOURCE" type="VARCHAR" length="50"/>
+        <Column name="VOR_WORK" type="VARCHAR" length="2000"/>
+        <Column name="CRS_LOG_ID" type="VARCHAR" length="50"/>
+        <Column name="NUMBER_OF_DAYS_VOR" type="INTEGER"/>
+        <Column name="COMPLETION_TO_COLLECT_DAYS" type="INTEGER"/>
+      </Columns>
+    </Stage>
+
+    <!-- Transformer: single stage with svException logic and mappings -->
+    <Stage id="Tfm_LoadRecords" type="Transformer" role="transform">
+      <InputLink ref="Lnk_Vehicle_off_Road_Data"/>
+      <OutputLink name="Load_To_Target"/>
+      <OutputLink name="Load_VOR_Exception_File"/>
+      <StageVariables>
+        <!-- svException logic copied from the uploaded file -->
+        <Variable name="svException" expression="
+          CASE
+            WHEN Lnk_Vehicle_off_Road_Data.SUPP_SK = -99 THEN -1
+            WHEN Lnk_Vehicle_off_Road_Data.SUPP_SK = -97 THEN -1
+            ELSE 0
+          END"/>
+      </StageVariables>
+
+      <Derivations>
+        <!-- Basic mapping rules (mirrors mapping in uploaded content) -->
+        <Map from="WORKSHEET_NUMBER" to="WORKSHEET_NUMBER"/>
+        <Map from="ORIGINAL_WORKSHEET_NUMBER" to="ORIGINAL_WORKSHEET_NUMBER"/>
+        <Map from="VOR_PROGRESS_SK" to="VOR_PROGRESS_SK"/>
+        <Map from="REGISTERED_CUST_DRIVER_SK" to="REGISTERED_CUST_DRIVER_SK"/>
+        <!-- Vehicle lookup behaviour simplified: if VEHICLE_SK = -99, assume lookup would supply values -->
+        <Map from="VEHICLE_SK" to="VEHICLE_SK"/>
+        <Map from="VARIANT_SK" to="VARIANT_SK"/>
+        <Map from="SUPP_SK" to="SUPP_SK"/>
+        <Map from="CUSTOMER_SK" to="CUSTOMER_SK"/>
+        <Map from="RENTAL_BOOKING_SK" to="RENTAL_BOOKING_SK"/>
+        <Map from="VOR_NOTE_SK" to="VOR_NOTE_SK"/>
+        <Map from="VOR_REGISTRATION_NUMBER" to="VOR_REGISTRATION_NUMBER"/>
+        <Map from="CAPTURED_GARAGE_NAME" to="CAPTURED_GARAGE_NAME"/>
+        <Map from="CONTACT_DRIVER_NAME" to="CONTACT_DRIVER_NAME"/>
+        <Map from="MILEAGE" to="MILEAGE"/>
+        <Map from="VOR_INCIDENT_SOURCE" to="VOR_INCIDENT_SOURCE"/>
+        <Map from="VOR_WORK" to="VOR_WORK"/>
+        <Map from="CRS_LOG_ID" to="CRS_LOG_ID"/>
+        <Map from="NUMBER_OF_DAYS_VOR" to="NUMBER_OF_DAYS_VOR"/>
+        <Map from="COMPLETION_TO_COLLECT_DAYS" to="COMPLETION_TO_COLLECT_DAYS"/>
+
+        <!-- Derived column example: DESCRIPTION as in uploaded file -->
+        <Derived name="DESCRIPTION" expression="
+          CASE WHEN SUPP_SK = -99 THEN 'Unknown' ELSE 'Duplicates' END
+        "/>
+      </Derivations>
+
+      <!-- Routing: send exceptions (svException = -1) to exception file; others to target -->
+      <Constraints>
+        <Constraint name="To_Exception_File" expression="svException = -1" output="Load_VOR_Exception_File"/>
+        <Constraint name="To_Target" expression="svException = 0" output="Load_To_Target"/>
+      </Constraints>
+    </Stage>
+
+    <!-- Target: Oracle connector (single target table) -->
+    <Stage id="TrxOutput_Target" type="OracleConnector" role="target">
+      <Properties>
+        <Server>#psOraDB.pSID#</Server>
+        <Username>#psOraDB.pUserID#</Username>
+        <Password>#psOraDB.pPassword#</Password>
+        <Version>10g</Version>
+        <WriteMode>TRUNCATE_LOAD</WriteMode>
+        <CommitEvery>2000</CommitEvery>
+        <TableName>STAGE_SMR.STG_VEHICLE_OFF_ROAD_FACT</TableName>
+      </Properties>
+
+      <InputLink ref="Load_To_Target"/>
+      <ColumnMapping>
+        <!-- Map transformer outputs to target columns (subset) -->
+        <Map from="WORKSHEET_NUMBER" to="WORKSHEET_NUMBER"/>
+        <Map from="ORIGINAL_WORKSHEET_NUMBER" to="ORIGINAL_WORKSHEET_NUMBER"/>
+        <Map from="VOR_PROGRESS_SK" to="VOR_PROGRESS_SK"/>
+        <Map from="REGISTERED_CUST_DRIVER_SK" to="REGISTERED_CUST_DRIVER_SK"/>
+        <Map from="VEHICLE_SK" to="VEHICLE_SK"/>
+        <Map from="VARIANT_SK" to="VARIANT_SK"/>
+        <Map from="SUPP_SK" to="SUPP_SK"/>
+        <Map from="CUSTOMER_SK" to="CUSTOMER_SK"/>
+        <Map from="VOR_REGISTRATION_NUMBER" to="VOR_REGISTRATION_NUMBER"/>
+        <Map from="CAPTURED_GARAGE_NAME" to="CAPTURED_GARAGE_NAME"/>
+        <Map from="CONTACT_DRIVER_NAME" to="CONTACT_DRIVER_NAME"/>
+        <Map from="MILEAGE" to="MILEAGE"/>
+        <Map from="VOR_INCIDENT_SOURCE" to="VOR_INCIDENT_SOURCE"/>
+        <Map from="VOR_WORK" to="VOR_WORK"/>
+        <Map from="CRS_LOG_ID" to="CRS_LOG_ID"/>
+        <Map from="NUMBER_OF_DAYS_VOR" to="NUMBER_OF_DAYS_VOR"/>
+        <Map from="COMPLETION_TO_COLLECT_DAYS" to="COMPLETION_TO_COLLECT_DAYS"/>
+        <Map from="DESCRIPTION" to="DESCRIPTION"/>
+      </ColumnMapping>
+    </Stage>
+
+    <!-- Exception file output (CSV) -->
+    <Stage id="Load_VOR_Exception_File" type="SeqFile" role="output">
+      <Properties>
+        <FileName>#pSMROutputPath#/#pVOR_Exception_FileName#_#pFiledate#.csv</FileName>
+        <Delimiter>,</Delimiter>
+        <QuoteChar>"</QuoteChar>
+        <UnicodeBOM>true</UnicodeBOM>
+      </Properties>
+      <InputLink ref="Load_VOR_Exception_File"/>
+      <Columns>
+        <Column name="WORKSHEET_NUMBER" type="VARCHAR" length="20"/>
+        <Column name="SUPP_SK" type="INTEGER"/>
+        <Column name="DESCRIPTION" type="VARCHAR" length="50"/>
+      </Columns>
+    </Stage>
+
+  </Job>
+</DSExport>
