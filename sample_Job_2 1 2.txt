@@ -1,0 +1,353 @@
+Pseudo code and lineage diagram generated successfully
+
+
+
+// DataStage Job: jbSMR3010251UpdVORExceptionReport
+// Parent Tag: DSExport
+// Description: Loads the table VORexceptionreports
+
+JOB_CONFIGURATION:
+    JOB_NAME: jbSMR3010251UpdVORExceptionReport
+    JOB_VERSION: 56.0.0
+    CATEGORY: \Jobs\003 Warehouse\04 SMR\QA\30 Operational Reports\10 Stage
+    JOB_TYPE: 0
+    CONTAINER: V0
+    EXECUTION_MODE: Sequential
+
+PARAMETERS:
+    pSMROutputPath: STRING, DEFAULT="/d/ftpdata/DEV/VOR/Outbound/"
+    psOraDB: PARAMETER_SET, DEFAULT="(As pre-defined)"
+    pVOR_Exception_Report: STRING, DEFAULT="VOR_Exceptions_Report"
+    pFiledate: STRING, DEFAULT="20151221"
+
+// SOURCE STAGE 1: Oracle Connector - Garage Mapping Source
+STAGE: V118S2 (Src_VOR_I247_GARAGE_MAPPING)
+    STAGE_TYPE: CustomStage/OracleConnector
+    PARENT_TAG: Source
+    PARENT: jbSMR3010251UpdVORExceptionReport
+    OPERATION: Extract
+    ENGINE: SE
+    READONLY: False
+    
+    CONNECTION_CONFIG:
+        Server: #psOraDB.pSID#
+        Username: #psOraDB.pUserID#
+        Password: #psOraDB.pPassword#
+        OSLevelAuthentication: false
+        Version: 10g
+        VariantName: 10
+        VariantLibrary: ccora10g
+        VariantVersion: 1.0
+        SupportedVariantsVersions: "1.0,1.0"
+    
+    TRANSACTION_SETTINGS:
+        IsolationLevel: 0
+        RecordCount: 2000
+        ArraySize: 2000
+        PrefetchRowCount: 1
+        TreatFetchTruncateAsError: true
+        FailOnRowErrorSE: false
+        transactionModel: 0
+        transactionManager: local
+        supportedTransactionModel: local
+    
+    REJECT_CONFIGURATION:
+        RejectFromLink: -1
+        RejectThreshold: 0
+        RejectNumber: 0
+        RejectUsesPercentage: false
+        XMLRejectSettings: Custom Property Configuration
+    
+    SQL_QUERY:
+        SQL query found
+        SELECT FROM_I247_GARAGE, CREATED_ON FROM SUPPLIERDATA_EXT.VOR_I247_GARAGE_MAPPING;
+    
+    STAGE_LOGIC:
+        INITIALIZE custom_stage_V118S2 with SE engine
+        SET transactionManager property to local support
+        CONFIGURE Oracle Database Connection Interface
+        SET connection parameters with Oracle database
+        SET reject_threshold = 0
+        CONFIGURE XML rejection handling settings
+        CONNECT to Oracle database using connection parameters
+        EXECUTE SQL query to fetch data from SUPPLIERDATA_EXT.VOR_I247_GARAGE_MAPPING table
+        OUTPUT columns FROM_I247_GARAGE and CREATED_ON to next stage
+    
+    OUTPUT_COLUMNS: FROM_I247_GARAGE_NAME, CREATED_ON
+    OUTPUT_LINK: V118S2P1 (LkpCorrectionExists)
+    LINK_TARGET: V118S0
+
+// OUTPUT CONNECTOR: Oracle Connector Output from V118S2
+STAGE: V118S2P1
+    STAGE_TYPE: CustomOutput/OracleConnector
+    PARENT: V118S2
+    PARENT_TAG: CustomOutput
+    CONFIGURATION:
+        VariantName: 10
+        VariantLibrary: ccora10g
+        VariantVersion: 1.0
+        ConnectorName: OracleConnector
+        MODE: Readonly=0
+    
+    REJECT_HANDLING:
+        RejectFromLink: -1
+        RejectThreshold: 0
+        RejectNumber: 0
+        RejectUsesPercentage: false
+    
+    OUTPUT_COLUMNS:
+        FROM_I247_GARAGE_NAME: VARCHAR(255), Nullable=Yes, KeyPosition=1
+        CREATED_ON: TIMESTAMP(19), Nullable=Yes, KeyPosition=0, TableReference=PlugIn\ORAOCI9\VOR_I247_GARAGE_MAPPING
+    
+    PROCESSING_LOGIC:
+        INITIALIZE Oracle connector with variant library ccora10g version 1.0
+        CONFIGURE rejection handling with threshold 0 and count 0
+        SET rejection percentage mode to false
+        PREPARE data output with columns FROM_I247_GARAGE_NAME and CREATED_ON
+        EXECUTE data output to Oracle target system
+    
+    INPUT_LINK: LkpCorrectionExists_Output
+    OUTPUT_LINK: V118S2P1_Output
+    LINK_TARGET: V118S0
+
+// PROCESSING STAGE 1: Hashed File Lookup - Correction Check
+STAGE: V118S0 (LkpCorrectionExists)
+    STAGE_TYPE: HashedFileStage/HashedInput
+    PARENT_TAG: Processing
+    PARENT: jbSMR3010251UpdVORExceptionReport
+    INPUT_LINK: V118S2P1_Output (FROM V118S2P1)
+    PARTNER_LINK: V118S2|V118S2P1
+    
+    HASHED_FILE_PROPERTIES:
+        File_Name: HF_I247_GARAGE_MAPPING_EXCEPTIONS
+        Clear_File: True
+        Create_File_Options: DYNAMIC
+        InMemory: 0
+        Normalize: Un-Normalized
+    
+    STAGE_LOGIC:
+        RECEIVE data from INPUT_LINK V118S2P1_Output
+        LOOKUP existing corrections in hashed file
+        CHECK if correction exists for current record
+        Key-based data access and retrieval
+        PROCESS lookup correction existence check
+        HANDLE custom output operations
+    
+    COLUMNS: FROM_I247_GARAGE_NAME, CREATED_ON
+    OUTPUT_LINK: lkI247GarageMappingExists
+    LINK_TARGET: V0S13
+    LINK_TYPE: Transaction_Input
+
+// LOOKUP OUTPUT: Correction Exists Output
+STAGE: LkpCorrectionExists
+    STAGE_TYPE: CustomOutput
+    PARENT: V118S0
+    LINK_ID: V118S2P1
+    INPUT_FROM: V118S0P1
+    LINK_TYPE: CustomOutput
+    LINK_MINIMISED: False
+    
+    PROCESSING_LOGIC:
+        PROCESS lookup correction existence check
+        HANDLE custom output operations from parent stage V118S0
+    
+    INPUT_LINK: V118S0P1
+    OUTPUT_LINK: V118S2P1
+
+// SOURCE STAGE 2: Oracle Connector - Exception Reports Source
+STAGE: V0S35 (LkpVorExceptionReports)
+    STAGE_TYPE: CustomStage/OracleConnector
+    PARENT_TAG: Database_Source_Stage
+    PARENT: jbSMR3010251UpdVORExceptionReport
+    STAGE_ROLE: Source
+    OPERATION: Select
+    
+    CONNECTION_PROPERTIES:
+        Server: #psOraDB.pSID#
+        Username: #psOraDB.pUserID#
+        Password: #psOraDB.pPassword#
+        Version: 10g
+        OSLevelAuthentication: false
+        VariantName: 10
+        VariantLibrary: ccora10g
+    
+    SQL_QUERY:
+        SQL query found
+        SELECT worksheet_number,original_worksheet_number,registration_number,GARAGE_NAME FROM Supplierdata_ext.VOR_EXCEPTIONS WHERE RESOLVED_DATE IS NULL;
+    
+    OUTPUT_COLUMNS:
+        GARAGE_NAME: VARCHAR(255), Nullable=True
+        registration_number: VARCHAR(10), Nullable=True
+        original_worksheet_number: VARCHAR(20), Nullable=True
+        worksheet_number: VARCHAR(20), Nullable=True
+    
+    OUTPUT_LINK: DSLink_V0S35_to_RejectDataElements
+    LINK_TARGET: RejectDataElements
+
+// PROCESSING STAGE 2: Reject Data Elements Processing
+STAGE: RejectDataElements
+    STAGE_TYPE: CustomStage
+    PARENT: jbSMR3010251UpdVORExceptionReport
+    STAGE_ROLE: Processing
+    INPUT_LINK: DSLink_V0S35_to_RejectDataElements (FROM V0S35)
+    
+    INPUT_COLUMNS:
+        GARAGE_NAME: string
+        registration_number: string
+        original_worksheet_number: string
+        worksheet_number: string
+    
+    PROCESSING_LOGIC:
+        EXECUTE custom rejection data processing
+        APPLY error handling and data validation
+        EVALUATE reject condition evaluation
+    
+    OUTPUT_COLUMNS:
+        GARAGE_NAME: string
+        registration_number: string
+        original_worksheet_number: string
+        worksheet_number: string
+    
+    OUTPUT_LINK: DSLink_RejectDataElements_to_NextStage
+    LINK_TARGET: V0S13
+
+// TRANSFORMATION STAGE: Exception Report Transformer
+STAGE: V0S13 (TrExceptionReport)
+    STAGE_TYPE: CTransformerStage
+    PARENT: jbSMR3010251UpdVORExceptionReport
+    INPUT_LINKS: 
+        lkI247GarageMappingExists (FROM V118S0)
+        DSLink_RejectDataElements_to_NextStage (FROM RejectDataElements)
+    OUTPUT_LINKS: 
+        V0S13P2 (lkIns)
+        V0S13_to_V0S35 (LkpExceptionReport)
+    
+    STAGE_VARIABLES:
+        svInsUpd: If Not(IsNULL(lkI247GarageMappingExists.FROM_I247_GARAGE_NAME)) then 'U' ELSE 'N'
+        DATA_TYPE: SqlType=3
+        SOURCE_COLUMN: lkI247GarageMappingExists.FROM_I247_GARAGE_NAME
+    
+    TRANSFORMATION_LOGIC:
+        EVALUATE svInsUpd = If Not(IsNULL(lkI247GarageMappingExists.FROM_I247_GARAGE_NAME)) then 'U' ELSE 'N'
+    
+    OUTPUT_LINK_1: lkIns (V0S13P2)
+        LINK_TYPE: TrxOutput
+        PARTNER_STAGE: V0S14P1
+        CONSTRAINT: svInsUpd='U'
+        FILTER_CONDITION: svInsUpd = 'U'
+        
+        COLUMN_MAPPINGS:
+            GARAGE_NAME: VARCHAR(255), NULLABLE, KEY_POSITION=1, DERIVED_FROM=RejectDataElements.GARAGE_NAME
+            RESOLVED_DATE: TIMESTAMP(19), NULLABLE, DERIVED_FROM=lkI247GarageMappingExists.CREATED_ON
+            worksheet_number: VARCHAR(20), DERIVED_FROM=RejectDataElements.worksheet_number
+            original_worksheet_number: VARCHAR(20), DERIVED_FROM=RejectDataElements.original_worksheet_number
+            registration_number: VARCHAR(10), DERIVED_FROM=RejectDataElements.registration_number
+    
+    OUTPUT_LINK_2: LkpExceptionReport (V0S13_to_V0S35)
+        LINK_TARGET: V0S35P1
+        COLUMN_MAPPINGS:
+            WORKSHEET_NUMBER: VARCHAR(20), Nullable=True, KeyPosition=0
+            ORIGINAL_WORKSHEET_NUMBER: VARCHAR(20), Nullable=True, Key=False
+            REGISTRATION_NUMBER: VARCHAR(10), Nullable=True, KeyPosition=0
+            GARAGE_NAME: VARCHAR(255), Nullable=True, KeyPosition=1
+
+// PROCESSING STAGE 3: Oracle Connector Output
+STAGE: V0S35P1
+    STAGE_TYPE: CustomOutput/OracleConnector
+    PARENT: V0S35
+    READONLY: false
+    CONNECTOR_CONFIG: VariantName=10, VariantLibrary=ccora10g, VariantVersion=1.0
+    REJECT_HANDLING: RejectFromLink=-1, RejectThreshold=0, RejectNumber=0, RejectUsesPercentage=false
+    INPUT_LINK: LkpExceptionReport (FROM V0S13)
+    OUTPUT_LINK: V0S35P1_Out
+    LINK_TARGET: V0S14
+    
+    OUTPUT_COLUMNS:
+        WORKSHEET_NUMBER: VARCHAR(20), Nullable=True, KeyPosition=0
+        ORIGINAL_WORKSHEET_NUMBER: VARCHAR(20), Nullable=True, Key=False
+        REGISTRATION_NUMBER: VARCHAR(10), Nullable=True, KeyPosition=0
+        GARAGE_NAME: VARCHAR(255), Nullable=True, KeyPosition=1
+
+// TARGET STAGE: Oracle Connector - Update VOR Exception Reports
+STAGE: V0S14 (UpdVORExceptionReports)
+    STAGE_TYPE: CustomStage/OracleConnector
+    PARENT: jbSMR3010251UpdVORExceptionReport
+    STAGE_ROLE: Target
+    OPERATION: Update
+    
+    CONNECTION_PROPERTIES:
+        Server: #psOraDB.pSID#
+        Username: #psOraDB.pUserID#
+        Password: #psOraDB.pPassword#
+        Version: 10g
+        OSLevelAuthentication: false
+        VariantName: 10
+        VariantLibrary: ccora10g
+    
+    UPDATE_OPERATION:
+        TABLE_NAME: SUPPLIERDATA_EXT.VOR_EXCEPTIONS
+        UPDATE_ACTION: Update existing records
+        KEY_COLUMNS: WORKSHEET_NUMBER, REGISTRATION_NUMBER, GARAGE_NAME
+        
+    INPUT_LINK: V0S35P1_Out (FROM V0S35P1)
+    
+    INPUT_COLUMNS:
+        WORKSHEET_NUMBER: VARCHAR(20), Key=True
+        ORIGINAL_WORKSHEET_NUMBER: VARCHAR(20)
+        REGISTRATION_NUMBER: VARCHAR(10), Key=True
+        GARAGE_NAME: VARCHAR(255), Key=True
+        RESOLVED_DATE: TIMESTAMP(19)
+    
+    STAGE_LOGIC:
+        CONNECT to Oracle database using connection parameters
+        RECEIVE input data from V0S35P1_Out link
+        UPDATE SUPPLIERDATA_EXT.VOR_EXCEPTIONS table
+        SET RESOLVED_DATE = input.RESOLVED_DATE
+        WHERE WORKSHEET_NUMBER = input.WORKSHEET_NUMBER
+        AND REGISTRATION_NUMBER = input.REGISTRATION_NUMBER
+        AND GARAGE_NAME = input.GARAGE_NAME
+        COMMIT transaction
+        HANDLE any update errors or exceptions
+
+// OUTPUT CONNECTOR: Oracle Connector Output from V0S14
+STAGE: V0S14P1
+    STAGE_TYPE: CustomOutput/OracleConnector
+    PARENT: V0S14
+    READONLY: false
+    CONNECTOR_CONFIG: VariantName=10, VariantLibrary=ccora10g, VariantVersion=1.0
+    REJECT_HANDLING: RejectFromLink=-1, RejectThreshold=0, RejectNumber=0, RejectUsesPercentage=false
+    INPUT_LINK: lkIns (FROM V0S13P2)
+    
+    INPUT_COLUMNS:
+        GARAGE_NAME: VARCHAR(255), Nullable=True, KeyPosition=1
+        RESOLVED_DATE: TIMESTAMP(19), Nullable=True
+        worksheet_number: VARCHAR(20)
+        original_worksheet_number: VARCHAR(20)
+        registration_number: VARCHAR(10)
+
+// JOB FLOW SUMMARY:
+EXECUTION_FLOW:
+    1. V118S2 (Src_VOR_I247_GARAGE_MAPPING) -> Extract garage mapping data from Oracle
+    2. V118S2P1 -> Output garage mapping data
+    3. V118S0 (LkpCorrectionExists) -> Lookup existing corrections in hashed file
+    4. V0S35 (LkpVorExceptionReports) -> Extract exception reports from Oracle
+    5. RejectDataElements -> Process and validate exception data
+    6. V0S13 (TrExceptionReport) -> Transform and determine update/insert logic
+    7. V0S35P1 -> Output transformed exception data
+    8. V0S14 (UpdVORExceptionReports) -> Update VOR exception reports in Oracle
+    9. V0S14P1 -> Final output connector
+
+DATA_LINEAGE:
+    SOURCE_TABLES:
+        - SUPPLIERDATA_EXT.VOR_I247_GARAGE_MAPPING
+        - SUPPLIERDATA_EXT.VOR_EXCEPTIONS
+    
+    TARGET_TABLES:
+        - SUPPLIERDATA_EXT.VOR_EXCEPTIONS (Updated with RESOLVED_DATE)
+    
+    TRANSFORMATION_LOGIC:
+        - Lookup garage mapping corrections
+        - Filter unresolved exceptions (RESOLVED_DATE IS NULL)
+        - Determine update flag based on garage mapping existence
+        - Update resolved date for matching records
+

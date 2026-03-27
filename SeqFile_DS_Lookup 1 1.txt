@@ -1,0 +1,321 @@
+Pseudo code and lineage diagram generated successfully
+
+
+
+// DataStage Export Header Configuration
+EXPORT_HEADER:
+    Character_Set: CP1252
+    Exporting_Tool: IBM InfoSphere DataStage Export
+    Tool_Version: 8
+    Server_Name: EDMATALEND
+    Tool_Instance_ID: dstage1
+    Export_Date: 2021-12-09
+    Export_Time: 12.55.34
+    Server_Version: 11.7
+
+// Parent Tag: DSExport
+PARENT_CONTAINER: DSExport
+    CHILD_ELEMENT: Header
+        INPUT_LINKS: None
+        OUTPUT_LINKS: None
+
+JOB: SeqFile_DS_LookUp
+    VERSION: 56.0.0
+    CATEGORY: \Jobs\Vidya
+    LAST_MODIFIED: 2021-12-09 12.55.15
+    PARENT: Job (Container View)
+    
+    RUNTIME_OPTIONS:
+        AdvancedRuntimeOptions: #DSProjectARTOptions#
+        ClientCodePage: 1252
+        CenturyBreakYear: 30
+        TransactionSize: 0
+        AllowMultipleInvocations: 0
+        EnableCacheSharing: 0
+        RuntimeColumnPropagation: 0
+        RecordPerformanceResults: 0
+        ValidationStatus: 0
+        TraceOption: 0
+
+    STAGE_IDENTIFIERS: Sequential_File_Input|Lookup|SeqFile_Lookup|Sequential_File_Output
+
+    STAGE_DEFINITIONS:
+        Stage_1: Sequential_File_Input (V0S22) - Type: PxSequentialFile
+        Stage_2: Lookup (V0S23) - Type: PxLookup  
+        Stage_3: SeqFile_Lookup (V1S0) - Type: PxSequentialFile
+        Stage_4: Sequential_File_Output (V0S28) - Type: PxSequentialFile
+
+    LINK_DEFINITIONS:
+        DSLink3: Sequential_File_Input -> Lookup (Type: 1, HasMetaData: True)
+        DSLink4: Lookup -> Sequential_File_Output (Type: 1, HasMetaData: True)
+        DSLink27: SeqFile_Lookup -> Lookup (Type: 2, HasMetaData: True)
+
+// SOURCE STAGE - Sequential File Input
+STAGE: Sequential_File_Input
+    STAGE_ID: V0S22
+    TYPE: PxSequentialFile (Sequential File Connector)
+    PARENT: Job
+    OUTPUT_PIN: V0S22P1
+    EXECUTION_MODE: 1
+    COLUMN_MAPPING: Disabled
+    NEXT_RECORD_ID: 0
+    
+    PROPERTIES:
+        FILE_PATH: E:\Empl-inputDS2ADF.csv
+        REJECT_HANDLING: continue
+        PROGRESS_REPORTING: yes
+        FIRST_LINE_COLUMN_NAMES: firstLineColumnNames
+        KEEP_PARTITIONS: 20
+        MISSING_FILE_HANDLING: default
+        
+    CONFIGURATION:
+        SchemaFormat: final_delim=end, delim=',', quote=double
+        DiskWriteInc: 1048576
+        BufFreeRun: 50
+        MaxMemBufSize: 3145728
+        QueueUpperSize: 0
+        
+    OUTPUT_COLUMNS:
+        name: SqlType=1, Precision=0, Scale=0, Nullable=0, KeyPosition=0, DisplaySize=0, ExtendedPrecision=0
+        emp_id: INTEGER, NOT_NULL, NO_KEY
+        dept_id: INTEGER, NOT_NULL, NO_KEY
+        salary: SQL_TYPE=4, PRECISION=0, SCALE=0, NULLABLE=False, KEY_POSITION=0, DISPLAY_SIZE=0, EXTENDED_PRECISION=0
+        
+    PROCESSING_LOGIC:
+        read source_data from E:\Empl-inputDS2ADF.csv
+        APPLY schema formatting with comma delimiter and double quotes
+        SET disk write increment to 1048576 bytes
+        CONFIGURE buffer free run to 50
+        SET maximum memory buffer size to 3145728 bytes
+        SET queue upper size to 0
+        SEND data to OUTPUT_LINK V0S22P1
+        
+    OUTPUT_LINK: DSLink3
+        TARGET_STAGE: V0S23P2
+        LINK_TYPE: CustomOutput
+        READONLY: 0
+        LINK_MINIMISED: 0
+
+// SOURCE STAGE - Lookup File
+STAGE: SeqFile_Lookup
+    STAGE_ID: V1S0
+    TYPE: PxSequentialFile (Sequential File Connector)
+    PARENT: Job
+    OUTPUT_PIN: V1S0P2
+    EXECUTION_MODE: 1
+    READONLY: False
+    
+    PROPERTIES:
+        FILE_PATH: E:\Dept-inputDS2ADF.csv
+        SELECTION: file
+        FIRST_LINE_COLUMN_NAMES: enabled
+        KEEP_PARTITIONS: 20
+        REJECTS: continue
+        REPORT_PROGRESS: yes
+        MISSING_FILE: 20
+        
+    CONFIGURATION:
+        SchemaFormat: final_delim=end, delim=',', quote=double
+        DiskWriteInc: 1048576
+        BufFreeRun: 50
+        MaxMemBufSize: 3145728
+        QueueUpperSize: 0
+    
+    OUTPUT_COLUMNS:
+        dept_id: INTEGER, NOT_NULL, KeyPosition=1
+        dept_name: SqlType=1, Precision=0, Scale=0, Nullable=False, KeyPosition=0
+        
+    PROCESSING_LOGIC:
+        read sequential file FROM E:\Dept-inputDS2ADF.csv
+        CONFIGURE output format with comma delimiter and double quotes
+        SET disk write increment to 1048576 bytes
+        SET buffer free run to 50
+        SET maximum memory buffer size to 3145728 bytes
+        SET queue upper size to 0
+        PARSE first line as column names
+        MAP dept_id FROM source AS key_column
+        MAP dept_name FROM source
+        OUTPUT TO DSLink27
+    
+    OUTPUT_LINK: DSLink27
+        TARGET_STAGE: Lookup
+        LINK_TYPE: 2
+        READONLY: 0
+
+// PROCESSING STAGE - Lookup
+STAGE: Lookup
+    STAGE_ID: V0S23
+    TYPE: PxLookup
+    PARENT: Job
+    EXECUTION_MODE: 2
+    OUTPUT_PIN: V0S23P1
+    
+    INPUT_LINKS:
+        INPUT_LINK_1: DSLink3
+            SOURCE_STAGE: Sequential_File_Input
+            LINK_TYPE: 1
+            PIN: V0S23P2
+            COLUMNS: name, emp_id, dept_id, salary
+            
+        INPUT_LINK_2: DSLink27
+            SOURCE_STAGE: SeqFile_Lookup
+            LINK_TYPE: 2
+            PIN: V0S23P3
+            COLUMNS: dept_id, dept_name
+            
+    LOOKUP_OPERATION:
+        Operator: lookup
+        AllowColumnMapping: False
+        CONDITION_NOT_MET: fail
+        LOOKUP_FAIL: fail
+        ALLOW_DUPLICATES: enabled
+        
+    PROCESSING_LOGIC:
+        RECEIVE main_data from DSLink3 (V0S23P2)
+        RECEIVE reference_data from DSLink27 (V0S23P3)
+        PERFORM lookup operation between main_data and reference_data using dept_id as key
+        JOIN main data with lookup data
+        APPLY business transformation logic
+        HANDLE lookup failures and conditions
+        SEND enriched_data to Output_Link (V0S23P1)
+        
+    OUTPUT_COLUMNS:
+        name: SqlType=1, Precision=0, Scale=0, Nullable=False, KeyPosition=0, SOURCE=DSLink3.name
+        emp_id: INTEGER, NOT_NULL, SOURCE=DSLink3.emp_id
+        dept_id: INTEGER, NOT_NULL, DERIVED_FROM=DSLink3.dept_id
+        salary: INTEGER, NOT_NULL, SOURCE=DSLink3.salary
+        dept_name: SqlType=1, Precision=0, Scale=0, Nullable=False, SOURCE=DSLink27.dept_name
+
+    TRANSFORMATION_LOGIC:
+        SELECT 
+            DSLink3.name AS name,
+            DSLink3.emp_id AS emp_id,
+            DSLink3.dept_id AS dept_id,
+            DSLink3.salary AS salary,
+            DSLink27.dept_name AS dept_name
+        FROM DSLink3, DSLink27
+        WHERE DSLink3.dept_id = DSLink27.dept_id
+        
+    OUTPUT_LINK: DSLink4
+        TARGET_STAGE: Sequential_File_Output
+        LINK_TYPE: 1
+
+// TARGET STAGE - Sequential File Output
+STAGE: Sequential_File_Output
+    STAGE_ID: V0S28
+    TYPE: PxSequentialFile (Sequential File Connector)
+    PARENT: Job
+    EXECUTION_MODE: 1
+    INPUT_PIN: V0S28P1
+    COLUMN_MAPPING: Disabled
+    
+    INPUT_LINK: DSLink4
+        SOURCE_STAGE: Lookup
+        LINK_TYPE: CustomOutput
+        SOURCE_PIN: V0S23P1
+        TARGET_PIN: V0S28P1
+        LINK_STATUS: Active
+        
+    PROPERTIES:
+        FILE_PATH: E:\sample_res.csv
+        MODE: overwrite
+        FIRST_LINE_COLUMN_NAMES: enabled
+        REJECTS_HANDLING: continue
+        NO_CLEANUP: enabled
+        
+    CONFIGURATION:
+        DELIMITER: ','
+        QUOTE_CHARACTER: double
+        FINAL_DELIMITER: end
+        
+    INPUT_COLUMNS:
+        name: SqlType=1, Precision=0, Scale=0, Nullable=False
+        emp_id: INTEGER, NOT_NULL
+        dept_id: INTEGER, NOT_NULL
+        salary: INTEGER, NOT_NULL
+        dept_name: SqlType=1, Precision=0, Scale=0, Nullable=False
+        
+    PROCESSING_LOGIC:
+        RECEIVE transformed data from DSLink4
+        CONFIGURE output file properties
+        SET file path to E:\sample_res.csv
+        SET mode to overwrite
+        ENABLE first line column names
+        SET reject handling to continue
+        WRITE data to output sequential file
+        APPLY output file formatting with comma delimiter and double quotes
+        COMPLETE file output operation
+
+// LINK CONFIGURATIONS
+LINK: DSLink3
+    TYPE: CustomInput
+    SOURCE_STAGE: V0S22
+    SOURCE_PIN: V0S22P1
+    TARGET_STAGE: V0S23
+    TARGET_PIN: V0S23P2
+    LINK_TYPE: 1
+    CONDITION_NOT_MET: fail
+    LOOKUP_FAIL: fail
+    PROPERTIES: allow_dups = 20
+    TRANSACTION_CONFIG: TransactionSize=0, TXNBehaviour=0, EnableTxGroup=0
+    LINK_STATUS: LinkMinimised=0
+
+LINK: DSLink27
+    TYPE: CustomInput (Lookup Link)
+    SOURCE_STAGE: V1S0
+    SOURCE_PIN: V1S0P2
+    TARGET_STAGE: V0S23
+    TARGET_PIN: V0S23P3
+    LINK_TYPE: 2
+    CONDITION_NOT_MET: fail
+    LOOKUP_FAIL: fail
+    ALLOW_DUPLICATES: enabled
+    TRANSACTION_SETTINGS:
+        TRANSACTION_SIZE: 0
+        TRANSACTION_BEHAVIOR: 0
+        ENABLE_TRANSACTION_GROUP: disabled
+    RUNTIME_PROPERTIES:
+        RT_COLUMN_PROP: 0
+        LINK_MINIMIZED: disabled
+
+LINK: DSLink4
+    TYPE: CustomOutput
+    SOURCE_STAGE: V0S23
+    SOURCE_PIN: V0S23P1
+    TARGET_STAGE: V0S28
+    TARGET_PIN: V0S28P1
+    LINK_TYPE: 1
+    CONDITION_NOT_MET: fail
+    LOOKUP_FAIL: fail
+    TRANSACTION_SETTINGS:
+        Transaction_Size: 0
+        Transaction_Behavior: 0
+        Enable_Transaction_Group: disabled
+    LINK_STATUS: Active
+
+// EXECUTION FLOW SEQUENCE
+EXECUTION_FLOW:
+    1. Sequential_File_Input (V0S22) -> V0S22P1 -> DSLink3 -> V0S23P2 -> Lookup (V0S23)
+    2. SeqFile_Lookup (V1S0) -> V1S0P2 -> DSLink27 -> V0S23P3 -> Lookup (V0S23)
+    3. Lookup (V0S23) -> V0S23P1 -> DSLink4 -> V0S28P1 -> Sequential_File_Output (V0S28)
+
+// OVERALL DATA FLOW
+DATA_FLOW_SUMMARY:
+    SOURCE_FILES:
+        - E:\Empl-inputDS2ADF.csv (Employee data: name, emp_id, dept_id, salary)
+        - E:\Dept-inputDS2ADF.csv (Department data: dept_id, dept_name)
+    
+    TARGET_FILE:
+        - E:\sample_res.csv (Enriched employee data with department names)
+    
+    TRANSFORMATION_LOGIC:
+        - Read employee data from CSV file
+        - Read department lookup data from CSV file
+        - Perform lookup join on dept_id
+        - Enrich employee records with department names
+        - Write enriched data to output CSV file
+    
+    BUSINESS_LOGIC:
+        - Employee-Department data enrichment
+        - Lookup-based data integration
+        - CSV-to-CSV transformation with lookup enhancement

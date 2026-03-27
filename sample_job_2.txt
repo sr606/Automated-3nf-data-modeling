@@ -1,0 +1,230 @@
+Pseudo code and lineage diagram generated successfully
+
+// DataStage Export Header Configuration
+EXPORT_METADATA:
+Character_Set: CP1252
+Exporting_Tool: IBM InfoSphere DataStage Export
+Tool_Version: 8
+Server_Name: EDMATALEND
+Tool_Instance_ID: dstage1
+Export_Date: 2021-12-09
+Export_Time: 12.50.40
+Server_Version: 11.7
+// Parent Tag: DSExport
+INITIALIZE_DATASTAGE_EXPORT_CONTAINER:
+SET encoding = UTF-8
+SET export_context = DSExport
+CONFIGURE export_parameters WITH EXPORT_METADATA
+JOB_DEFINITION:
+JOB_NAME: SeqFile_DS_Aggr
+VERSION: 56.0.0
+CATEGORY: \Jobs\Vidya
+LAST_MODIFIED: 2021-12-09 12:50:26
+PARENT: Job (Container View)
+RUNTIME_OPTIONS:
+AdvancedRuntimeOptions: #DSProjectARTOptions#
+ClientCodePage: 1252
+CenturyBreakYear: 30
+TransactionSize: 0
+ParameterFileDDName: DD00001
+CONFIGURATION:
+ReservedWordCheck: 1
+ValidationStatus: 0
+AllowMultipleInvocations: 0
+ExpressionSemanticCheckFlag: 0
+EnableCacheSharing: 0
+RuntimeColumnPropagation: 0
+WebServiceEnabled: 0
+RecordPerformanceResults: 0
+CopyLibPrefix: ARDT
+STAGE_IDENTIFIERS: Sequential_File_Input|Aggregator|Sequential_File_Output
+FLOW_SEQUENCE:
+Sequential_File_Input -> Aggregator -> Sequential_File_Output
+STAGE_SEQUENCE: Sequential_File_Input -> Aggregator -> Sequential_File_Output
+STAGE_IDS: V0S22 -> V0S31 -> V0S34
+STAGE_TYPES: PxSequentialFile -> PxAggregator -> PxSequentialFile
+// SOURCE STAGE - Sequential File Input
+STAGE_Sequential_File_Input:
+STAGE_ID: V0S22
+TYPE: PxSequentialFile (Sequential File Connector)
+OUTPUT_PIN: V0S22P1
+EXECUTION_MODE: Runtime_Mode=1, Effective_Mode=1
+COLUMN_MAPPING: Disabled
+PARENT: V0S22
+    PROPERTIES:
+        schema: [not specified]
+        selection: file
+        keepPartitions: 20
+        rejects: continue
+        reportProgress: yes
+        firstLineColumnNames: firstLineColumnNames
+        file: E:\Empl-inputDS2ADF.csv
+        missingFile: [not specified]
+    
+    OUTPUT_CONFIGURATION:
+        File_Path: E:\Empl-inputDS2ADF.csv
+        Partition_Count: 20
+        Reject_Handling: continue
+        Progress_Reporting: enabled
+        Header_Row: use_first_line_as_column_names
+        Missing_File_Action: default
+    
+    OUTPUT_COLUMNS:
+        name: SqlType=1, Precision=0, Scale=0, Nullable=False, KeyPosition=0, DisplaySize=0, SortKey=0, SortType=0, LevelNo=0, Occurs=0, ExtendedPrecision=0, SCDPurpose=0
+        emp_id: INTEGER, NOT_NULL, NO_KEY, SqlType=4, Precision=0, Scale=0, Nullable=0, KeyPosition=0
+        dept_id: INTEGER, NOT_NULL, NO_KEY, SqlType=4, Precision=0, Scale=0, Nullable=0, KeyPosition=0
+        salary: INTEGER, SqlType=4, Precision=0, Scale=0, Nullable=False, KeyPosition=0
+    
+    OUTPUT_LINK: V0S22P1
+    NEXT_LINK: DSLink3 -> V0S31
+
+// SOURCE OUTPUT PIN
+STAGE_V0S22P1:
+STAGE_ID: V0S22P1
+TYPE: CustomOutput
+PARENT: V0S22
+INPUT_LINK: None
+OUTPUT_LINK: DSLink3
+CONFIGURATION: SchemaFormat=final_delim=end,delim=',',quote=double, DiskWriteInc=1048576, BufFreeRun=50, MaxMemBufSize=3145728, QueueUpperSize=0
+PROCESS:
+Generate source data output
+Apply CSV formatting with comma delimiter and double quotes
+Configure buffer settings for data transfer
+Output data to DSLink3
+// chunk pseudo code ended
+// LINK DEFINITION - DSLink3
+LINK_DSLink3:
+LINK_ID: V0S22P1
+LINK_TYPE: 1
+SOURCE_STAGE: Sequential_File_Input(V0S22)
+TARGET_STAGE: Aggregator(V0S31)
+SOURCE_PIN: V0S22P1
+TARGET_PIN: V0S31P2
+PARTNER_CONNECTION: V0S31|V0S31P2
+LINK_STATUS: Not_Minimized
+HAS_METADATA: True
+SOURCE_EXECUTION_MODE: 1
+TARGET_EXECUTION_MODE: 2
+SORT_SEQUENTIAL: False
+PARTITION_MODE: 1
+ERROR_HANDLING: ConditionNotMet=fail, LookupFail=fail
+TRANSACTION_CONFIG: TransactionSize=0, TransactionBehavior=0, EnableTransactionGroup=0
+RT_COLUMN_PROPERTY: 0
+    DATA_FLOW:
+        RECEIVE: Data from Sequential_File_Input(V0S22)
+        COLUMNS: name, emp_id, dept_id, salary
+        SEND: Data to Aggregator(V0S31)
+
+// PROCESSING STAGE - Aggregator
+STAGE_Aggregator:
+STAGE_ID: V0S31
+TYPE: PxAggregator
+INPUT_PIN: V0S31P2
+OUTPUT_PIN: V0S31P1
+EXECUTION_MODE: Runtime_Mode=2, Effective_Mode=2
+PARENT: V0S31
+    INPUT_LINK: DSLink3 (from V0S22P1)
+    OUTPUT_LINK: DSLink4
+    INPUT_COLUMNS: name, emp_id, dept_id, salary
+    
+    AGGREGATION_CONFIG: Method=hash, Selection=reduce, Null_Result=\(20)
+    GROUP_BY_KEY: dept_id
+    AGGREGATION_OPERATION: Column=salary, Operation=reduce
+    
+    AGGREGATION_LOGIC:
+        RECEIVE: Data from DSLink3
+        PERFORM: Group records by dept_id using hash method
+        PROCESS: Apply reduce operation on salary column
+        HANDLE: null results as per null_res configuration
+        OUTPUT: Aggregated results to V0S31P1
+    
+    OUTPUT_LINK: V0S31P1
+    NEXT_LINK: DSLink4 -> V0S34
+
+// chunk pseudo code ended
+// LINK DEFINITION - DSLink4
+LINK_DSLink4:
+LINK_TYPE: 1
+SOURCE_STAGE: Aggregator(V0S31)
+TARGET_STAGE: Sequential_File_Output(V0S34)
+SOURCE_PIN: V0S31P1
+TARGET_PIN: V0S34P1
+HAS_METADATA: True
+SOURCE_EXECUTION_MODE: 2
+TARGET_EXECUTION_MODE: 1
+SORT_SEQUENTIAL: False
+PARTITION_MODE: 1
+COLUMN_DEFINITION: dept_id INTEGER NOT_NULL SOURCE=DSLink3.dept_id
+BUFFER_CONFIGURATION: DiskWriteInc=1048576, BufFreeRun=50, MaxMemBufSize=3145728, QueueUpperSize=0
+    DATA_FLOW:
+        RECEIVE: Aggregated data from Aggregator(V0S31)
+        INPUT: DSLink3.dept_id
+        OUTPUT: DSLink4.dept_id->V0S34
+        SEND: Processed data to Sequential_File_Output(V0S34)
+
+// TARGET STAGE - Sequential File Output
+STAGE_Sequential_File_Output:
+STAGE_ID: V0S34
+TYPE: PxSequentialFile (Sequential File Connector)
+INPUT_PIN: V0S34P1
+EXECUTION_MODE: Runtime_Mode=1, Effective_Mode=1
+PARENT: V0S34
+COLUMN_MAPPING: Disabled
+NEXT_RECORD_ID: 0
+    INPUT_LINK: DSLink4 (from V0S31P1)
+    OUTPUT_LINK: None
+    
+    FILE_PROPERTIES: 
+        FILE_PATH: E:\sample_res.csv
+        APPEND_OVERWRITE: overwrite
+        NOCLEANUP: enabled
+        REJECTS: continue
+        FIRST_LINE_COLUMN_NAMES: firstLineColumnNames
+        WRITE_METHOD: default
+    
+    SCHEMA_FORMAT: FINAL_DELIM=end, DELIMITER=',', QUOTE=double
+    TRANSACTION_PROPERTIES: TRANSACTION_SIZE=0, TXN_BEHAVIOUR=0, ENABLE_TX_GROUP=0
+    RT_COLUMN_PROP: 0
+    LINK_MINIMISED: 0
+    
+    OUTPUT_COLUMNS:
+        dept_id: INTEGER, NOT_NULL
+    
+    LOAD_LOGIC:
+        RECEIVE: Aggregated data from DSLink4
+        WRITE: Data to sequential file E:\sample_res.csv
+        APPLY: CSV formatting with comma delimiter and double quotes
+        OVERWRITE: existing file if present
+        HANDLE: column names from first line
+        APPLY: transaction and buffer configurations
+        OUTPUT: Final processed results
+
+// chunk pseudo code ended
+// OVERALL PROCESSING FLOW
+PROCESSING_FLOW:
+1. EXTRACT: Sequential_File_Input(V0S22) reads source data from E:\Empl-inputDS2ADF.csv
+2. OUTPUT_PIN: V0S22P1 applies CSV formatting and buffer configuration
+3. LINK: DSLink3 transfers data with error handling and transaction configuration
+4. TRANSFORM: Aggregator(V0S31) performs hash-based aggregation grouping by dept_id with reduce operation on salary
+5. LINK: DSLink4 transfers aggregated data with column definitions and buffer settings
+6. LOAD: Sequential_File_Output(V0S34) writes aggregated data to E:\sample_res.csv with CSV formatting
+EXECUTION_MODES:
+Sequential_File_Input: Runtime_Mode=1, Effective_Mode=1
+Aggregator: Runtime_Mode=2, Effective_Mode=2
+Sequential_File_Output: Runtime_Mode=1, Effective_Mode=1
+COMPLETE_DATA_FLOW:
+SOURCE: E:\Empl-inputDS2ADF.csv -> Sequential_File_Input(V0S22) -> V0S22P1 -> DSLink3 -> Aggregator(V0S31) -> DSLink4 -> Sequential_File_Output(V0S34) -> E:\sample_res.csv
+// chunk pseudo code ended
+```
+
+The pseudo-code has been successfully generated along with the lineage diagram. The DataStage job "SeqFile_DS_Aggr" performs the following operations:
+
+1. **Reads** employee data from `E:\Empl-inputDS2ADF.csv` (containing name, emp_id, dept_id, salary)
+2. **Aggregates** the data by grouping on `dept_id` and applying a reduce operation on the `salary` column
+3. **Writes** the aggregated results to `E:\sample_res.csv`
+
+The lineage diagram files have been generated at:
+- High-level view: `/home/admin/gaurav_code_repo/sttm_final_v3/sttm_all_v3_new/sttm_mcp/tmp/markRuffalo_datastage_pseudo_20260327_151852/high_level.dot`
+- Technical view: `/home/admin/gaurav_code_repo/sttm_final_v3/sttm_all_v3_new/sttm_mcp/tmp/markRuffalo_datastage_pseudo_20260327_151852/technical.dot`
+
+Would you like me to proceed with Step-2 to generate the target code? If so, please specify the target language (e.g., "Python", "PySpark", etc.).

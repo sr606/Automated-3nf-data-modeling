@@ -1,0 +1,326 @@
+Pseudo code and lineage diagram generated successfully
+
+
+
+// DataStage Export Header Configuration
+EXPORT_METADATA:
+    Character_Set: CP1252
+    Exporting_Tool: IBM InfoSphere DataStage Export
+    Tool_Version: 8
+    Server_Name: EDMATALEND
+    Tool_Instance_ID: dstage1
+    Export_Date: 2021-12-09
+    Export_Time: 12.57.03
+    Server_Version: 11.7
+
+// Parent Tag: DSExport
+INITIALIZE_DATASTAGE_EXPORT_SESSION:
+    SET encoding = UTF-8
+    SET export_context = DSExport
+    CONFIGURE export_parameters WITH EXPORT_METADATA
+
+JOB: SeqFile_DS_Sorter
+JOB_VERSION: 56.0.0
+JOB_TYPE: 3
+CATEGORY: \Jobs\Vidya
+LAST_MODIFIED: 2021-12-09 12:56:44
+PARENT: Job (V0)
+
+RUNTIME_OPTIONS:
+    AdvancedRuntimeOptions: #DSProjectARTOptions#
+    ClientCodePage: 1252
+    IdentList: Sort|Sequential_File_Input|Sequential_File_Output
+
+CONFIGURATION:
+    Container: V0
+    NextID: 1
+    ParameterFileDDName: DD00001
+    TransactionSize: 0
+    CenturyBreakYear: 30
+    NextAliasID: 2
+
+FLAGS:
+    IsTemplate: 0
+    ReservedWordCheck: 1
+    ValidationStatus: 0
+    Uploadable: 0
+    AllowMultipleInvocations: 0
+    ExpressionSemanticCheckFlag: 0
+    EnableCacheSharing: 0
+    RuntimeColumnPropagation: 0
+    WebServiceEnabled: 0
+    RecordPerformanceResults: 0
+
+STAGE_LIST: [V0S22, V0S7, V0S25]
+STAGE_NAMES: [Sequential_File_Input, Sort, Sequential_File_Output]
+STAGE_TYPES: [PxSequentialFile, PxSort, PxSequentialFile]
+
+EXECUTION_MODES:
+    Sequential_File_Input: Runtime=1, Effective=1
+    Sort: Runtime=2, Effective=2
+    Sequential_File_Output: Runtime=1, Effective=1
+
+// SOURCE STAGE
+STAGE: Sequential_File_Input
+    Stage_Type: PxSequentialFile
+    Stage_ID: V0S22
+    Parent: Job (V0)
+    Allow_Column_Mapping: False
+    Output_Pins: V0S22P1
+    Next_Record_ID: 0
+    
+    PROPERTIES:
+        schema: [not specified]
+        selection: file
+        keepPartitions: 20
+        rejects: continue
+        reportProgress: yes
+        firstLineColumnNames: firstLineColumnNames
+        file: E:\Empl-inputDS2ADF.csv
+        missingFile: [not specified]
+    
+    OUTPUT_CONFIGURATION:
+        File_Path: E:\Empl-inputDS2ADF.csv
+        Partition_Count: 20
+        Header_Row: firstLineColumnNames
+        Reject_Handling: continue
+        Progress_Reporting: enabled
+    
+    OUTPUT_COLUMNS:
+        name: SqlType=1, Precision=0, Scale=0, Nullable=0, KeyPosition=0, DisplaySize=0, SortKey=0, SortType=0, ExtendedPrecision=0
+        emp_id: SqlType=4, Precision=0, Scale=0, Nullable=0, KeyPosition=0, SortKey=0, SortType=0
+        dept_id: SqlType=4, Precision=0, Scale=0, Nullable=0, KeyPosition=0, SortKey=0, SortType=0
+        salary: SqlType=1, Precision=0, Scale=0, Nullable=0, KeyPosition=0, DisplaySize=0, Group=0, SortKey=0, SortType=0, AllowCRLF=0, LevelNo=0, Occurs=0, PadNulls=0, SignOption=0, SortingOrder=0, ArrayHandling=0, SyncIndicator=0, ExtendedPrecision=0, TaggedSubrec=0, OccursVarying=0, PKeyIsCaseless=0, SCDPurpose=0
+    
+    PROCESSING_LOGIC:
+        read file E:\Empl-inputDS2ADF.csv
+        EXTRACT columns: name, emp_id, dept_id, salary
+        APPLY column metadata properties
+        OUTPUT to V0S22P1
+
+OUTPUT_LINK: DSLink3
+    SOURCE_STAGE: V0S22
+    SOURCE_OUTPUT_PIN: V0S22P1
+    TARGET_STAGE: CustomOutput_V0S7P1
+    TARGET_INPUT_PIN: V0S7P1
+    TYPE: CustomOutput
+    READONLY: False
+    LINK_STATUS: Active
+    HasMetaData: True
+    Type: 1
+    SortSequential: False
+    SortMode: 0
+
+// PARTNER STAGE PROCESSING
+STAGE: V0S22|V0S22P1
+    Stage_Type: Partner Stage
+    Parent: Job (V0)
+    Transaction_Configuration:
+        Transaction_Size: 0
+        Transaction_Behavior: 0
+        Enable_Transaction_Group: 0
+    Runtime_Properties:
+        Runtime_Column_Properties: 0
+
+INPUT_LINK: DSLink3
+    Link_Type: 1
+    Source_Stage: V0S22
+    Condition_Handling:
+        Condition_Not_Met: fail
+        Lookup_Fail: fail
+    Data_Flow: Receives data from Sequential_File_Input stage
+
+PROCESSING_LOGIC: V0S22|V0S22P1
+    Stage_Function: Partner stage processing
+    Error_Handling: Fail on condition not met or lookup failure
+    Transaction_Management: No transaction grouping enabled
+    RECEIVE data FROM DSLink3
+    APPLY partner stage transformations
+    VALIDATE data integrity
+    OUTPUT processed data TO next stage connection
+
+OUTPUT_LINK: V0S7P1_Output
+    Target: CustomOutput_V0S7P1
+    Data_Flow: Processed data forwarded to transformation stage
+
+// CUSTOM OUTPUT TRANSFORMATION STAGE
+STAGE: CustomOutput_V0S7P1
+    TYPE: CustomOutput
+    PARENT: Job_SeqFile_DS_Sorter
+    STAGE_HIERARCHY: Job -> Record(V0S7P1)
+    MODE: Readonly=0
+    INPUT_LINK: V0S7P1_Output
+    OUTPUT_LINK: V0S7P2_Input
+    
+    CONFIGURATION_PROPERTIES:
+        DiskWriteInc = 1048576
+        BufFreeRun = 50
+        MaxMemBufSize = 3145728
+        QueueUpperSize = 0
+    
+    OUTPUT_COLUMNS:
+        name: SqlType=1, Precision=0, Scale=0, Nullable=0, Derivation=DSLink3.name, Source=DSLink3.name
+        emp_id: SqlType=1, Precision=0, Scale=0, Nullable=0, Derivation=DSLink3.emp_id, SourceColumn=DSLink3.emp_id, SortKey=0, SortType=0
+        dept: Source=DSLink3.dept_id, DataType=SqlType=1, Precision=0, Scale=0, Nullable=False, Derivation=DSLink3.dept_id
+        salary: SqlType=1, Precision=0, Scale=0, Nullable=0, Derivation=DSLink3.salary
+    
+    TRANSFORMATION_LOGIC:
+        RECEIVE data FROM V0S7P1_Output
+        SELECT DSLink3.name AS name FROM input
+        MAP emp_id = DSLink3.emp_id
+        MAP dept = DSLink3.dept_id
+        MAP salary = DSLink3.salary
+        OUTPUT name, emp_id, dept, salary TO V0S7P2_Input
+
+STAGE: V0S22P1
+    TYPE: Custom Output Stage
+    CONFIGURATION:
+        SchemaFormat: final_delim=end, delim=',', quote=double
+        DiskWriteInc: 1048576
+        BufFreeRun: 50
+        MaxMemBufSize: 3145728
+        QueueUpperSize: 0
+    
+    OUTPUT_PROCESSING:
+        SET delimiter = ','
+        SET quote_character = double
+        SET final_delimiter = end
+        SET disk_write_increment = 1048576
+        SET buffer_free_run = 50
+        SET max_memory_buffer_size = 3145728
+        SET queue_upper_size = 0
+        APPLY custom_output_formatting
+        WRITE output_data WITH configuration_settings
+
+// PROCESSING STAGE - SORT
+STAGE: Sort_V0S7
+    Stage_Type: PxSort
+    Stage_ID: V0S7
+    Parent: Job (V0)
+    Input_Pins: V0S7P2
+    Output_Pins: V0S7P1
+    TYPE: Sort Stage
+    
+    PROPERTIES:
+        operator: tsort
+        stable: stable
+        unique: (empty)
+        stats: (empty)
+        key: dept_id, sort_order: asc, sort_type: sorted
+        flagCluster: (empty)
+        flagKey: (empty)
+    
+    PROCESSING_LOGIC:
+        RECEIVE data from V0S7P2_Input
+        EXECUTE sort operation on input data
+        SET sort_operator = "tsort"
+        SET sort_stability = "stable"
+        DEFINE sort_key = "dept_id"
+        SET sort_direction = "asc"
+        SET sort_type = "sorted"
+        APPLY sorting transformation to input dataset
+        PROCESS columns: name, emp_id, dept, salary
+        OUTPUT sorted dataset to V0S7P1
+
+OUTPUT_LINK: DSLink4
+    SOURCE_STAGE: Sort_V0S7
+    SOURCE_OUTPUT_PIN: V0S7P1
+    TARGET_STAGE: V0S25
+    TARGET_INPUT_PIN: V0S25P1
+    TYPE: CustomInput
+    READONLY: False
+    LINK_STATUS: Active
+    HasMetaData: True
+    Type: 1
+    SortSequential: False
+    SortMode: 0
+    PARTNER_STAGE: V0S7|V0S7P1
+    
+    ERROR_HANDLING:
+        CONDITION_NOT_MET: fail
+        LOOKUP_FAIL: fail
+    
+    TARGET_FILE_PROPERTIES:
+        FILE_PATH: E:\sample_res.csv
+        FILE_MODE: overwrite
+        FIRST_LINE_COLUMN_NAMES: enabled
+        REJECTS_HANDLING: continue
+        CLEANUP_MODE: nocleanup
+    
+    SCHEMA_FORMAT:
+        DELIMITER: ','
+        QUOTE_CHARACTER: double
+        FINAL_DELIMITER: end
+    
+    TRANSACTION_SETTINGS:
+        TRANSACTION_SIZE: 0
+        TRANSACTION_BEHAVIOR: 0
+        ENABLE_TX_GROUP: disabled
+
+// TARGET STAGE
+STAGE: Sequential_File_Output
+    Stage_Type: PxSequentialFile
+    Stage_ID: V0S25
+    Parent: Job (V0)
+    Input_Pins: V0S25P1
+    INPUT_LINKS: V0S25P1
+    OUTPUT_LINKS: None
+    Column_Mapping: Disabled
+    
+    PROCESSING_LOGIC:
+        RECEIVE sorted data from DSLink4
+        Write input data from link V0S25P1 to sequential file output
+        WRITE output file E:\sample_res.csv
+        APPLY output formatting with delimiter=',', quote=double
+        COMPLETE data processing
+
+// OVERALL DATA FLOW
+FLOW_STRUCTURE:
+    Sequential_File_Input (V0S22) -> DSLink3 -> V0S22|V0S22P1 -> V0S7P1_Output -> CustomOutput_V0S7P1 -> V0S7P2_Input -> Sort_V0S7 -> DSLink4 -> Sequential_File_Output (V0S25) -> E:\sample_res.csv
+
+LINK_CONFIGURATION:
+    DSLink3: Sequential_File_Input -> V0S22|V0S22P1
+    V0S7P1_Output: V0S22|V0S22P1 -> CustomOutput_V0S7P1
+    V0S7P2_Input: CustomOutput_V0S7P1 -> Sort_V0S7
+    DSLink4: Sort_V0S7 -> Sequential_File_Output
+
+SOURCE_PIN_MAPPING:
+    DSLink3: V0S22P1
+    V0S7P1_Output: V0S22|V0S22P1
+    V0S7P2_Input: V0S7P1_Output
+    DSLink4: V0S7P1
+
+TARGET_STAGE_MAPPING:
+    DSLink3 -> V0S22|V0S22P1
+    V0S7P1_Output -> CustomOutput_V0S7P1
+    V0S7P2_Input -> Sort_V0S7
+    DSLink4 -> V0S25
+
+COMPLETE_PROCESSING_FLOW:
+    1. READ employee data from E:\Empl-inputDS2ADF.csv
+    2. EXTRACT columns: name, emp_id, dept_id, salary
+    3. PASS data through DSLink3 to Partner stage V0S22|V0S22P1
+    4. APPLY partner stage processing with transaction management and error handling
+    5. PASS processed data through V0S7P1_Output to CustomOutput transformation stage
+    6. TRANSFORM column dept_id to dept in CustomOutput_V0S7P1
+    7. PASS transformed data through V0S7P2_Input to Sort stage
+    8. SORT data by dept_id in ascending order using stable sort algorithm
+    9. PASS sorted data through DSLink4 to Sequential_File_Output
+    10. WRITE sorted employee data to E:\sample_res.csv
+
+DATA_LINEAGE_SUMMARY:
+    SOURCE_FILE: E:\Empl-inputDS2ADF.csv
+        COLUMNS: name, emp_id, dept_id, salary
+    
+    TRANSFORMATION_OPERATIONS:
+        - Column renaming: dept_id -> dept
+        - Stable sorting by dept_id (ascending order)
+        - Data type conversions and formatting
+    
+    TARGET_FILE: E:\sample_res.csv
+        COLUMNS: name, emp_id, dept, salary (sorted by dept)
+    
+    BUSINESS_LOGIC:
+        - Employee data sorting by department ID
+        - CSV-to-CSV transformation with sorting capability
+        - Stable sort ensures consistent ordering for duplicate keys
