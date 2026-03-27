@@ -1,0 +1,65 @@
+// DataStage Export Header Configuration
+EXPORT_CONFIG:
+    Character_Set: CP1252
+    Exporting_Tool: IBM InfoSphere DataStage Export
+    Tool_Version: 8
+    Server_Name: LPGBDS3001.EMEA.LEASEPLANCORP.NET
+    Tool_Instance_ID: All_ODS_DW_Test
+    Export_Date: 2021-04-27
+    Export_Time: 18.34.45
+    Server_Version: 11.5
+
+// Parent Tag: DSExport
+// Child Tag: Header
+// Input Links: None
+// Output Links: V0S213P4_input
+
+JOB: jb000320UpdateOPRStgBarclaysMidtermHistFact
+
+// Parent Tag: DSExport.Job
+// Child Tag: Stage
+// Input Links: V0S213P4_input
+// Output Links: V0S213P4_output, lk_XFM_HSH_MIDTERM_HIST_input
+
+HASHED_OUTPUT_STAGE: V0S213P4
+  TYPE: HashedOutput
+  MODE: Writable
+  READONLY: False
+  
+  OUTPUT_COLUMNS:
+    CUST_ID: INTEGER(19,0), NOT_NULL, PRIMARY_KEY_POSITION_1, REFERENCE_TABLE=lkxf_DRIVER_DETAIL_EXTENSIONS
+    DRIVER_ID_NO: VARCHAR(20), NOT_NULL, PRIMARY_KEY_POSITION_1, REFERENCE_TABLE=lkxf_DRIVER_DETAIL_EXTENSIONS
+    CHANGE_COMMENTARY: VARCHAR(10000), NOT_NULL, NON_KEY
+    EMPLOYEE_CHANGE_CODE: VARCHAR(17), NOT_NULL, NON_KEY
+    BARCLAYS_EMPLOYEE_ACTION_SK: NUMERIC(19,0), NOT_NULL, NON_KEY
+    CURR_GRADE: VARCHAR(35), NOT_NULL, NON_KEY
+    PREV_GRADE: VARCHAR(35), NOT_NULL, NON_KEY
+  
+  PROCESSING_LOGIC:
+    WRITE data TO HashedOutput V0S213P4
+    SET CUST_ID as primary key (KeyPosition=1)
+    SET DRIVER_ID_NO as primary key (KeyPosition=1)
+    APPLY column constraints and formatting
+    STORE in hashed file structure
+  
+  OUTPUT_LINKS: V0S213P4_output
+
+// chunk pseudo code ended
+
+// Parent Tag: DSExport.Job
+// Child Tag: Stage
+// Input Links: V0S213P4_output
+// Output Links: lk_XFM_HSH_MIDTERM_HIST_output
+
+HASHED_FILE_STAGE: lk_XFM_HSH_MIDTERM_HIST
+  TYPE: HashedOutput
+  Partner_Link: V0S233|V0S233P3
+  File_Name: HSH_MIDTERM_HIST
+  Memory_Mode: Disk_Based
+  Normalization: Un-Normalized
+  Record_Level_Read: Disabled
+  
+  INPUT_LINKS: lk_XFM_HSH_MIDTERM_HIST_input
+  OUTPUT_LINKS: lk_XFM_HSH_MIDTERM_HIST_output
+
+// chunk pseudo code ended
